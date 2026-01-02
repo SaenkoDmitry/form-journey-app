@@ -3,6 +3,7 @@ package main
 import (
         "fmt"
         "log"
+        "net/http"
         "os"
 
         "github.com/SaenkoDmitry/training-tg-bot/internal/models"
@@ -46,6 +47,13 @@ func main() {
         u.Timeout = 30
 
         updates := bot.GetUpdatesChan(u)
+
+        go func() {
+                http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+                        fmt.Fprintf(w, "Bot is running")
+                })
+                log.Fatal(http.ListenAndServe(":5000", nil))
+        }()
 
         for update := range updates {
                 if update.Message != nil {
