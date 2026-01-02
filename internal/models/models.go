@@ -38,7 +38,7 @@ func (w *WorkoutDay) String() string {
 	var text strings.Builder
 
 	text.WriteString(fmt.Sprintf("Статус: %s\n", w.Status()))
-	text.WriteString(fmt.Sprintf("Дата: %s\n\n", w.StartedAt.Format("02.01.2006")))
+	text.WriteString(fmt.Sprintf("Дата: %s\n\n", w.StartedAt.Add(3*time.Hour).Format("02.01.2006")))
 	text.WriteString("*Упражнения:*\n")
 
 	for i, exercise := range w.Exercises {
