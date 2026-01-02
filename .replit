@@ -30,4 +30,4 @@ outputType = "console"
 
 [deployment]
 run = ["./training-tg-bot"]
-deploymentTarget = "vm"
+deploymentTarget = "autoscale"
