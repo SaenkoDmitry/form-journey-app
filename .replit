@@ -29,6 +29,6 @@ args = "./training-tg-bot"
 outputType = "console"
 
 [deployment]
-run = ["./training-tg-bot"]
+run = ["bash", "-c", "./training-tg-bot"]
 deploymentTarget = "autoscale"
 build = ["go build -v -o training-tg-bot ./cmd/main.go"]
