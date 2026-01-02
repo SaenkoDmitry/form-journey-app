@@ -1,2 +1,42 @@
 config.json
-workout_bot.db
+cmd/workout_bot.db
+
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+training-tg-bot
+
+# Test binary
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Dependency directories
+vendor/
+
+# Go workspace file
+go.work
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Database
+*.db
+
+# Environment and secrets
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Replit
+.cache/
