@@ -597,8 +597,11 @@ func (s *serviceImpl) showWorkoutStatistics(chatID int64, workoutID int64) {
 		}
 		totalWeight += exerciseWeight
 
-		text.WriteString(fmt.Sprintf("• *%s:* %d из %d повторений (макс вес %.0f кг, общий вес %.0f кг)\n\n",
-			exercise.Name, exercise.CompletedSets(), len(exercise.Sets), maxWeight, exerciseWeight))
+		lastSet := exercise.Sets[len(exercise.Sets)-1]
+		text.WriteString(fmt.Sprintf("• *%s:* \n", exercise.Name))
+		text.WriteString(fmt.Sprintf("  • Выполнено: %d из %d повторений\n", exercise.CompletedSets(), len(exercise.Sets)))
+		text.WriteString(fmt.Sprintf("  • Рабочий вес: %d \\* %.0f кг \n", lastSet.Reps, lastSet.Weight))
+		text.WriteString(fmt.Sprintf("  • Общий вес: %.0f кг \n\n", exerciseWeight))
 	}
 
 	text.WriteString(fmt.Sprintf("📈 *Итого:*\n"))
