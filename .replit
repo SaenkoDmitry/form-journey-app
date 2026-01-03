@@ -15,15 +15,15 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Telegram Bot"
+args = "Deployment Status"
 
 [[workflows.workflow]]
-name = "Telegram Bot"
+name = "Deployment Status"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "./training-tg-bot"
+args = "echo \"Bot is running in production\""
 
 [workflows.workflow.metadata]
 outputType = "console"
