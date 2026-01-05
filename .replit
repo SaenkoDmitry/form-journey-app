@@ -31,7 +31,7 @@ outputType = "console"
 [deployment]
 run = ["./training-tg-bot"]
 deploymentTarget = "autoscale"
-build = ["go build -v -o training-tg-bot ./cmd/main.go"]
+build = ["sh", "-c", "CGO_ENABLED=0 go build -v -o training-tg-bot ./cmd/main.go"]
 
 [[ports]]
 localPort = 5000
