@@ -387,7 +387,7 @@ func (s *serviceImpl) showCurrentExerciseSession(chatID int64, workoutID int64) 
 		text.WriteString("\n")
 	}
 	if exercise.Hint != "" {
-		text.WriteString("\n <b>⚠️Техника выполнения:</b> \n")
+		text.WriteString("\n <b>⚠️Техника выполнения:</b> ")
 		text.WriteString(fmt.Sprintf("%s", exercise.Hint))
 	}
 
