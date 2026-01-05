@@ -187,7 +187,7 @@ func (s *serviceImpl) createWorkoutDay(chatID int64, workoutType string) {
 		for _, exercise := range previousWorkout.Exercises {
 			newExercise := models.Exercise{
 				Name:          exercise.Name,
-				Hint:          exercise.Hint,
+				Hint:          templates.Hints[exercise.Name],
 				RestInSeconds: exercise.RestInSeconds,
 			}
 			for _, set := range exercise.Sets {
