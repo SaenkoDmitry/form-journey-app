@@ -430,7 +430,7 @@ func (s *serviceImpl) showCurrentExerciseSession(chatID int64, workoutID int64) 
 				fmt.Sprintf("complete_set_ex_%d", exercise.ID)),
 		),
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData("⏸️ Таймер",
+			tgbotapi.NewInlineKeyboardButtonData("⏱️ Таймер",
 				fmt.Sprintf("start_timer_%d_ex_%d", exercise.RestInSeconds, exercise.ID)),
 		),
 		changeSettingsButtons,
