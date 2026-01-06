@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/SaenkoDmitry/training-tg-bot/internal/constants"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/utils"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -60,11 +61,12 @@ func (s *serviceImpl) showWorkoutTypeMenu(chatID int64) {
 
 	keyboard := tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData("🦵 Ноги & плечи", "create_workout_legs_and_shoulders"),
-			tgbotapi.NewInlineKeyboardButtonData("🏋️‍♂️ Спина & бицепсы", "create_workout_back_and_biceps"),
+			tgbotapi.NewInlineKeyboardButtonData(constants.LegsAndShouldersWorkoutName, "create_workout_legs_and_shoulders"),
+			tgbotapi.NewInlineKeyboardButtonData(constants.BackAndBicepsWorkoutName, "create_workout_back_and_biceps"),
 		),
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData("🫀 Грудь & трицепсы", "create_workout_chest_and_triceps"),
+			tgbotapi.NewInlineKeyboardButtonData(constants.ChestAndTricepsName, "create_workout_chest_and_triceps"),
+			tgbotapi.NewInlineKeyboardButtonData(constants.CardioName, "create_workout_cardio"),
 		),
 		// tgbotapi.NewInlineKeyboardRow(
 		//  tgbotapi.NewInlineKeyboardButtonData("💪 Руки", "create_workout_arms"),
@@ -172,8 +174,11 @@ func (s *serviceImpl) handleState(chatID int64, text string) {
 
 			nextSet := exercise.NextSet()
 			if nextSet.ID != 0 {
+				nextSet.FactReps = int(reps)
 				if int(reps) != nextSet.Reps {
 					nextSet.FactReps = int(reps)
+				} else {
+					nextSet.FactReps = 0
 				}
 				s.setsRepo.Save(&nextSet)
 
@@ -206,12 +211,49 @@ func (s *serviceImpl) handleState(chatID int64, text string) {
 			if nextSet.ID != 0 {
 				if float32(weight) != nextSet.Weight {
 					nextSet.FactWeight = float32(weight)
+				} else {
+					nextSet.FactWeight = float32(0)
 				}
 				s.setsRepo.Save(&nextSet)
 
 				msg := tgbotapi.NewMessage(chatID, fmt.Sprintf(
 					"✅ Вес обновлен: %.1f кг для подхода №%d",
 					weight, nextSet.Index,
+				))
+				s.bot.Send(msg)
+			}
+
+			s.userStates[chatID] = ""
+
+			s.showCurrentExerciseSession(chatID, exercise.WorkoutDayID)
+		}
+
+	case strings.HasPrefix(state, "awaiting_minutes_"):
+		parts := strings.Split(state, "_")
+		if len(parts) >= 3 {
+			exerciseID, _ := strconv.ParseInt(parts[2], 10, 64)
+
+			minutes, err := strconv.ParseInt(text, 10, 64)
+			if err != nil {
+				msg := tgbotapi.NewMessage(chatID, "❌ Неверный формат минут. Введите число (например: 42)")
+				s.bot.Send(msg)
+				return
+			}
+
+			exercise, _ := s.exercisesRepo.Get(exerciseID)
+
+			nextSet := exercise.NextSet()
+			if nextSet.ID != 0 {
+				if int(minutes) != nextSet.Minutes {
+					nextSet.FactMinutes = int(minutes)
+				} else {
+					nextSet.FactMinutes = int(0)
+				}
+				s.setsRepo.Save(&nextSet)
+
+				msg := tgbotapi.NewMessage(chatID, fmt.Sprintf(
+					"✅ Время обновлено: %d минут для подхода №%d",
+					minutes, nextSet.Index,
 				))
 				s.bot.Send(msg)
 			}

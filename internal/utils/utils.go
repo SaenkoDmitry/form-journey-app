@@ -1,6 +1,8 @@
 package utils
 
-import "github.com/SaenkoDmitry/training-tg-bot/internal/constants"
+import (
+	"github.com/SaenkoDmitry/training-tg-bot/internal/constants"
+)
 
 func GetWorkoutNameByID(ID string) string {
 	switch ID {
@@ -9,7 +11,9 @@ func GetWorkoutNameByID(ID string) string {
 	case constants.BackAndBicepsWorkoutID:
 		return constants.BackAndBicepsWorkoutName
 	case constants.ChestAndTricepsID:
-		return constants.ChestAndtricepsName
+		return constants.ChestAndTricepsName
+	case constants.CardioID:
+		return constants.CardioName
 	}
 	return ""
 }

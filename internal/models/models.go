@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/SaenkoDmitry/training-tg-bot/internal/constants"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/utils"
 )
 
@@ -41,13 +42,22 @@ func (w *WorkoutDay) String() string {
 
 	text.WriteString(fmt.Sprintf("*Тренировка:* %s \n", utils.GetWorkoutNameByID(w.Name)))
 	text.WriteString(fmt.Sprintf("*Статус:* %s\n", w.Status()))
-	text.WriteString(fmt.Sprintf("*Дата:* %s\n\n", w.StartedAt.Add(3*time.Hour).Format("02.01.2006")))
+	text.WriteString(fmt.Sprintf("*Дата:* 📅 %s\n\n", w.StartedAt.Add(3*time.Hour).Format("02.01.2006")))
 	text.WriteString("*Упражнения:*\n")
 
 	for i, exercise := range w.Exercises {
-		text.WriteString(fmt.Sprintf("%s %d. %s: \n", exercise.Status(), i+1, exercise.Name))
+		exerciseObj, ok := constants.AllExercises[exercise.Name]
+		if !ok {
+			continue
+		}
+		text.WriteString(fmt.Sprintf("%s %d. %s\n", exercise.Status(), i+1, exerciseObj.GetName()))
 		lastSet := exercise.Sets[len(exercise.Sets)-1]
-		text.WriteString(fmt.Sprintf("Рабочий вес: %d \\* %.0f кг \n\n", lastSet.Reps, lastSet.Weight))
+
+		if lastSet.GetRealReps() > 0 {
+			text.WriteString(fmt.Sprintf("Рабочий вес: %d \\* %.0f кг \n\n", lastSet.Reps, lastSet.Weight))
+		} else if lastSet.GetRealMinutes() > 0 {
+			text.WriteString(fmt.Sprintf("  • Общее время: %d минут \n\n", lastSet.GetRealMinutes()))
+		}
 	}
 
 	return text.String()
@@ -58,7 +68,6 @@ type Exercise struct {
 	WorkoutDayID  int64
 	Name          string
 	Sets          []Set `gorm:"foreignKey:ExerciseID"`
-	Hint          string
 	RestInSeconds int
 }
 
@@ -101,6 +110,8 @@ type Set struct {
 	FactReps    int
 	Weight      float32
 	FactWeight  float32
+	Minutes     int
+	FactMinutes int
 	Completed   bool
 	CompletedAt *time.Time
 	Index       int
@@ -118,6 +129,13 @@ func (s *Set) FormatWeight() string {
 		return fmt.Sprintf("<strike>%.0f</strike> <b>%.0f</b>", s.Weight, s.FactWeight)
 	}
 	return fmt.Sprintf("%.0f", s.Weight)
+}
+
+func (s *Set) FormatMinutes() string {
+	if s.FactMinutes != 0 {
+		return fmt.Sprintf("<strike>%d</strike> <b>%d</b>", s.Minutes, s.FactMinutes)
+	}
+	return fmt.Sprintf("%d", s.Minutes)
 }
 
 func (s *Set) GetRealReps() int {
@@ -138,6 +156,16 @@ func (s *Set) GetRealWeight() float32 {
 		return s.FactWeight
 	}
 	return s.Weight
+}
+
+func (s *Set) GetRealMinutes() int {
+	if s == nil {
+		return 0
+	}
+	if s.FactMinutes > 0 {
+		return s.FactMinutes
+	}
+	return s.Minutes
 }
 
 type WorkoutSession struct {
