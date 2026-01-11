@@ -86,7 +86,7 @@ func (s *serviceImpl) createUserIfNotExists(chatID int64, from *tgbotapi.User) {
 		}
 
 		// создаем дефолтную программу
-		program, createErr := s.programsRepo.Create(user.ID, "#1 (базовая)")
+		program, createErr := s.programsRepo.Create(user.ID, "#1 стартовая")
 		if createErr != nil {
 			return
 		}
@@ -276,7 +276,7 @@ func (s *serviceImpl) changeProgram(chatID, programID int64) {
 		return
 	}
 
-	user.ActiveProgramID = &programID
+	*user.ActiveProgramID = programID
 	err = s.usersRepo.Save(user)
 	if err != nil {
 		fmt.Printf("%s: %s\n", method, err.Error())
@@ -382,10 +382,10 @@ func (s *serviceImpl) settings(chatID int64) {
 			rows = append(rows, []tgbotapi.InlineKeyboardButton{})
 		}
 
-		if &program.ID == user.ActiveProgramID {
-			text.WriteString(fmt.Sprintf("• %s %s *(текущая)*\n", program.Name, program.CreatedAt.Format("02.01.2006 15:04")))
+		if program.ID == *user.ActiveProgramID {
+			text.WriteString(fmt.Sprintf("• 🟢 *%s* \n  📅 %s\n\n", program.Name, program.CreatedAt.Format("02.01.2006 15:04")))
 		} else {
-			text.WriteString(fmt.Sprintf("• %s %s\n", program.Name, program.CreatedAt.Format("02.01.2006 15:04")))
+			text.WriteString(fmt.Sprintf("• *%s* \n 📅 %s\n\n", program.Name, program.CreatedAt.Format("02.01.2006 15:04")))
 		}
 
 		rows[len(rows)-1] = append(rows[len(rows)-1],

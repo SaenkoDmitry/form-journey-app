@@ -46,6 +46,10 @@ func (s *serviceImpl) HandleCallback(callback *tgbotapi.CallbackQuery) {
 		programID, _ := strconv.ParseInt(strings.TrimPrefix(data, "delete_program_"), 10, 64)
 		s.deleteProgram(chatID, programID)
 
+	case strings.HasPrefix(data, "edit_day_type_"):
+		dayTypeID, _ := strconv.ParseInt(strings.TrimPrefix(data, "edit_day_type_"), 10, 64)
+		s.addNewDayTypeExercise(chatID, dayTypeID)
+
 	// workouts
 	case strings.HasPrefix(data, "create_workout_"):
 		dayTypeID, _ := strconv.ParseInt(strings.TrimPrefix(data, "create_workout_"), 10, 64)
@@ -314,18 +318,24 @@ func (s *serviceImpl) editProgram(chatID int64, programID int64) {
 		return
 	}
 
+	buttons := make([][]tgbotapi.InlineKeyboardButton, 0)
+
 	text := &bytes.Buffer{}
 	text.WriteString(fmt.Sprintf("*Программа: %s*\n\n", program.Name))
-	text.WriteString("Список дней:\n\n")
-	for _, dayType := range program.DayTypes {
-		if dayType.Preset != "" {
-			text.WriteString(fmt.Sprintf("• %s\n\n", dayType.Name))
-		} else {
-			text.WriteString(fmt.Sprintf("• %s (*добавьте веса/повторения*)\n\n", dayType.Name))
+	text.WriteString("*Список дней:*\n\n")
+	for i, dayType := range program.DayTypes {
+		if i%2 == 0 {
+			buttons = append(buttons, tgbotapi.NewInlineKeyboardRow())
 		}
-	}
+		buttons[len(buttons)-1] = append(buttons[len(buttons)-1],
+			tgbotapi.NewInlineKeyboardButtonData(dayType.Name, fmt.Sprintf("edit_day_type_%d", dayType.ID)),
+		)
 
-	buttons := make([][]tgbotapi.InlineKeyboardButton, 0)
+		text.WriteString(fmt.Sprintf("• *%s*\n", dayType.Name))
+		text.WriteString(fmt.Sprintf("%s \n\n", s.formatPreset(dayType.Preset)))
+	}
+	text.WriteString("*Выберите день, в который хотите добавить упражнения:*")
+
 	buttons = append(buttons, tgbotapi.NewInlineKeyboardRow(
 		tgbotapi.NewInlineKeyboardButtonData("➕ Добавить день", fmt.Sprintf("create_day_type_%d", programID)),
 		tgbotapi.NewInlineKeyboardButtonData("🎟️ Переименовать", fmt.Sprintf("change_name_of_program_%d", programID)),
@@ -341,6 +351,24 @@ func (s *serviceImpl) editProgram(chatID int64, programID int64) {
 	msg.ParseMode = "Markdown"
 	msg.ReplyMarkup = keyboard
 	s.bot.Send(msg)
+}
+
+func (s *serviceImpl) formatPreset(preset string) string {
+	exercises := utils.SplitPreset(preset)
+
+	buffer := &bytes.Buffer{}
+	for _, ex := range exercises {
+
+		exerciseType, err := s.exerciseTypesRepo.Get(ex.ID)
+		if err != nil {
+			continue
+		}
+		buffer.WriteString(fmt.Sprintf("*%s (отдых: %d сек)*\n", exerciseType.Name, exerciseType.RestInSeconds))
+		for _, set := range ex.Sets {
+			buffer.WriteString(fmt.Sprintf("    • %d повторений по %.0f кг\n", set.Reps, set.Weight))
+		}
+	}
+	return buffer.String()
 }
 
 func (s *serviceImpl) createWorkoutDay(chatID int64, dayTypeID int64) {
