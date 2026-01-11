@@ -9,7 +9,7 @@ type User struct {
 	FirstName       string
 	LastName        string
 	LanguageCode    string
-	ActiveProgramID int64
+	ActiveProgramID *int64
 	CreatedAt       time.Time
 	Programs        []WorkoutProgram `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
 }

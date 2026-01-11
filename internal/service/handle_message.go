@@ -92,7 +92,7 @@ func (s *serviceImpl) createUserIfNotExists(chatID int64, from *tgbotapi.User) {
 		}
 
 		// прикрепляем программу к юзеру и сохраняем
-		user.ActiveProgramID = program.ID
+		user.ActiveProgramID = &program.ID
 		err = s.usersRepo.Save(user)
 		if err != nil {
 			return
@@ -109,7 +109,7 @@ func (s *serviceImpl) showWorkoutTypeMenu(chatID int64) {
 		return
 	}
 
-	program, err := s.programsRepo.Get(user.ActiveProgramID)
+	program, err := s.programsRepo.Get(*user.ActiveProgramID)
 	if err != nil {
 		return
 	}
@@ -276,7 +276,7 @@ func (s *serviceImpl) changeProgram(chatID, programID int64) {
 		return
 	}
 
-	user.ActiveProgramID = programID
+	user.ActiveProgramID = &programID
 	err = s.usersRepo.Save(user)
 	if err != nil {
 		fmt.Printf("%s: %s\n", method, err.Error())
@@ -326,7 +326,7 @@ func (s *serviceImpl) deleteProgram(chatID, programID int64) {
 		return
 	}
 
-	if user.ActiveProgramID == programID {
+	if user.ActiveProgramID == &programID {
 		msg := tgbotapi.NewMessage(chatID, "Нельзя удалить текущую программу 😓")
 		_, err = s.bot.Send(msg)
 		return
@@ -382,7 +382,7 @@ func (s *serviceImpl) settings(chatID int64) {
 			rows = append(rows, []tgbotapi.InlineKeyboardButton{})
 		}
 
-		if program.ID == user.ActiveProgramID {
+		if &program.ID == user.ActiveProgramID {
 			text.WriteString(fmt.Sprintf("• %s %s *(текущая)*\n", program.Name, program.CreatedAt.Format("02.01.2006 15:04")))
 		} else {
 			text.WriteString(fmt.Sprintf("• %s %s\n", program.Name, program.CreatedAt.Format("02.01.2006 15:04")))
