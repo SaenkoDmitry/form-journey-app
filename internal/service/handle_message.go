@@ -437,7 +437,7 @@ func (s *serviceImpl) about(chatID int64) {
 
 func (s *serviceImpl) handleState(chatID int64, text string) {
 	method := "handleState"
-	state, exists := s.userStates[chatID]
+	state, exists := s.userStatesMachine.GetValue(chatID)
 	if !exists {
 		return
 	}
@@ -603,7 +603,7 @@ func (s *serviceImpl) awaitingEnterData(
 			return err
 		}
 	}
-	s.userStates[chatID] = ""
+	s.userStatesMachine.SetValue(chatID, "")
 	s.showCurrentExerciseSession(chatID, exercise.WorkoutDayID)
 	return nil
 }

@@ -12,6 +12,7 @@ type Repo interface {
 	FindAllByWorkoutID(workoutDayID int64) ([]models.Exercise, error)
 	DeleteByWorkout(workoutID int64) error
 	Delete(exerciseID int64) error
+	CreateBatch(exercises []models.Exercise) error
 }
 
 type repoImpl struct {
@@ -45,6 +46,12 @@ func (u *repoImpl) Delete(exerciseID int64) error {
 
 	// Удаляем с помощью Select
 	return u.db.Select("Sets").Delete(&exercise).Error
+}
+
+func (u *repoImpl) CreateBatch(exercises []models.Exercise) error {
+	return u.db.Transaction(func(tx *gorm.DB) error {
+		return tx.Create(&exercises).Error
+	})
 }
 
 func (u *repoImpl) FindAllByWorkoutID(workoutDayID int64) ([]models.Exercise, error) {

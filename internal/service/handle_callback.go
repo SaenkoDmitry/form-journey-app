@@ -369,7 +369,11 @@ func (s *serviceImpl) formatPreset(preset string) string {
 			if i > 0 {
 				buffer.WriteString(", ")
 			}
-			buffer.WriteString(fmt.Sprintf("%d \\* %.0f кг", set.Reps, set.Weight))
+			if set.Minutes > 0 {
+				buffer.WriteString(fmt.Sprintf("%d мин", set.Minutes))
+			} else {
+				buffer.WriteString(fmt.Sprintf("%d \\* %.0f кг", set.Reps, set.Weight))
+			}
 		}
 		buffer.WriteString("\n")
 	}
@@ -390,56 +394,87 @@ func (s *serviceImpl) createWorkoutDay(chatID int64, dayTypeID int64) {
 		StartedAt:        time.Now(),
 		Completed:        false,
 	}
-
-	previousWorkout, err := s.workoutsRepo.FindPreviousByType(user.ID, dayTypeID)
-	if err == nil {
-		fmt.Println("createWorkoutDay: берем настройки количества повторений и веса из последней тренировки:", previousWorkout.ID)
-		for _, exercise := range previousWorkout.Exercises {
-			newExercise := models.Exercise{
-				ExerciseTypeID: exercise.ExerciseTypeID,
-				RestInSeconds:  exercise.RestInSeconds,
-				Index:          exercise.Index,
-			}
-			for _, set := range exercise.Sets {
-				newSet := models.Set{
-					Reps:    set.GetRealReps(),
-					Weight:  set.GetRealWeight(),
-					Minutes: set.GetRealMinutes(),
-					Index:   set.Index,
-				}
-				newExercise.Sets = append(newExercise.Sets, newSet)
-			}
-			workoutDay.Exercises = append(workoutDay.Exercises, newExercise)
-		}
-	} else {
-		var dayType models.WorkoutDayType
-		dayType, err = s.dayTypesRepo.Get(dayTypeID)
-		if err != nil {
-			return
-		}
-		_ = dayType.Name
-		fmt.Println("createWorkoutDay: берем настройки количества повторений и веса из preset-ов")
-
-		for idx, exerciseType := range utils.SplitPreset(dayType.Preset) {
-			sets := make([]models.Set, 0)
-			for idx2, set := range exerciseType.Sets {
-				sets = append(sets, models.Set{
-					Reps:   set.Reps,
-					Weight: set.Weight,
-					Index:  idx2,
-				})
-			}
-			workoutDay.Exercises = append(workoutDay.Exercises, models.Exercise{
-				WorkoutDayID:   workoutDay.ID,
-				ExerciseTypeID: exerciseType.ID,
-				Sets:           sets,
-				Index:          idx,
-			})
-		}
+	err = s.workoutsRepo.Create(&workoutDay)
+	if err != nil {
+		fmt.Printf("%s: create workout error: %s\n", method, err.Error())
+		return
 	}
 
-	s.workoutsRepo.Create(&workoutDay)
+	previousWorkout, err := s.workoutsRepo.FindPreviousByType(user.ID, dayTypeID)
+	if err != nil {
+		err = s.createExercisesFromPresets(workoutDay.ID, dayTypeID)
+	} else {
+		err = s.createExercisesFromLastWorkout(workoutDay.ID, previousWorkout.ID)
+	}
+	if err != nil {
+		fmt.Printf("%s: create exercises error: %s\n", method, err.Error())
+		return
+	}
+
 	s.showCreatedWorkout(chatID, workoutDay.ID)
+}
+
+func (s *serviceImpl) createExercisesFromPresets(workoutDayID, dayTypeID int64) error {
+	method := "createExercisesFromPresets"
+	fmt.Printf("%s: берем настройки количества повторений и веса из preset-ов\n", method)
+
+	exercises := make([]models.Exercise, 0)
+	dayType, err := s.dayTypesRepo.Get(dayTypeID)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s: dayType: %d, preset: %s\n", method, dayType.ID, dayType.Preset)
+	for index, exerciseType := range utils.SplitPreset(dayType.Preset) {
+		newExercise := models.Exercise{
+			WorkoutDayID:   workoutDayID,
+			ExerciseTypeID: exerciseType.ID,
+			Index:          index,
+		}
+		for idx2, set := range exerciseType.Sets {
+			newSet := models.Set{Index: idx2}
+			if set.Minutes > 0 {
+				newSet.Minutes = set.Minutes
+			} else {
+				newSet.Reps = set.Reps
+				newSet.Weight = set.Weight
+			}
+			newExercise.Sets = append(newExercise.Sets, newSet)
+		}
+		exercises = append(exercises, newExercise)
+	}
+
+	return s.exercisesRepo.CreateBatch(exercises)
+}
+
+func (s *serviceImpl) createExercisesFromLastWorkout(workoutDayID, previousWorkoutID int64) error {
+	method := "createExercisesFromLastWorkout"
+	fmt.Printf("%s: берем настройки количества повторений и веса из последней тренировки: %d\n", method, previousWorkoutID)
+
+	previousExercises, err := s.exercisesRepo.FindAllByWorkoutID(previousWorkoutID)
+	if err != nil {
+		return err
+	}
+	exercises := make([]models.Exercise, 0)
+	for _, exercise := range previousExercises {
+		newExercise := models.Exercise{
+			WorkoutDayID:   workoutDayID,
+			ExerciseTypeID: exercise.ExerciseTypeID,
+			Index:          exercise.Index,
+		}
+		for _, set := range exercise.Sets {
+			newSet := models.Set{
+				Reps:    set.GetRealReps(),
+				Weight:  set.GetRealWeight(),
+				Minutes: set.GetRealMinutes(),
+				Index:   set.Index,
+			}
+			newExercise.Sets = append(newExercise.Sets, newSet)
+		}
+		exercises = append(exercises, newExercise)
+	}
+
+	return s.exercisesRepo.CreateBatch(exercises)
 }
 
 func (s *serviceImpl) showCreatedWorkout(chatID int64, workoutID int64) {
@@ -669,7 +704,7 @@ func (s *serviceImpl) showCurrentExerciseSession(chatID int64, workoutID int64) 
 			tgbotapi.NewInlineKeyboardButtonData("✅ Подход",
 				fmt.Sprintf("complete_set_ex_%d", exercise.ID)),
 			tgbotapi.NewInlineKeyboardButtonData("⏱️ Таймер",
-				fmt.Sprintf("start_timer_%d_ex_%d", exercise.RestInSeconds, exercise.ID)),
+				fmt.Sprintf("start_timer_%d_ex_%d", exerciseObj.RestInSeconds, exercise.ID)),
 		),
 		changeSettingsButtons,
 		tgbotapi.NewInlineKeyboardRow(
@@ -899,7 +934,6 @@ func (s *serviceImpl) addSpecificExercise(chatID int64, workoutID int64, exercis
 	}
 	workout.Exercises = append(workout.Exercises, models.Exercise{
 		ExerciseTypeID: exerciseObj.ID,
-		RestInSeconds:  exerciseObj.RestInSeconds,
 		Index:          idx,
 		WorkoutDayID:   workoutID,
 		Sets: []models.Set{
@@ -1150,39 +1184,39 @@ func (s *serviceImpl) showStatistics(chatID int64, period string) {
 }
 
 func (s *serviceImpl) askForNewReps(chatID int64, exerciseID int64) {
-	s.userStates[chatID] = fmt.Sprintf("awaiting_reps_%d", exerciseID)
+	s.userStatesMachine.SetValue(chatID, fmt.Sprintf("awaiting_reps_%d", exerciseID))
 	msg := tgbotapi.NewMessage(chatID, "➕➖ Введите новое число повторений:")
 	s.bot.Send(msg)
 }
 
 func (s *serviceImpl) askForNewWeight(chatID int64, exerciseID int64) {
-	s.userStates[chatID] = fmt.Sprintf("awaiting_weight_%d", exerciseID)
+	s.userStatesMachine.SetValue(chatID, fmt.Sprintf("awaiting_weight_%d", exerciseID))
 	msg := tgbotapi.NewMessage(chatID, "⚖️ Введите новый вес (в кг):")
 	s.bot.Send(msg)
 }
 
 func (s *serviceImpl) askForNewMinutes(chatID int64, exerciseID int64) {
-	s.userStates[chatID] = fmt.Sprintf("awaiting_minutes_%d", exerciseID)
+	s.userStatesMachine.SetValue(chatID, fmt.Sprintf("awaiting_minutes_%d", exerciseID))
 	msg := tgbotapi.NewMessage(chatID, "⌛ Введите новое время (мин):")
 	s.bot.Send(msg)
 }
 
 func (s *serviceImpl) askForNewDayName(chatID, programID int64) {
-	s.userStates[chatID] = fmt.Sprintf("awaiting_day_name_for_program_%d", programID)
+	s.userStatesMachine.SetValue(chatID, fmt.Sprintf("awaiting_day_name_for_program_%d", programID))
 	msg := tgbotapi.NewMessage(chatID, "*Введите имя тренировочного дня:*")
 	msg.ParseMode = "Markdown"
 	s.bot.Send(msg)
 }
 
 func (s *serviceImpl) askForNewProgramName(chatID, programID int64) {
-	s.userStates[chatID] = fmt.Sprintf("awaiting_program_name_%d", programID)
+	s.userStatesMachine.SetValue(chatID, fmt.Sprintf("awaiting_program_name_%d", programID))
 	msg := tgbotapi.NewMessage(chatID, "*Введите новое имя программы:*")
 	msg.ParseMode = "Markdown"
 	s.bot.Send(msg)
 }
 
 func (s *serviceImpl) askForPreset(chatID, dayTypeID, exerciseTypeID int64) {
-	s.userStates[chatID] = fmt.Sprintf("awaiting_day_preset_%d_%d", dayTypeID, exerciseTypeID)
+	s.userStatesMachine.SetValue(chatID, fmt.Sprintf("awaiting_day_preset_%d_%d", dayTypeID, exerciseTypeID))
 	msg := tgbotapi.NewMessage(chatID, "<b>Введите пресет в формате: <i><u>17*100,15*160,12*200</u></i> (17 повторений по 100 кг, ...)</b>")
 	msg.ParseMode = "Html"
 	s.bot.Send(msg)

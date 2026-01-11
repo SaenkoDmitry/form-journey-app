@@ -40,11 +40,10 @@ func (u *repoImpl) Create(chatID int64, from *tgbotapi.User) (*models.User, erro
 		LanguageCode: from.LanguageCode,
 		CreatedAt:    time.Now(),
 	}
-	tx := u.db.Create(&user)
-	if tx.Error != nil {
-		return nil, tx.Error
-	}
-	return &user, nil
+	err := u.db.Transaction(func(tx *gorm.DB) error {
+		return tx.Create(&user).Error
+	})
+	return &user, err
 }
 
 var (

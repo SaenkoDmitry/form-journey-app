@@ -11,6 +11,7 @@ import (
 	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/users"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/workouts"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"sync"
 )
 
 type Service interface {
@@ -21,17 +22,41 @@ type Service interface {
 type serviceImpl struct {
 	bot *tgbotapi.BotAPI
 
-	usersRepo     users.Repo
-	programsRepo  programs.Repo
-	dayTypesRepo  daytypes.Repo
-	workoutsRepo  workouts.Repo
-	exercisesRepo exercises.Repo
-	setsRepo      sets.Repo
-	sessionsRepo  sessions.Repo
-
-	userStates             map[int64]string
+	usersRepo              users.Repo
+	programsRepo           programs.Repo
+	dayTypesRepo           daytypes.Repo
+	workoutsRepo           workouts.Repo
+	exercisesRepo          exercises.Repo
+	setsRepo               sets.Repo
+	sessionsRepo           sessions.Repo
 	exerciseTypesRepo      exercisetypes.Repo
 	exerciseGroupTypesRepo exercisegrouptypes.Repo
+	userStatesMachine      *UserStatesMachine
+}
+
+type UserStatesMachine struct {
+	userStates map[int64]string
+	mu         *sync.Mutex
+}
+
+func (u *UserStatesMachine) SetValue(key int64, value string) {
+	u.mu.Lock()
+	defer u.mu.Unlock()
+	u.userStates[key] = value
+}
+
+func (u *UserStatesMachine) GetValue(key int64) (string, bool) {
+	u.mu.Lock()
+	defer u.mu.Unlock()
+	v, ok := u.userStates[key]
+	return v, ok
+}
+
+func NewUserStatesMachine() *UserStatesMachine {
+	return &UserStatesMachine{
+		userStates: make(map[int64]string),
+		mu:         &sync.Mutex{},
+	}
 }
 
 func NewService(
@@ -57,6 +82,6 @@ func NewService(
 		exerciseGroupTypesRepo: exerciseGroupTypesRepo,
 		setsRepo:               setsRepo,
 		sessionsRepo:           sessionsRepo,
-		userStates:             make(map[int64]string),
+		userStatesMachine:      NewUserStatesMachine(),
 	}
 }

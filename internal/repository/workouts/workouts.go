@@ -27,74 +27,76 @@ func NewRepo(db *gorm.DB) Repo {
 }
 
 func (u *repoImpl) Create(workoutDay *models.WorkoutDay) error {
-	u.db.Create(workoutDay)
-	return nil
+	return u.db.Transaction(func(tx *gorm.DB) error {
+		return tx.Create(workoutDay).Error
+	})
 }
 
 func (u *repoImpl) Delete(workout *models.WorkoutDay) error {
-	u.db.Delete(workout)
-	return nil
+	return u.db.Transaction(func(tx *gorm.DB) error {
+		return tx.Delete(workout).Error
+	})
 }
 
 func (u *repoImpl) Save(workout *models.WorkoutDay) error {
-	u.db.Save(workout)
-	return nil
+	return u.db.Transaction(func(tx *gorm.DB) error {
+		return tx.Save(workout).Error
+	})
 }
 
 func (u *repoImpl) Get(workoutID int64) (workoutDay models.WorkoutDay, err error) {
-	u.db.
-		Preload("WorkoutDayType").
-		Preload("Exercises.WorkoutDay").
-		Preload("Exercises.ExerciseType").
-		Preload("Exercises.Sets", func(db *gorm.DB) *gorm.DB { return db.Order("sets.index ASC") }).
-		Preload("Exercises", func(db *gorm.DB) *gorm.DB { return db.Order("exercises.index ASC") }).
-		First(&workoutDay, workoutID)
-
-	return workoutDay, nil
+	err = u.db.Transaction(func(tx *gorm.DB) error {
+		return tx.
+			Preload("WorkoutDayType").
+			Preload("Exercises.WorkoutDay").
+			Preload("Exercises.ExerciseType").
+			Preload("Exercises.Sets", func(db *gorm.DB) *gorm.DB { return db.Order("sets.index ASC") }).
+			Preload("Exercises", func(db *gorm.DB) *gorm.DB { return db.Order("exercises.index ASC") }).
+			First(&workoutDay, workoutID).Error
+	})
+	return workoutDay, err
 }
 
 func (u *repoImpl) Count(userID int64) (count int64, err error) {
-	result := u.db.Model(&models.WorkoutDay{}).Where("user_id = ?", userID).Count(&count)
-	if result.Error != nil {
-		return 0, result.Error
-	}
-	return count, nil
+	err = u.db.Transaction(func(tx *gorm.DB) error {
+		return tx.Model(&models.WorkoutDay{}).Where("user_id = ?", userID).Count(&count).Error
+	})
+	return count, err
 }
 
 func (u *repoImpl) FindAll(userID int64) (workouts []models.WorkoutDay, err error) {
-	u.db.
-		Where("user_id = ?", userID).
-		Order("started_at DESC").
-		Preload("Exercises.Sets", func(db *gorm.DB) *gorm.DB { return db.Order("sets.index ASC") }).
-		Preload("Exercises", func(db *gorm.DB) *gorm.DB { return db.Order("exercises.index ASC") }).
-		Find(&workouts)
-
-	return workouts, nil
+	err = u.db.Transaction(func(tx *gorm.DB) error {
+		return tx.Where("user_id = ?", userID).
+			Order("started_at DESC").
+			Preload("Exercises.Sets", func(db *gorm.DB) *gorm.DB { return db.Order("sets.index ASC") }).
+			Preload("Exercises", func(db *gorm.DB) *gorm.DB { return db.Order("exercises.index ASC") }).
+			Find(&workouts).Error
+	})
+	return workouts, err
 }
 
 func (u *repoImpl) Find(userID int64, offset, limit int) (workouts []models.WorkoutDay, err error) {
-	u.db.
-		Where("user_id = ?", userID).
-		Order("started_at DESC").
-		Preload("WorkoutDayType").
-		Preload("Exercises.Sets", func(db *gorm.DB) *gorm.DB { return db.Order("sets.index ASC") }).
-		Preload("Exercises", func(db *gorm.DB) *gorm.DB { return db.Order("exercises.index ASC") }).
-		Offset(offset).
-		Limit(limit).
-		Find(&workouts)
+	err = u.db.Transaction(func(tx *gorm.DB) error {
+		return tx.Where("user_id = ?", userID).
+			Order("started_at DESC").
+			Preload("WorkoutDayType").
+			Preload("Exercises.Sets", func(db *gorm.DB) *gorm.DB { return db.Order("sets.index ASC") }).
+			Preload("Exercises", func(db *gorm.DB) *gorm.DB { return db.Order("exercises.index ASC") }).
+			Offset(offset).
+			Limit(limit).
+			Find(&workouts).Error
+	})
 
-	return workouts, nil
+	return workouts, err
 }
 
-func (u *repoImpl) FindPreviousByType(userID int64, dayTypeID int64) (models.WorkoutDay, error) {
-	var workout models.WorkoutDay
-	tx := u.db.Where("user_id = ? AND workout_day_type_id = ? AND completed = ?", userID, dayTypeID, true).
-		Order("started_at DESC").
-		Preload("Exercises.Sets", func(db *gorm.DB) *gorm.DB { return db.Order("sets.index ASC") }).
-		Preload("Exercises", func(db *gorm.DB) *gorm.DB { return db.Order("exercises.index ASC") }).
-		First(&workout)
-	if tx.Error != nil {
-		return models.WorkoutDay{}, tx.Error
-	}
-	return workout, nil
+func (u *repoImpl) FindPreviousByType(userID int64, dayTypeID int64) (workout models.WorkoutDay, err error) {
+	err = u.db.Transaction(func(tx *gorm.DB) error {
+		return tx.Where("user_id = ? AND workout_day_type_id = ? AND completed = ?", userID, dayTypeID, true).
+			Order("started_at DESC").
+			Preload("Exercises.Sets", func(db *gorm.DB) *gorm.DB { return db.Order("sets.index ASC") }).
+			Preload("Exercises", func(db *gorm.DB) *gorm.DB { return db.Order("exercises.index ASC") }).
+			First(&workout).Error
+	})
+	return workout, err
 }

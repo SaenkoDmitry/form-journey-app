@@ -1,7 +1,7 @@
 package models
 
 type Exercise struct {
-	ID int64 `gorm:"primaryKey"`
+	ID int64 `gorm:"primaryKey;autoIncrement"`
 
 	WorkoutDayID int64
 	WorkoutDay   *WorkoutDay `gorm:"foreignKey:WorkoutDayID;references:ID"` // join
@@ -9,9 +9,8 @@ type Exercise struct {
 	ExerciseTypeID int64
 	ExerciseType   *ExerciseType `gorm:"foreignKey:ExerciseTypeID;references:ID"` // join
 
-	Sets          []Set `gorm:"foreignKey:ExerciseID;constraint:OnDelete:CASCADE"`
-	RestInSeconds int
-	Index         int
+	Sets  []Set `gorm:"foreignKey:ExerciseID;constraint:OnDelete:CASCADE"`
+	Index int
 }
 
 func (*Exercise) TableName() string {

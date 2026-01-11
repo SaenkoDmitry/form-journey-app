@@ -7,7 +7,7 @@ import (
 )
 
 type Set struct {
-	ID          int64 `gorm:"primaryKey"`
+	ID          int64 `gorm:"primaryKey;autoIncrement"`
 	ExerciseID  int64
 	Reps        int
 	FactReps    int

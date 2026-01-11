@@ -6,8 +6,6 @@ import (
 )
 
 type Repo interface {
-	FindAllBy(exerciseID int64) ([]models.Set, error)
-	GetCompleted(exerciseID int64) int64
 	Delete(exerciseID int64) error
 	Save(set *models.Set) error
 }
@@ -22,24 +20,14 @@ func NewRepo(db *gorm.DB) Repo {
 	}
 }
 
-func (u *repoImpl) FindAllBy(exerciseID int64) ([]models.Set, error) {
-	var sets []models.Set
-	u.db.Where("exercise_id = ?", exerciseID).Order("index ASC").Find(&sets)
-	return sets, nil
-}
-
-func (u *repoImpl) GetCompleted(exerciseID int64) int64 {
-	var completedSets int64
-	u.db.Model(&models.Set{}).Where("exercise_id = ? AND completed = ?", exerciseID, true).Count(&completedSets)
-	return completedSets
-}
-
 func (u *repoImpl) Delete(exerciseID int64) error {
-	u.db.Where("exercise_id = ?", exerciseID).Delete(&models.Set{})
-	return nil
+	return u.db.Transaction(func(tx *gorm.DB) error {
+		return tx.Where("exercise_id = ?", exerciseID).Delete(&models.Set{}).Error
+	})
 }
 
 func (u *repoImpl) Save(set *models.Set) error {
-	u.db.Save(&set)
-	return nil
+	return u.db.Transaction(func(tx *gorm.DB) error {
+		return tx.Save(&set).Error
+	})
 }

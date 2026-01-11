@@ -7,7 +7,7 @@ import (
 )
 
 type WorkoutDay struct {
-	ID               int64 `gorm:"primaryKey"`
+	ID               int64 `gorm:"primaryKey;autoIncrement"`
 	UserID           int64
 	WorkoutDayTypeID int64
 	Exercises        []Exercise `gorm:"foreignKey:WorkoutDayID;constraint:OnDelete:CASCADE"`

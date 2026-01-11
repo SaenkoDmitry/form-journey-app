@@ -3,7 +3,7 @@ package models
 import "time"
 
 type WorkoutSession struct {
-	ID                   int64 `gorm:"primaryKey"`
+	ID                   int64 `gorm:"primaryKey;autoIncrement"`
 	WorkoutDayID         int64
 	CurrentExerciseIndex int
 	StartedAt            time.Time

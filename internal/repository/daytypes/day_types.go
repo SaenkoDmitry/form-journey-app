@@ -24,11 +24,10 @@ func NewRepo(db *gorm.DB) Repo {
 }
 
 func (u *repoImpl) Create(day *models.WorkoutDayType) (*models.WorkoutDayType, error) {
-	tx := u.db.Create(&day)
-	if tx.Error != nil {
-		return &models.WorkoutDayType{}, tx.Error
-	}
-	return day, nil
+	err := u.db.Transaction(func(tx *gorm.DB) error {
+		return tx.Create(&day).Error
+	})
+	return day, err
 }
 
 func (u *repoImpl) Delete(day *models.WorkoutDayType) error {

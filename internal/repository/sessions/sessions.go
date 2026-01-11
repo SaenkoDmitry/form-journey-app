@@ -23,8 +23,9 @@ func NewRepo(db *gorm.DB) Repo {
 }
 
 func (u *repoImpl) Create(session *models.WorkoutSession) error {
-	u.db.Create(&session)
-	return nil
+	return u.db.Transaction(func(tx *gorm.DB) error {
+		return tx.Create(&session).Error
+	})
 }
 
 func (u *repoImpl) GetByWorkoutID(workoutID int64) (models.WorkoutSession, error) {
@@ -36,8 +37,9 @@ func (u *repoImpl) GetByWorkoutID(workoutID int64) (models.WorkoutSession, error
 }
 
 func (u *repoImpl) Save(session *models.WorkoutSession) error {
-	u.db.Save(&session)
-	return nil
+	return u.db.Transaction(func(tx *gorm.DB) error {
+		return tx.Save(&session).Error
+	})
 }
 
 func (u *repoImpl) UpdateIsActive(workoutID int64, isActive bool) error {

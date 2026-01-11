@@ -31,11 +31,10 @@ func (u *repoImpl) Create(userID int64, name string) (*models.WorkoutProgram, er
 		Name:      name,
 		CreatedAt: time.Now(),
 	}
-	tx := u.db.Create(&newProgram)
-	if tx.Error != nil {
-		return nil, tx.Error
-	}
-	return newProgram, nil
+	err := u.db.Transaction(func(tx *gorm.DB) error {
+		return tx.Create(&newProgram).Error
+	})
+	return newProgram, err
 }
 
 func (u *repoImpl) Delete(program *models.WorkoutProgram) error {
