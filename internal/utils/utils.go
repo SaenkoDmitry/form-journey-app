@@ -90,5 +90,5 @@ func IsValidPreset(preset string) bool {
 }
 
 func WrapYandexLink(url string) string {
-	return fmt.Sprintf("\n<a href=\"%s\"><b>⚠️Техника выполнения:</b></a>", url)
+	return fmt.Sprintf("\n<a href=\"%s\"><b>👀</b></a>", url)
 }
