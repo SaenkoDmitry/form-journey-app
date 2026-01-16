@@ -7,6 +7,7 @@ type ExerciseType struct {
 	ExerciseGroupTypeCode string
 	RestInSeconds         int
 	Accent                string
+	Units                 string
 }
 
 func (*ExerciseType) TableName() string {

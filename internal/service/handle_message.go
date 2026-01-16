@@ -505,6 +505,26 @@ func (s *serviceImpl) handleState(chatID int64, text string) {
 			"✅ Время обновлено",
 		)
 
+	case strings.HasPrefix(state, "awaiting_meters_"):
+		err = s.awaitingEnterData(
+			chatID, state,
+			func() (interface{}, error) { return strconv.ParseInt(text, 10, 64) },
+			func(nextSet models.Set, value interface{}) models.Set {
+				meters, ok := value.(int64)
+				if !ok {
+					return models.Set{}
+				}
+				if int(meters) != nextSet.Meters {
+					nextSet.FactMeters = int(meters)
+				} else {
+					nextSet.FactMeters = 0
+				}
+				return nextSet
+			},
+			"❌ Неверный формат минут. Введите число (например: 42)",
+			"✅ Время обновлено",
+		)
+
 	case strings.HasPrefix(state, "awaiting_program_name_"):
 		programID, _ := strconv.ParseInt(strings.TrimPrefix(state, "awaiting_program_name_"), 10, 64)
 		program, err := s.programsRepo.Get(programID)

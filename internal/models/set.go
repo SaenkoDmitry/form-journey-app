@@ -15,6 +15,8 @@ type Set struct {
 	FactWeight  float32
 	Minutes     int
 	FactMinutes int
+	Meters      int
+	FactMeters  int
 	Completed   bool
 	CompletedAt *time.Time
 	Index       int
@@ -27,9 +29,13 @@ func (*Set) TableName() string {
 func (s *Set) String(done bool) string {
 	var text strings.Builder
 
+	if s.Meters > 0 {
+		text.WriteString(fmt.Sprintf("• %s метров: ", s.FormatMeters()))
+	}
 	if s.Minutes > 0 {
 		text.WriteString(fmt.Sprintf("• %s минут: ", s.FormatMinutes()))
-	} else {
+	}
+	if s.Reps > 0 {
 		text.WriteString(fmt.Sprintf("• %s повторений по %s кг: ", s.FormatReps(), s.FormatWeight()))
 	}
 
@@ -67,6 +73,13 @@ func (s *Set) FormatMinutes() string {
 	return fmt.Sprintf("%d", s.Minutes)
 }
 
+func (s *Set) FormatMeters() string {
+	if s.FactMinutes != 0 {
+		return fmt.Sprintf("<strike>%d</strike> <b>%d</b>", s.Meters, s.FactMeters)
+	}
+	return fmt.Sprintf("%d", s.Meters)
+}
+
 func (s *Set) GetRealReps() int {
 	if s == nil {
 		return 0
@@ -95,4 +108,14 @@ func (s *Set) GetRealMinutes() int {
 		return s.FactMinutes
 	}
 	return s.Minutes
+}
+
+func (s *Set) GetRealMeters() int {
+	if s == nil {
+		return 0
+	}
+	if s.FactMeters > 0 {
+		return s.FactMinutes
+	}
+	return s.Meters
 }
