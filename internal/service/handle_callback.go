@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/SaenkoDmitry/training-tg-bot/internal/messages"
-	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/users"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/SaenkoDmitry/training-tg-bot/internal/messages"
+	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/users"
 
 	"github.com/SaenkoDmitry/training-tg-bot/internal/models"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/utils"
@@ -120,6 +121,10 @@ func (s *serviceImpl) HandleCallback(callback *tgbotapi.CallbackQuery) {
 	case strings.HasPrefix(data, "add_one_more_set_"):
 		exerciseID, _ := strconv.ParseInt(strings.TrimPrefix(data, "add_one_more_set_"), 10, 64)
 		s.addOneMoreSet(chatID, exerciseID)
+
+	case strings.HasPrefix(data, "remove_last_set_"):
+		exerciseID, _ := strconv.ParseInt(strings.TrimPrefix(data, "remove_last_set_"), 10, 64)
+		s.removeLastSet(chatID, exerciseID)
 
 	case strings.HasPrefix(data, "prev_exercise_"):
 		workoutDayID, _ := strconv.ParseInt(strings.TrimPrefix(data, "prev_exercise_"), 10, 64)
@@ -281,7 +286,7 @@ func (s *serviceImpl) showWorkoutProgress(chatID, workoutID int64) {
 	if !workoutDay.Completed {
 		keyboard = tgbotapi.NewInlineKeyboardMarkup(
 			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData("➕ Добавить упражнение", fmt.Sprintf("add_exercise_%d", workoutID)),
+				tgbotapi.NewInlineKeyboardButtonData("➕ Еще упражнение", fmt.Sprintf("add_exercise_%d", workoutID)),
 				tgbotapi.NewInlineKeyboardButtonData("🗑️ Удалить", fmt.Sprintf("confirm_delete_workout_%d", workoutID)),
 			),
 			tgbotapi.NewInlineKeyboardRow(
@@ -585,7 +590,7 @@ func (s *serviceImpl) deleteWorkout(chatID int64, workoutID int64) {
 	}
 
 	for _, exercise := range workoutDay.Exercises {
-		deleteErr := s.setsRepo.Delete(exercise.ID)
+		deleteErr := s.setsRepo.DeleteAllBy(exercise.ID)
 		if deleteErr != nil {
 			return
 		}
@@ -707,24 +712,21 @@ func (s *serviceImpl) showCurrentExerciseSession(chatID int64, workoutID int64) 
 
 	keyboard := tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData(messages.Set, fmt.Sprintf("complete_set_ex_%d", exercise.ID)),
+			tgbotapi.NewInlineKeyboardButtonData(messages.DoneSet, fmt.Sprintf("complete_set_ex_%d", exercise.ID)),
+			tgbotapi.NewInlineKeyboardButtonData(messages.AddSet, fmt.Sprintf("add_one_more_set_%d", exercise.ID)),
+			tgbotapi.NewInlineKeyboardButtonData(messages.RemoveSet, fmt.Sprintf("remove_last_set_%d", exercise.ID)),
 			tgbotapi.NewInlineKeyboardButtonData(messages.Timer, fmt.Sprintf("start_timer_%d_ex_%d", exercise.ExerciseType.RestInSeconds, exercise.ID)),
 		),
 		changeSettingsButtons,
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData(messages.AddSet, fmt.Sprintf("add_one_more_set_%d", exercise.ID)),
+			tgbotapi.NewInlineKeyboardButtonData(messages.Technique, fmt.Sprintf("show_exercise_hint_%d", workoutID)),
+			tgbotapi.NewInlineKeyboardButtonData(messages.EndWorkout, fmt.Sprintf("finish_workout_id_%d", workoutID)),
 		),
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData("🏁 Завершить", fmt.Sprintf("finish_workout_id_%d", workoutID)),
-			tgbotapi.NewInlineKeyboardButtonData("❌ Удалить", fmt.Sprintf("confirm_delete_exercise_%d", exercise.ID)),
-		),
-		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData("🧐 Показать технику", fmt.Sprintf("show_exercise_hint_%d", workoutID)),
-			tgbotapi.NewInlineKeyboardButtonData("📊 Прогресс", fmt.Sprintf("show_progress_%d", workoutID)),
-		),
-		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData("⬅️ Пред", fmt.Sprintf("prev_exercise_%d", workoutID)),
-			tgbotapi.NewInlineKeyboardButtonData("➡️ След", fmt.Sprintf("next_exercise_%d", workoutID)),
+			tgbotapi.NewInlineKeyboardButtonData(messages.Prev, fmt.Sprintf("prev_exercise_%d", workoutID)),
+			tgbotapi.NewInlineKeyboardButtonData(messages.Progress, fmt.Sprintf("show_progress_%d", workoutID)),
+			tgbotapi.NewInlineKeyboardButtonData(messages.DropExercise, fmt.Sprintf("confirm_delete_exercise_%d", exercise.ID)),
+			tgbotapi.NewInlineKeyboardButtonData(messages.Next, fmt.Sprintf("next_exercise_%d", workoutID)),
 		),
 	)
 
@@ -735,6 +737,25 @@ func (s *serviceImpl) showCurrentExerciseSession(chatID int64, workoutID int64) 
 	if err != nil {
 		fmt.Println("showCurrentExerciseSession", err.Error())
 	}
+}
+
+func (s *serviceImpl) removeLastSet(chatID int64, exerciseID int64) {
+	exercise, err := s.exercisesRepo.Get(exerciseID)
+	if err != nil || len(exercise.Sets) == 0 {
+		return
+	}
+	lastSet := exercise.Sets[len(exercise.Sets)-1]
+	err = s.setsRepo.Delete(lastSet.ID)
+	if err != nil {
+		fmt.Println("cannot remove set:", err.Error())
+		return
+	}
+
+	msg := tgbotapi.NewMessage(chatID, "✅ <b>Подход удален!</b>")
+	msg.ParseMode = "Html"
+	s.bot.Send(msg)
+
+	s.showCurrentExerciseSession(chatID, exercise.WorkoutDayID)
 }
 
 func (s *serviceImpl) addOneMoreSet(chatID int64, exerciseID int64) {
@@ -919,7 +940,7 @@ func (s *serviceImpl) moveToExercise(chatID int64, workoutID int64, next bool) {
 			tgbotapi.NewInlineKeyboardRow(
 				tgbotapi.NewInlineKeyboardButtonData("🏁 Завершить",
 					fmt.Sprintf("finish_workout_id_%d", workoutID)),
-				tgbotapi.NewInlineKeyboardButtonData("➕ Добавить упражнение",
+				tgbotapi.NewInlineKeyboardButtonData("➕ Еще упражнение",
 					fmt.Sprintf("add_exercise_%d", workoutID)),
 			),
 		)

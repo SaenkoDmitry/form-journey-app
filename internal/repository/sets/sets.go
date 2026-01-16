@@ -6,7 +6,8 @@ import (
 )
 
 type Repo interface {
-	Delete(exerciseID int64) error
+	Delete(id int64) error
+	DeleteAllBy(exerciseID int64) error
 	Save(set *models.Set) error
 }
 
@@ -20,7 +21,13 @@ func NewRepo(db *gorm.DB) Repo {
 	}
 }
 
-func (u *repoImpl) Delete(exerciseID int64) error {
+func (u *repoImpl) Delete(id int64) error {
+	return u.db.Transaction(func(tx *gorm.DB) error {
+		return tx.Where("id = ?", id).Delete(&models.Set{}).Error
+	})
+}
+
+func (u *repoImpl) DeleteAllBy(exerciseID int64) error {
 	return u.db.Transaction(func(tx *gorm.DB) error {
 		return tx.Where("exercise_id = ?", exerciseID).Delete(&models.Set{}).Error
 	})
