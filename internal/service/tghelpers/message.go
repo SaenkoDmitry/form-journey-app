@@ -31,7 +31,8 @@ func (m *MessageBuilder) WithParseMode(mode string) *MessageBuilder {
 	return m
 }
 
-func (m *MessageBuilder) WithReplyMarkup(keyboard tgbotapi.InlineKeyboardMarkup) *MessageBuilder {
+func (m *MessageBuilder) WithReplyMarkup(rows [][]tgbotapi.InlineKeyboardButton) *MessageBuilder {
+	keyboard := tgbotapi.NewInlineKeyboardMarkup(rows...)
 	m.ReplyMarkup = &keyboard
 	return m
 }

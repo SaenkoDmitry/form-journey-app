@@ -11,6 +11,8 @@ const (
 	Stats        = "📊 Статистика"
 	Settings     = "⚙️ Настройки"
 	HowToUse     = "❓ Как пользоваться?"
+	Admin        = "👨🏻‍💻 Админка"
+	Users        = "👥 Пользователи"
 
 	DoneSet   = "✅"
 	AddSet    = "➕"

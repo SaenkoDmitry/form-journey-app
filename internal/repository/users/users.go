@@ -11,6 +11,7 @@ import (
 )
 
 type Repo interface {
+	GetTop10() ([]models.User, error)
 	Save(user *models.User) error
 	Create(chatID int64, from *tgbotapi.User) (*models.User, error)
 	GetByChatID(chatID int64) (*models.User, error)
@@ -59,4 +60,13 @@ func (u *repoImpl) GetByChatID(chatID int64) (*models.User, error) {
 		return nil, NotFoundUserErr
 	}
 	return &user, nil
+}
+
+func (u *repoImpl) GetTop10() ([]models.User, error) {
+	var users []models.User
+	tx := u.db.Order("created_at DESC").Limit(10).Find(&users)
+	if tx.Error != nil {
+		return []models.User{}, tx.Error
+	}
+	return users, nil
 }

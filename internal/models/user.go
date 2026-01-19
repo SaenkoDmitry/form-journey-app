@@ -14,6 +14,10 @@ type User struct {
 	Programs        []WorkoutProgram `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
 }
 
-func (*User) TableName() string {
+func (u *User) TableName() string {
 	return "users"
+}
+
+func (u *User) IsAdmin() bool {
+	return u.ID == 1 && u.Username == "dsaenko"
 }

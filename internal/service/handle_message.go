@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/constants"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/messages"
+	"github.com/SaenkoDmitry/training-tg-bot/internal/service/tghelpers"
 	"strconv"
 	"strings"
 	"time"
@@ -20,6 +21,8 @@ import (
 func (s *serviceImpl) HandleMessage(message *tgbotapi.Message) {
 	chatID := message.Chat.ID
 	text := message.Text
+
+	user, _ := s.usersRepo.GetByChatID(chatID)
 
 	fmt.Println("HandleMessage:", text)
 
@@ -42,6 +45,9 @@ func (s *serviceImpl) HandleMessage(message *tgbotapi.Message) {
 	case text == messages.HowToUse || text == "/about":
 		s.about(chatID)
 
+	case text == messages.Admin || text == "/admin":
+		s.admin(chatID, user)
+
 	default:
 		s.handleState(chatID, text)
 	}
@@ -52,22 +58,29 @@ func (s *serviceImpl) sendMainMenu(chatID int64, from *tgbotapi.User) {
 
 	text := messages.Hello
 
-	keyboard := tgbotapi.NewReplyKeyboard(
-		tgbotapi.NewKeyboardButtonRow(
-			tgbotapi.NewKeyboardButton(messages.StartWorkout),
-		),
-		tgbotapi.NewKeyboardButtonRow(
-			tgbotapi.NewKeyboardButton(messages.MyWorkouts),
-			tgbotapi.NewKeyboardButton(messages.Stats),
-		),
-		tgbotapi.NewKeyboardButtonRow(
-			tgbotapi.NewKeyboardButton(messages.Settings),
-			tgbotapi.NewKeyboardButton(messages.HowToUse),
-		),
-	)
-	keyboard.ResizeKeyboard = true
+	user := s.createUserIfNotExists(chatID, from)
 
-	s.createUserIfNotExists(chatID, from)
+	rows := make([][]tgbotapi.KeyboardButton, 0)
+	rows = append(rows, tgbotapi.NewKeyboardButtonRow(
+		tgbotapi.NewKeyboardButton(messages.StartWorkout),
+	))
+	rows = append(rows, tgbotapi.NewKeyboardButtonRow(
+		tgbotapi.NewKeyboardButton(messages.MyWorkouts),
+		tgbotapi.NewKeyboardButton(messages.Stats),
+	))
+	rows = append(rows, tgbotapi.NewKeyboardButtonRow(
+		tgbotapi.NewKeyboardButton(messages.Settings),
+		tgbotapi.NewKeyboardButton(messages.HowToUse),
+	))
+
+	if user.IsAdmin() {
+		rows = append(rows, tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton(messages.Admin),
+		))
+	}
+
+	keyboard := tgbotapi.NewReplyKeyboard(rows...)
+	keyboard.ResizeKeyboard = true
 
 	msg := tgbotapi.NewMessage(chatID, text)
 	msg.ParseMode = constants.MarkdownParseMode
@@ -76,30 +89,33 @@ func (s *serviceImpl) sendMainMenu(chatID int64, from *tgbotapi.User) {
 	handleErr(method, err)
 }
 
-func (s *serviceImpl) createUserIfNotExists(chatID int64, from *tgbotapi.User) {
-	_, err := s.usersRepo.GetByChatID(chatID)
+func (s *serviceImpl) createUserIfNotExists(chatID int64, from *tgbotapi.User) *models.User {
+	user, err := s.usersRepo.GetByChatID(chatID)
 	if err == nil {
-		return
+		return user
 	}
+
 	if errors.Is(err, users.NotFoundUserErr) {
-		user, createErr := s.usersRepo.Create(chatID, from)
+		createdUser, createErr := s.usersRepo.Create(chatID, from)
 		if createErr != nil {
-			return
+			return nil
 		}
 
 		// создаем дефолтную программу
-		program, createErr := s.programsRepo.Create(user.ID, "#1 стартовая")
+		program, createErr := s.programsRepo.Create(createdUser.ID, "#1 стартовая")
 		if createErr != nil {
-			return
+			return nil
 		}
 
 		// прикрепляем программу к юзеру и сохраняем
-		user.ActiveProgramID = &program.ID
-		err = s.usersRepo.Save(user)
+		createdUser.ActiveProgramID = &program.ID
+		err = s.usersRepo.Save(createdUser)
 		if err != nil {
-			return
+			return nil
 		}
+		return createdUser
 	}
+	return nil
 }
 
 func (s *serviceImpl) showWorkoutTypeMenu(chatID int64) {
@@ -161,6 +177,49 @@ func handleErr(method string, err error) {
 	}
 }
 
+func (s *serviceImpl) showWorkoutsByUser(chatID, userID int64) {
+	method := "showWorkoutsByUser"
+	workouts, err := s.workoutsRepo.FindAll(userID)
+	if err != nil {
+		return
+	}
+
+	if len(workouts) == 0 {
+		msg := tgbotapi.NewMessage(chatID, "📭 У пользователя пока нет созданных тренировок.")
+		keyboard := tgbotapi.NewInlineKeyboardMarkup(
+			tgbotapi.NewInlineKeyboardRow(
+				tgbotapi.NewInlineKeyboardButtonData(messages.BackToMenu, "back_to_menu"),
+			),
+		)
+		msg.ReplyMarkup = keyboard
+		_, _ = tghelpers.SendMessage(s.bot, msg, method)
+		return
+	}
+
+	text := fmt.Sprintf("📋 <b>Тренировки пользователя (%d):</b>\n\n", len(workouts))
+	for i, workout := range workouts {
+		status := "🟡"
+		if workout.Completed {
+			status = "✅"
+			if workout.EndedAt != nil {
+				status += fmt.Sprintf(" ~ %s",
+					utils.BetweenTimes(workout.StartedAt, workout.EndedAt),
+				)
+			}
+		}
+		date := workout.StartedAt.Format("02.01.2006 15:04")
+
+		dayType := workout.WorkoutDayType
+
+		text += fmt.Sprintf("%d. <b>%s</b> %s\n   📅 %s\n\n",
+			i+1, dayType.Name, status, date)
+	}
+
+	msg := tgbotapi.NewMessage(chatID, text)
+	msg.ParseMode = constants.HtmlParseMode
+	_, _ = tghelpers.SendMessage(s.bot, msg, method)
+}
+
 const (
 	showWorkoutsLimit = 4
 )
@@ -187,13 +246,13 @@ func (s *serviceImpl) showMyWorkouts(chatID int64, offset int) {
 			),
 		)
 		msg.ReplyMarkup = keyboard
-		s.bot.Send(msg)
+		_, _ = tghelpers.SendMessage(s.bot, msg, method)
 		return
 	}
 
 	var rows [][]tgbotapi.InlineKeyboardButton
 
-	text := fmt.Sprintf("📋 *Ваши тренировки (%d):*\n\n", count)
+	text := fmt.Sprintf("📋 <b>Ваши тренировки (%d):</b>\n\n", count)
 	for i, workout := range workouts {
 		status := "🟡"
 		if workout.Completed {
@@ -208,7 +267,7 @@ func (s *serviceImpl) showMyWorkouts(chatID int64, offset int) {
 
 		dayType := workout.WorkoutDayType
 
-		text += fmt.Sprintf("%d. *%s* %s\n   📅 %s\n\n",
+		text += fmt.Sprintf("%d. <b>%s</b> %s\n   📅 %s\n\n",
 			i+1+offset, dayType.Name, status, date)
 
 		// buttons
@@ -239,10 +298,9 @@ func (s *serviceImpl) showMyWorkouts(chatID int64, offset int) {
 	keyboard := tgbotapi.NewInlineKeyboardMarkup(rows...)
 
 	msg := tgbotapi.NewMessage(chatID, text)
-	msg.ParseMode = constants.MarkdownParseMode
+	msg.ParseMode = constants.HtmlParseMode
 	msg.ReplyMarkup = keyboard
-	_, err = s.bot.Send(msg)
-	handleErr(method, err)
+	_, _ = tghelpers.SendMessage(s.bot, msg, method)
 }
 
 func (s *serviceImpl) showStatsMenu(chatID int64) {
@@ -316,6 +374,53 @@ func (s *serviceImpl) settings(chatID int64) {
 	msg.ReplyMarkup = keyboard
 	_, err = s.bot.Send(msg)
 	handleErr(method, err)
+}
+
+func (s *serviceImpl) users(chatID int64, user *models.User) {
+	if !user.IsAdmin() {
+		return
+	}
+	method := "users"
+	rows := make([][]tgbotapi.InlineKeyboardButton, 0)
+
+	userObjs, err := s.usersRepo.GetTop10()
+	if err != nil {
+		return
+	}
+	var text bytes.Buffer
+	text.WriteString("<b>Пользователи:</b>\n\n")
+	for i, u := range userObjs {
+		if i%2 == 0 {
+			rows = append(rows, tgbotapi.NewInlineKeyboardRow())
+		}
+		userFullName := fmt.Sprintf("%s (", u.Username)
+		if u.FirstName != "" {
+			userFullName += u.FirstName
+		}
+		if u.LastName != "" {
+			userFullName += " " + u.LastName
+		}
+		userFullName += ")"
+		text.WriteString("• " + userFullName)
+		rows[len(rows)-1] = append(rows[len(rows)-1],
+			tgbotapi.NewInlineKeyboardButtonData(userFullName, fmt.Sprintf("workout_show_by_user_id_%d", u.ID)),
+		)
+	}
+	msg := tghelpers.NewMessageBuilder().WithChatID(chatID).WithText(text.String()).WithReplyMarkup(rows).Build()
+	_, _ = tghelpers.SendMessage(s.bot, msg, method)
+}
+
+func (s *serviceImpl) admin(chatID int64, user *models.User) {
+	if !user.IsAdmin() {
+		return
+	}
+	method := "admin"
+	rows := make([][]tgbotapi.InlineKeyboardButton, 0)
+	rows = append(rows, tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData("Пользователи", "/admin/users"),
+	))
+	msg := tghelpers.NewMessageBuilder().WithChatID(chatID).WithText("<b>👨🏻‍💻 Админ панель</b>").WithReplyMarkup(rows).Build()
+	_, _ = tghelpers.SendMessage(s.bot, msg, method)
 }
 
 func (s *serviceImpl) about(chatID int64) {

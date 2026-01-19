@@ -60,6 +60,10 @@ func (s *serviceImpl) workoutCases(data string, chatID, userID int64) {
 	case strings.HasPrefix(data, "workout_show_progress_"):
 		workoutID, _ := strconv.ParseInt(strings.TrimPrefix(data, "workout_show_progress_"), 10, 64)
 		s.showWorkoutProgress(chatID, workoutID)
+
+	case strings.HasPrefix(data, "workout_show_by_user_id_"):
+		userID, _ := strconv.ParseInt(strings.TrimPrefix(data, "workout_show_by_user_id_"), 10, 64)
+		s.showWorkoutsByUser(chatID, userID)
 	}
 }
 

@@ -68,6 +68,7 @@ func (u *repoImpl) FindAll(userID int64) (workouts []models.WorkoutDay, err erro
 	err = u.db.Transaction(func(tx *gorm.DB) error {
 		return tx.Where("user_id = ?", userID).
 			Order("started_at DESC").
+			Preload("WorkoutDayType").
 			Preload("Exercises.Sets", func(db *gorm.DB) *gorm.DB { return db.Order("sets.index ASC") }).
 			Preload("Exercises", func(db *gorm.DB) *gorm.DB { return db.Order("exercises.index ASC") }).
 			Find(&workouts).Error

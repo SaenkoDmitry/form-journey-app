@@ -26,6 +26,9 @@ func (s *serviceImpl) HandleCallback(callback *tgbotapi.CallbackQuery) {
 	case data == "back_to_menu":
 		s.sendMainMenu(chatID, callback.From)
 
+	case data == "/admin/users":
+		s.users(chatID, user)
+
 	case strings.HasPrefix(data, "program_"):
 		s.programCases(data, chatID, user.ID)
 
@@ -75,12 +78,10 @@ func (s *serviceImpl) selectExerciseForCurrentWorkout(chatID int64, workoutID in
 	}
 	fmt.Println("rows", len(rows), rows)
 
-	keyboard := tgbotapi.NewInlineKeyboardMarkup(rows...)
-
 	msg := tghelpers.NewMessageBuilder().
 		WithChatID(chatID).
 		WithText(text).
-		WithReplyMarkup(keyboard).
+		WithReplyMarkup(rows).
 		Build()
 	_, _ = tghelpers.SendMessage(s.bot, msg, method)
 }
