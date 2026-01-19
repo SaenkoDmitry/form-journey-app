@@ -400,7 +400,7 @@ func (s *serviceImpl) users(chatID int64, user *models.User) {
 		if u.LastName != "" {
 			userFullName += " " + u.LastName
 		}
-		userFullName += ")"
+		userFullName += ")\n\n"
 		text.WriteString("• " + userFullName)
 		rows[len(rows)-1] = append(rows[len(rows)-1],
 			tgbotapi.NewInlineKeyboardButtonData(userFullName, fmt.Sprintf("workout_show_by_user_id_%d", u.ID)),
