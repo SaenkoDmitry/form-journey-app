@@ -31,8 +31,7 @@ jobs:
           source: "training-tg-bot"
           target: "/opt/training-tg-bot/"
 
-
-      - name: Start app
+      - name: Deploy systemd service
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -40,9 +39,24 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           script: |
             cd /opt/training-tg-bot
-            ls -al
-            export TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}
-            export DATABASE_URL=${{ secrets.DATABASE_URL }}
-            echo TELEGRAM_TOKEN
-            echo DATABASE_URL
-            ./training-tg-bot
+            echo "TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}" > .env
+            echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+            sudo systemctl daemon-reload
+            sudo systemctl restart training-tg-bot
+            sudo systemctl status training-tg-bot --no-pager
+#
+#
+#      - name: Start app
+#        uses: appleboy/ssh-action@v0.1.7
+#        with:
+#          host: ${{ secrets.VPS_HOST }}
+#          username: ${{ secrets.VPS_USER }}
+#          password: ${{ secrets.VPS_PASSWORD }}
+#          script: |
+#            cd /opt/training-tg-bot
+#            ls -al
+#            export TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}
+#            export DATABASE_URL=${{ secrets.DATABASE_URL }}
+#            echo TELEGRAM_TOKEN
+#            echo DATABASE_URL
+#            ./training-tg-bot
