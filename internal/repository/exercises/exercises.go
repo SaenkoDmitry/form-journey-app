@@ -14,6 +14,7 @@ type Repo interface {
 	DeleteByWorkout(workoutID int64) error
 	Delete(exerciseID int64) error
 	CreateBatch(exercises []models.Exercise) error
+	Save(exercise *models.Exercise) error
 }
 
 type repoImpl struct {
@@ -28,7 +29,7 @@ func NewRepo(db *gorm.DB) Repo {
 
 func (u *repoImpl) Get(exerciseID int64) (models.Exercise, error) {
 	var exercise models.Exercise
-	u.db.Preload("Sets", func(db *gorm.DB) *gorm.DB {
+	u.db.Preload("ExerciseType").Preload("Sets", func(db *gorm.DB) *gorm.DB {
 		return db.Order("sets.index ASC")
 	}).First(&exercise, exerciseID)
 	return exercise, nil
@@ -47,6 +48,12 @@ func (u *repoImpl) Delete(exerciseID int64) error {
 
 	// Удаляем с помощью Select
 	return u.db.Select("Sets").Delete(&exercise).Error
+}
+
+func (u *repoImpl) Save(exercise *models.Exercise) error {
+	return u.db.Transaction(func(tx *gorm.DB) error {
+		return tx.Save(exercise).Error
+	})
 }
 
 func (u *repoImpl) CreateBatch(exercises []models.Exercise) error {
