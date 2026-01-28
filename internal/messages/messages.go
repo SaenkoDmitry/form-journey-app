@@ -47,10 +47,10 @@ const (
 	StatsMonth        = "🗓️ За месяц"
 	StatsOverall      = "📈 Общая"
 	Settings          = "⚙️ Дополнительно"
-	ProgramManagement = "📱️ Программы"
+	ProgramManagement = "📱️ Управление программами"
 	HowToUse          = "❓ О боте?"
-	Export            = "📥️ Экспорт"
-	Exercises         = "📋 Упражнения"
+	Export            = "📥️ Экспорт в Excel"
+	Exercises         = "🤓 Библиотека упражнений"
 	Admin             = "👨🏻‍💻 Админка"
 	Users             = "👥 Пользователи"
 	BackTo            = "🔙 Назад"
@@ -116,7 +116,6 @@ const (
 		"Приступайте к следующему подходу! 💪"
 
 	AddOneMoreExerciseToDelete = "Добавьте хотя бы одно упражнение, чтобы удалить 🗿. Вы можете удалить упражнение целиком кликом на 🗑"
-	YouCannotDeleteOneOfSet    = "Нельзя удалить единственный подход 🗿. Вы можете удалить упражнение целиком кликом на 🗑"
 	SetDeleted                 = "✅ <b>Подход удален!</b>"
 	SetAdded                   = "✅ <b>Еще один подход добавлен!</b>"
 	SetCompleted               = "✅ <b>Подход завершен!</b>"
@@ -136,6 +135,8 @@ const (
 	WeightUpdated  = "✅ Вес обновлен"
 	MinutesUpdated = "✅ Время обновлено"
 	MetersUpdated  = "✅ Дистанция обновлена"
+
+	CannotDeleteDayTypeAlreadyUsedInWorkoutDays = "🗿 Нельзя удалить день, который уже был использован на тренировках. Сначала удалите их"
 )
 
 const (

@@ -82,7 +82,7 @@ func (h *Handler) RouteCallback(chatID int64, data string) {
 	case strings.HasPrefix(data, "workout_create_"):
 		dayTypeID, _ := strconv.ParseInt(strings.TrimPrefix(data, "workout_create_"), 10, 64)
 		if workoutID := h.create(chatID, dayTypeID); workoutID != 0 {
-			h.ShowProgress(chatID, workoutID)
+			h.ShowProgress(chatID, workoutID, true)
 		}
 
 	case strings.HasPrefix(data, "workout_start_"):
@@ -91,7 +91,7 @@ func (h *Handler) RouteCallback(chatID int64, data string) {
 
 	case strings.HasPrefix(data, "workout_show_progress_"):
 		workoutID, _ := strconv.ParseInt(strings.TrimPrefix(data, "workout_show_progress_"), 10, 64)
-		h.ShowProgress(chatID, workoutID)
+		h.ShowProgress(chatID, workoutID, true)
 
 	case strings.HasPrefix(data, "workout_confirm_delete_"):
 		workoutID, _ := strconv.ParseInt(strings.TrimPrefix(data, "workout_confirm_delete_"), 10, 64)
@@ -108,10 +108,6 @@ func (h *Handler) RouteCallback(chatID int64, data string) {
 	case strings.HasPrefix(data, "workout_finish_"):
 		workoutID, _ := strconv.ParseInt(strings.TrimPrefix(data, "workout_finish_"), 10, 64)
 		h.finish(chatID, workoutID)
-
-	case strings.HasPrefix(data, "workout_stats_"):
-		workoutID, _ := strconv.ParseInt(strings.TrimPrefix(data, "workout_stats_"), 10, 64)
-		h.showStatistics(chatID, workoutID)
 
 	case strings.HasPrefix(data, "workout_show_by_user_id_"):
 		userID, _ := strconv.ParseInt(strings.TrimPrefix(data, "workout_show_by_user_id_"), 10, 64)
@@ -170,13 +166,18 @@ func (h *Handler) create(chatID int64, dayTypeID int64) int64 {
 	return res.WorkoutID
 }
 
-func (h *Handler) ShowProgress(chatID int64, workoutID int64) {
+func (h *Handler) ShowProgress(chatID int64, workoutID int64, needShowButtons bool) {
 	workoutProgress, err := h.showProgressUC.Execute(workoutID)
 	if err != nil {
 		h.commonPresenter.HandleInternalError(err, chatID, h.showProgressUC.Name())
 		return
 	}
-	h.presenter.ShowWorkoutProgress(chatID, workoutProgress)
+	statsResult, err := h.statsUC.Execute(workoutID)
+	if err != nil {
+		h.commonPresenter.HandleInternalError(err, chatID, h.statsUC.Name())
+		return
+	}
+	h.presenter.ShowWorkoutProgress(chatID, workoutProgress, statsResult, needShowButtons)
 }
 
 func (h *Handler) start(chatID int64, workoutID int64) {
@@ -223,19 +224,7 @@ func (h *Handler) finish(chatID int64, workoutID int64) {
 		h.commonPresenter.HandleInternalError(err, chatID, h.showMyUC.Name())
 		return
 	}
-
-	if res, err := h.statsUC.Execute(workoutID); err == nil {
-		h.presenter.ShowStats(chatID, res)
-	}
-}
-
-func (h *Handler) showStatistics(chatID int64, workoutID int64) {
-	res, err := h.statsUC.Execute(workoutID)
-	if err != nil {
-		h.commonPresenter.HandleInternalError(err, chatID, h.showMyUC.Name())
-		return
-	}
-	h.presenter.ShowStats(chatID, res)
+	h.ShowProgress(chatID, workoutID, false)
 }
 
 func (h *Handler) showByUserID(chatID int64, userID int64) {

@@ -7,7 +7,7 @@ import (
 
 type Repo interface {
 	Create(day *models.WorkoutDayType) (*models.WorkoutDayType, error)
-	Delete(day *models.WorkoutDayType) error
+	Delete(dayTypeID int64) error
 	Save(day *models.WorkoutDayType) error
 	Get(dayTypeID int64) (models.WorkoutDayType, error)
 	FindAll(programID int64) ([]models.WorkoutDayType, error)
@@ -30,9 +30,8 @@ func (u *repoImpl) Create(day *models.WorkoutDayType) (*models.WorkoutDayType, e
 	return day, err
 }
 
-func (u *repoImpl) Delete(day *models.WorkoutDayType) error {
-	u.db.Delete(day)
-	return nil
+func (u *repoImpl) Delete(dayTypeID int64) error {
+	return u.db.Where("id = ?", dayTypeID).Delete(&models.WorkoutDayType{}).Error
 }
 
 func (u *repoImpl) Save(day *models.WorkoutDayType) error {

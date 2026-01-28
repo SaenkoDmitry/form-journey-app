@@ -20,40 +20,52 @@ func NewPresenter(bot *tgbotapi.BotAPI) *Presenter {
 	return &Presenter{bot: bot}
 }
 
-func (p *Presenter) ShowWorkoutProgress(chatID int64, data *dto.WorkoutProgress) {
+func (p *Presenter) ShowWorkoutProgress(chatID int64, progress *dto.WorkoutProgress, stats *dto.WorkoutStatistic, needShowButtons bool) {
+	totalWeight := stats.TotalWeight
+	totalTime := stats.TotalTime
+
 	var text strings.Builder
 
-	text.WriteString(data.Workout.String())
+	text.WriteString(progress.Workout.String())
+
 	text.WriteString("\n📈 <b>Общий прогресс:</b>\n")
 	text.WriteString(fmt.Sprintf(
 		"• Упражнений: %d/%d\n",
-		data.CompletedExercises,
-		data.TotalExercises,
+		progress.CompletedExercises,
+		progress.TotalExercises,
 	))
 	text.WriteString(fmt.Sprintf(
 		"• Подходов: %d/%d\n",
-		data.CompletedSets,
-		data.TotalSets,
+		progress.CompletedSets,
+		progress.TotalSets,
 	))
 	text.WriteString(fmt.Sprintf(
 		"• Прогресс: %d%%\n",
-		data.ProgressPercent,
+		progress.ProgressPercent,
 	))
 
-	text.WriteString(fmt.Sprintf("• [%s]\n\n", progressBar(data.ProgressPercent)))
+	if totalWeight > 0 {
+		text.WriteString(fmt.Sprintf("• Общий тоннаж: %.0f кг\n", totalWeight))
+	}
+	if totalTime > 0 {
+		text.WriteString(fmt.Sprintf("• Время кардио: %d минут\n", totalTime))
+	}
 
-	if data.RemainingMin != nil {
+	text.WriteString(fmt.Sprintf("• [%s]\n\n", progressBar(progress.ProgressPercent)))
+
+	if progress.RemainingMin != nil {
 		text.WriteString(fmt.Sprintf(
 			"⏰ <b>Прогноз окончания:</b> ~%d минут\n",
-			*data.RemainingMin,
+			*progress.RemainingMin,
 		))
 	}
 
-	keyboard := p.buildKeyboard(data)
-
 	msg := tgbotapi.NewMessage(chatID, text.String())
 	msg.ParseMode = constants.HtmlParseMode
-	msg.ReplyMarkup = keyboard
+	if needShowButtons {
+		keyboard := p.buildKeyboard(progress)
+		msg.ReplyMarkup = keyboard
+	}
 
 	_, _ = p.bot.Send(msg)
 }
@@ -83,19 +95,14 @@ func progressBar(percent int) string {
 func (p *Presenter) buildKeyboard(data *dto.WorkoutProgress) tgbotapi.InlineKeyboardMarkup {
 	workoutID := data.Workout.ID
 
-	showMy := tgbotapi.NewInlineKeyboardButtonData(
-		"🔙 Назад",
+	backTo := tgbotapi.NewInlineKeyboardButtonData(
+		messages.BackTo,
 		"workout_show_my",
 	)
 
 	deleteBtn := tgbotapi.NewInlineKeyboardButtonData(
 		"🗑️ Удалить",
 		fmt.Sprintf("workout_confirm_delete_%d", workoutID),
-	)
-
-	statsBtn := tgbotapi.NewInlineKeyboardButtonData(
-		messages.Stats,
-		fmt.Sprintf("workout_stats_%d", workoutID),
 	)
 
 	if !data.Workout.Completed {
@@ -116,8 +123,7 @@ func (p *Presenter) buildKeyboard(data *dto.WorkoutProgress) tgbotapi.InlineKeyb
 	}
 
 	return tgbotapi.NewInlineKeyboardMarkup(
-		tgbotapi.NewInlineKeyboardRow(statsBtn),
-		tgbotapi.NewInlineKeyboardRow(showMy, deleteBtn),
+		tgbotapi.NewInlineKeyboardRow(backTo, deleteBtn),
 	)
 }
 

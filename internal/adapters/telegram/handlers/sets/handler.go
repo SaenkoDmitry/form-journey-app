@@ -119,10 +119,6 @@ func (h *Handler) removeLastSet(chatID int64, exerciseID int64) {
 			h.commonPresenter.SendSimpleHtmlMessage(chatID, messages.AddOneMoreExerciseToDelete)
 			return
 		}
-		if errors.Is(err, setusecases.YouCannotDeleteOneExerciseErr) {
-			h.commonPresenter.SendSimpleHtmlMessage(chatID, messages.YouCannotDeleteOneOfSet)
-			return
-		}
 		h.commonPresenter.HandleInternalError(err, chatID, h.addOneMoreSetUC.Name())
 		return
 	}

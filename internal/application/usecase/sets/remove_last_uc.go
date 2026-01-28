@@ -30,16 +30,12 @@ func (uc *RemoveLastUseCase) Name() string {
 
 var (
 	AddOneMoreExerciseToDeleteErr = errors.New(messages.AddOneMoreExerciseToDelete)
-	YouCannotDeleteOneExerciseErr = errors.New(messages.YouCannotDeleteOneOfSet)
 )
 
 func (uc *RemoveLastUseCase) Execute(exerciseID int64) (*dto.RemoveLastSet, error) {
 	exercise, err := uc.exercisesRepo.Get(exerciseID)
 	if err != nil || len(exercise.Sets) == 0 {
 		return nil, AddOneMoreExerciseToDeleteErr
-	}
-	if len(exercise.Sets) == 1 {
-		return nil, YouCannotDeleteOneExerciseErr
 	}
 
 	lastSet := exercise.Sets[len(exercise.Sets)-1]

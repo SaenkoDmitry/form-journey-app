@@ -40,7 +40,7 @@ type Handler struct {
 	getAllGroupsUC       *groups.GetAllUseCase
 	dayTypesCreateUC     *daytypeusecases.CreateUseCase
 	exerciseTypeListUC   *exercisecases.ExerciseTypeListUseCase
-	editProgramUC        *programusecases.GetUseCase
+	getProgramUC         *programusecases.GetUseCase
 	dayTypesUpdateUC     *daytypeusecases.UpdateUseCase
 	dayTypeGetUC         *daytypeusecases.GetUseCase
 }
@@ -73,7 +73,7 @@ func NewHandler(
 		dayTypesUpdateUC:     dayTypesUpdateUC,
 		dayTypeGetUC:         dayTypeGetUC,
 		exerciseTypeListUC:   exerciseTypeListUC,
-		editProgramUC:        editProgramUC,
+		getProgramUC:         editProgramUC,
 	}
 }
 
@@ -295,8 +295,8 @@ func (h *Handler) RouteMessage(chatID int64, text string) {
 			return
 		}
 
-		if editResult, editErr := h.editProgramUC.Execute(dayType.WorkoutProgramID); editErr == nil {
-			h.programPresenter.ShowEditDialog(chatID, editResult)
+		if editResult, editErr := h.getProgramUC.Execute(dayType.WorkoutProgramID); editErr == nil {
+			h.programPresenter.ViewProgram(chatID, editResult)
 		}
 	}
 }

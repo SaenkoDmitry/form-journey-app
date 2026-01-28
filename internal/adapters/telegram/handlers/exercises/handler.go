@@ -256,7 +256,7 @@ func (h *Handler) addSpecificExerciseForCurrentWorkout(chatID int64, workoutID i
 	}
 	h.commonPresenter.SendSimpleHtmlMessage(chatID, fmt.Sprintf("Упражнение <b>'%s'</b> добавлено! ✅", res.ExerciseObj.Name))
 
-	h.workoutsHandler.ShowProgress(chatID, workoutID)
+	h.workoutsHandler.ShowProgress(chatID, workoutID, true)
 }
 
 func (h *Handler) showAllGroups(chatID int64) {
