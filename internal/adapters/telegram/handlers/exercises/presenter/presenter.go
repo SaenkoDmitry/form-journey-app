@@ -35,61 +35,54 @@ func (p *Presenter) ShowCurrentSession(chatID int64, res *dto.CurrentExerciseSes
 		text.WriteString(fmt.Sprintf("<b>Акцент:</b> %s\n\n", exerciseObj.Accent))
 	}
 
-	text.WriteString("<b>Подходы:</b>\n")
 	for _, set := range exercise.Sets {
 		text.WriteString(set.String(workoutDay.Completed))
 	}
 
 	var changeSettingsButtons []tgbotapi.InlineKeyboardButton
-	if exercise.ExerciseType.ShowMinutes() {
+	if len(exercise.Sets) > 0 && exercise.Sets[0].Minutes > 0 {
 		changeSettingsButtons = tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData(messages.Minutes, fmt.Sprintf("change_minutes_ex_%d", exercise.ID)),
 		)
 	}
 
-	if exercise.ExerciseType.ShowMeters() {
+	if len(exercise.Sets) > 0 && exercise.Sets[0].Meters > 0 {
 		changeSettingsButtons = append(changeSettingsButtons,
 			tgbotapi.NewInlineKeyboardButtonData(messages.Meters, fmt.Sprintf("change_meters_ex_%d", exercise.ID)),
 		)
 	}
 
-	if exercise.ExerciseType.ShowReps() {
+	if len(exercise.Sets) > 0 && exercise.Sets[0].Reps > 0 {
 		changeSettingsButtons = append(changeSettingsButtons,
 			tgbotapi.NewInlineKeyboardButtonData(messages.Reps, fmt.Sprintf("change_reps_ex_%d", exercise.ID)),
 		)
 	}
 
-	if exercise.ExerciseType.ShowWeight() {
+	if len(exercise.Sets) > 0 && exercise.Sets[0].Weight > 0 {
 		changeSettingsButtons = append(changeSettingsButtons,
 			tgbotapi.NewInlineKeyboardButtonData(messages.Weight, fmt.Sprintf("change_weight_ex_%d", exercise.ID)),
 		)
 	}
 
-	rows := make([][]tgbotapi.InlineKeyboardButton, 0)
-	rows = append(rows, tgbotapi.NewInlineKeyboardRow(
-		tgbotapi.NewInlineKeyboardButtonData(messages.DoneSet, fmt.Sprintf("set_complete_%d", exercise.ID)),
-		tgbotapi.NewInlineKeyboardButtonData(messages.AddSet, fmt.Sprintf("set_add_one_%d", exercise.ID)),
-		tgbotapi.NewInlineKeyboardButtonData(messages.RemoveSet, fmt.Sprintf("set_remove_last_%d", exercise.ID)),
-		tgbotapi.NewInlineKeyboardButtonData(messages.Timer, fmt.Sprintf("timer_start_%d_ex_%d", exercise.ExerciseType.RestInSeconds, exercise.ID)),
-	))
-
-	if len(changeSettingsButtons) > 0 {
-		rows = append(rows, changeSettingsButtons)
-	}
-
-	rows = append(rows, tgbotapi.NewInlineKeyboardRow(
-		tgbotapi.NewInlineKeyboardButtonData(messages.Technique, fmt.Sprintf("exercise_show_hint_%d_%d", exercise.WorkoutDayID, exercise.ExerciseTypeID)),
-		tgbotapi.NewInlineKeyboardButtonData(messages.EndWorkout, fmt.Sprintf("workout_confirm_finish_%d", workoutID)),
-	))
-
-	rows = append(rows, tgbotapi.NewInlineKeyboardRow(
-		tgbotapi.NewInlineKeyboardButtonData(messages.Prev, fmt.Sprintf("exercise_move_to_prev_%d", workoutID)),
-		tgbotapi.NewInlineKeyboardButtonData(messages.Progress, fmt.Sprintf("workout_show_progress_%d", workoutID)),
-		tgbotapi.NewInlineKeyboardButtonData(messages.DropExercise, fmt.Sprintf("exercise_confirm_delete_%d", exercise.ID)),
-		tgbotapi.NewInlineKeyboardButtonData(messages.Next, fmt.Sprintf("exercise_move_to_next_%d", workoutID)),
-	))
-
-	keyboard := tgbotapi.NewInlineKeyboardMarkup(rows...)
+	keyboard := tgbotapi.NewInlineKeyboardMarkup(
+		tgbotapi.NewInlineKeyboardRow(
+			tgbotapi.NewInlineKeyboardButtonData(messages.DoneSet, fmt.Sprintf("set_complete_%d", exercise.ID)),
+			tgbotapi.NewInlineKeyboardButtonData(messages.AddSet, fmt.Sprintf("set_add_one_%d", exercise.ID)),
+			tgbotapi.NewInlineKeyboardButtonData(messages.RemoveSet, fmt.Sprintf("set_remove_last_%d", exercise.ID)),
+			tgbotapi.NewInlineKeyboardButtonData(messages.Timer, fmt.Sprintf("timer_start_%d_ex_%d", exercise.ExerciseType.RestInSeconds, exercise.ID)),
+		),
+		changeSettingsButtons,
+		tgbotapi.NewInlineKeyboardRow(
+			tgbotapi.NewInlineKeyboardButtonData(messages.Technique, fmt.Sprintf("exercise_show_hint_%d_%d", exercise.WorkoutDayID, exercise.ExerciseTypeID)),
+			tgbotapi.NewInlineKeyboardButtonData(messages.EndWorkout, fmt.Sprintf("workout_confirm_finish_%d", workoutID)),
+		),
+		tgbotapi.NewInlineKeyboardRow(
+			tgbotapi.NewInlineKeyboardButtonData(messages.Prev, fmt.Sprintf("exercise_move_to_prev_%d", workoutID)),
+			tgbotapi.NewInlineKeyboardButtonData(messages.Progress, fmt.Sprintf("workout_show_progress_%d", workoutID)),
+			tgbotapi.NewInlineKeyboardButtonData(messages.DropExercise, fmt.Sprintf("exercise_confirm_delete_%d", exercise.ID)),
+			tgbotapi.NewInlineKeyboardButtonData(messages.Next, fmt.Sprintf("exercise_move_to_next_%d", workoutID)),
+		),
+	)
 
 	msg := tgbotapi.NewMessage(chatID, text.String())
 	msg.ParseMode = constants.HtmlParseMode

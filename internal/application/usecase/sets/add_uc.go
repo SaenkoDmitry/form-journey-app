@@ -39,28 +39,19 @@ func (uc *AddOneMoreUseCase) Name() string {
 
 func (uc *AddOneMoreUseCase) Execute(exerciseID int64) (*dto.AddOneMoreSet, error) {
 	exercise, err := uc.exercisesRepo.Get(exerciseID)
-	if err != nil {
+	if err != nil || len(exercise.Sets) == 0 {
 		return nil, err
 	}
 
-	var nextSet *models.Set
-	if len(exercise.Sets) > 0 {
-		lastSet := exercise.Sets[len(exercise.Sets)-1]
-		nextSet = &models.Set{
-			ExerciseID: exercise.ID,
-			Reps:       lastSet.GetRealReps(),
-			Weight:     lastSet.GetRealWeight(),
-			Minutes:    lastSet.GetRealMinutes(),
-			Meters:     lastSet.GetRealMeters(),
-			Index:      lastSet.Index + 1,
-		}
-	} else {
-		nextSet = &models.Set{
-			ExerciseID: exercise.ID,
-		}
-	}
-
-	err = uc.setsRepo.Save(nextSet)
+	lastSet := exercise.Sets[len(exercise.Sets)-1]
+	err = uc.setsRepo.Save(&models.Set{
+		ExerciseID: exercise.ID,
+		Reps:       lastSet.Reps,
+		Weight:     lastSet.Weight,
+		Minutes:    lastSet.Minutes,
+		Meters:     lastSet.Meters,
+		Index:      lastSet.Index + 1,
+	})
 	if err != nil {
 		fmt.Println("cannot create set:", err.Error())
 		return nil, err

@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	"github.com/SaenkoDmitry/training-tg-bot/internal/utils"
 	"strings"
 	"time"
 )
@@ -39,9 +38,6 @@ func (w *WorkoutDay) String() string {
 
 	text.WriteString(fmt.Sprintf("<b>Тип:</b> %s \n", w.WorkoutDayType.Name))
 	text.WriteString(fmt.Sprintf("<b>Статус:</b> %s\n", w.Status()))
-	if w.Completed {
-		text.WriteString(fmt.Sprintf("<b>Длительность:</b> %s\n", utils.BetweenTimes(w.StartedAt, w.EndedAt)))
-	}
 	text.WriteString(fmt.Sprintf("<b>Дата:</b> 📅 %s\n\n", w.StartedAt.Add(3*time.Hour).Format("02.01.2006")))
 
 	if len(w.Exercises) > 0 {

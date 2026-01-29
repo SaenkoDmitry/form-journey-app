@@ -51,7 +51,6 @@ func (u *repoImpl) Get(workoutID int64) (workoutDay models.WorkoutDay, err error
 			Preload("Exercises.WorkoutDay").
 			Preload("Exercises.ExerciseType").
 			Preload("Exercises.Sets", func(db *gorm.DB) *gorm.DB { return db.Order("sets.index ASC") }).
-			Preload("Exercises.Sets.Exercise.ExerciseType").
 			Preload("Exercises", func(db *gorm.DB) *gorm.DB { return db.Order("exercises.index ASC") }).
 			First(&workoutDay, workoutID).Error
 	})

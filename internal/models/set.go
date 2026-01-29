@@ -7,11 +7,8 @@ import (
 )
 
 type Set struct {
-	ID int64 `gorm:"primaryKey;autoIncrement"`
-
-	ExerciseID int64
-	Exercise   *Exercise `gorm:"foreignKey:ExerciseID;references:ID"` // join
-
+	ID          int64 `gorm:"primaryKey;autoIncrement"`
+	ExerciseID  int64
 	Reps        int
 	FactReps    int
 	Weight      float32
@@ -32,32 +29,25 @@ func (*Set) TableName() string {
 func (s *Set) String(done bool) string {
 	var text strings.Builder
 
-	text.WriteString("• ")
-	if s.Completed {
-		//text.WriteString("<strike>")
-		text.WriteString(fmt.Sprintf("✅ [%s]: ", s.CompletedAt.Add(3*time.Hour).Format("15:04:05")))
-	} else {
-		if done {
-			text.WriteString("💔 ")
-		} else {
-			text.WriteString("🚀 ")
-		}
+	if s.Meters > 0 {
+		text.WriteString(fmt.Sprintf("• %s метров: ", s.FormatMeters()))
 	}
-	if s.Exercise.ExerciseType.ShowMeters() {
-		text.WriteString(fmt.Sprintf("%s метров", s.FormatMeters()))
+	if s.Minutes > 0 {
+		text.WriteString(fmt.Sprintf("• %s минут: ", s.FormatMinutes()))
 	}
-	if s.Exercise.ExerciseType.ShowMinutes() {
-		text.WriteString(fmt.Sprintf("%s минут", s.FormatMinutes()))
-	}
-	if s.Exercise.ExerciseType.ShowReps() && s.Exercise.ExerciseType.ShowWeight() {
-		text.WriteString(fmt.Sprintf("%s повт. * %s кг", s.FormatReps(), s.FormatWeight()))
-	} else if s.Exercise.ExerciseType.ShowReps() {
-		text.WriteString(fmt.Sprintf("%s повт.", s.FormatReps()))
-	}
-	if s.Completed {
-		//text.WriteString("</strike>")
+	if s.Reps > 0 {
+		text.WriteString(fmt.Sprintf("• %s повторений по %s кг: ", s.FormatReps(), s.FormatWeight()))
 	}
 
+	if s.Completed {
+		text.WriteString(fmt.Sprintf("✅, %s", s.CompletedAt.Add(3*time.Hour).Format("15:04:05")))
+	} else {
+		if done {
+			text.WriteString("💔")
+		} else {
+			text.WriteString("🚀")
+		}
+	}
 	text.WriteString("\n")
 	return text.String()
 }
