@@ -21,6 +21,12 @@ jobs:
       - name: Build Go binary
         run: |
           CGO_ENABLED=0 go build -o training-tg-bot ./cmd/main.go
+          sha256sum training-tg-bot
+
+      - name: Check binary exists
+        run: |
+          ls -lh training-tg-bot
+          file training-tg-bot
 
       - name: Copy binary to VPS
         uses: appleboy/scp-action@v0.1.7
