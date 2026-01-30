@@ -136,7 +136,9 @@ func (s *serviceImpl) BuildExerciseProgress(
 			sumWeight := float32(0)
 			countOfReps := 0
 
-			progress[key] = &Progress{}
+			if _, ok := progress[key]; !ok {
+				progress[key] = &Progress{}
+			}
 
 			for _, set := range e.Sets {
 				if !set.Completed {
