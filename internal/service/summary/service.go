@@ -1,6 +1,7 @@
 package summary
 
 import (
+	"github.com/SaenkoDmitry/training-tg-bot/internal/utils"
 	"math"
 	"time"
 
@@ -114,8 +115,10 @@ func (s *serviceImpl) BuildExerciseProgress(
 			continue
 		}
 
-		date := w.StartedAt.Add(3 * time.Hour).Format("2006-01-02")
+		currDate := w.StartedAt.Add(3 * time.Hour).Format("02.01.2006")
+		thisWeek := utils.GetThisWeek(w.StartedAt)
 
+		var key string
 		for _, e := range w.Exercises {
 			if e.ExerciseType.Name != exerciseName {
 				continue
@@ -124,10 +127,16 @@ func (s *serviceImpl) BuildExerciseProgress(
 				continue
 			}
 
+			if e.ExerciseType.ExerciseGroupTypeCode == "cardio" {
+				key = thisWeek
+			} else {
+				key = currDate
+			}
+
 			sumWeight := float32(0)
 			countOfReps := 0
 
-			progress[date] = &Progress{}
+			progress[key] = &Progress{}
 
 			for _, set := range e.Sets {
 				if !set.Completed {
@@ -136,31 +145,31 @@ func (s *serviceImpl) BuildExerciseProgress(
 
 				countOfReps += set.GetRealReps()
 				sumWeight += set.GetRealWeight() * float32(set.GetRealReps())
-				if progress[date].MaxWeight < set.GetRealWeight() ||
-					progress[date].MaxWeight == set.GetRealWeight() && progress[date].MaxReps < set.GetRealReps() {
-					progress[date].MaxWeight = set.GetRealWeight()
-					progress[date].MaxReps = set.GetRealReps()
+				if progress[key].MaxWeight < set.GetRealWeight() ||
+					progress[key].MaxWeight == set.GetRealWeight() && progress[key].MaxReps < set.GetRealReps() {
+					progress[key].MaxWeight = set.GetRealWeight()
+					progress[key].MaxReps = set.GetRealReps()
 				}
 
-				progress[date].SumMinutes += set.GetRealMinutes()
-				if progress[date].MinMinutes == 0 {
-					progress[date].MinMinutes = set.GetRealMinutes()
-					progress[date].MaxMinutes = set.GetRealMinutes()
+				progress[key].SumMinutes += set.GetRealMinutes()
+				if progress[key].MinMinutes == 0 {
+					progress[key].MinMinutes = set.GetRealMinutes()
+					progress[key].MaxMinutes = set.GetRealMinutes()
 				} else {
-					progress[date].MinMinutes = min(progress[date].MinMinutes, set.GetRealMinutes())
-					progress[date].MaxMinutes = max(progress[date].MaxMinutes, set.GetRealMinutes())
+					progress[key].MinMinutes = min(progress[key].MinMinutes, set.GetRealMinutes())
+					progress[key].MaxMinutes = max(progress[key].MaxMinutes, set.GetRealMinutes())
 				}
 
-				progress[date].SumMeters += set.GetRealMeters()
-				if progress[date].MinMeters == 0 {
-					progress[date].MinMeters = set.GetRealMeters()
-					progress[date].MaxMeters = set.GetRealMeters()
+				progress[key].SumMeters += set.GetRealMeters()
+				if progress[key].MinMeters == 0 {
+					progress[key].MinMeters = set.GetRealMeters()
+					progress[key].MaxMeters = set.GetRealMeters()
 				} else {
-					progress[date].MinMeters = min(progress[date].MinMeters, set.GetRealMeters())
-					progress[date].MaxMeters = max(progress[date].MaxMeters, set.GetRealMeters())
+					progress[key].MinMeters = min(progress[key].MinMeters, set.GetRealMeters())
+					progress[key].MaxMeters = max(progress[key].MaxMeters, set.GetRealMeters())
 				}
 			}
-			progress[date].AvgWeight = sumWeight / float32(countOfReps)
+			progress[key].AvgWeight = sumWeight / float32(countOfReps)
 		}
 	}
 

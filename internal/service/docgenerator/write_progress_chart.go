@@ -171,5 +171,5 @@ func (s *serviceImpl) writeProgressChart(
 }
 
 const (
-	betweenExerciseRows = 20
+	betweenExerciseRows = 17
 )

@@ -153,3 +153,11 @@ func getRussianWeekDay(weekday time.Weekday) string {
 	}
 	return ""
 }
+
+func GetThisWeek(date time.Time) string {
+	align := (date.Add(3*time.Hour).Weekday() + 6) % 7
+	fmt.Println(date.Add(3*time.Hour).Weekday().String(), int(align))
+	from := date.AddDate(0, 0, -int(align)).Add(3 * time.Hour).Format("02.01.06")
+	to := date.AddDate(0, 0, 7-int(align)-1).Add(3 * time.Hour).Format("02.01.06")
+	return fmt.Sprintf("%s – %s", from, to)
+}
