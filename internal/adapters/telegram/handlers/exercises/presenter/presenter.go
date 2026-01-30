@@ -182,7 +182,17 @@ func (p *Presenter) ShowHint(chatID int64, res *dto.GetExercise, workoutID int64
 	}
 	keyboard := tgbotapi.NewInlineKeyboardMarkup(buttons...)
 
-	msg := tgbotapi.NewMessage(chatID, utils.WrapYandexLink(exerciseType.Url))
+	text := ""
+	if exerciseType.Description != "" {
+		text += exerciseType.Description + "\n\n"
+	}
+	if exerciseType.Url != "" {
+		text += utils.WrapYandexLink(exerciseType.Url)
+	}
+	if text == "" {
+		text += "¯\\_(ツ)_/¯"
+	}
+	msg := tgbotapi.NewMessage(chatID, text)
 	msg.ParseMode = constants.HtmlParseMode
 	msg.ReplyMarkup = keyboard
 	p.bot.Send(msg)

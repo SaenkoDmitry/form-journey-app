@@ -13,6 +13,7 @@ type ExerciseType struct {
 	RestInSeconds         int
 	Accent                string
 	Units                 string
+	Description           string
 }
 
 func (*ExerciseType) TableName() string {
