@@ -95,14 +95,11 @@ func (u *repoImpl) Find(userID int64, offset, limit int) (workouts []models.Work
 }
 
 func (u *repoImpl) FindPreviousByType(userID int64, dayTypeID int64, activeProgramID int64) (workout models.WorkoutDay, err error) {
-	err = u.db.Transaction(func(tx *gorm.DB) error {
-		return tx.
-			Joins("workout_day_types wdt ON wdt.id = workout_day_type_id").
-			Where("user_id = ? AND workout_day_type_id = ? AND completed = ? AND w.workout_program_id = ?", userID, dayTypeID, true, activeProgramID).
-			Order("started_at DESC").
-			Preload("Exercises.Sets", func(db *gorm.DB) *gorm.DB { return db.Order("sets.index ASC") }).
-			Preload("Exercises", func(db *gorm.DB) *gorm.DB { return db.Order("exercises.index ASC") }).
-			First(&workout).Error
-	})
+	err = u.db.Joins("JOIN workout_day_types ON workout_day_types.id = workout_day_type_id").
+		Where("user_id = ? AND workout_day_type_id = ? AND completed = ? AND workout_program_id = ?", userID, dayTypeID, true, activeProgramID).
+		Order("started_at DESC").
+		Preload("Exercises.Sets", func(db *gorm.DB) *gorm.DB { return db.Order("sets.index ASC") }).
+		Preload("Exercises", func(db *gorm.DB) *gorm.DB { return db.Order("exercises.index ASC") }).
+		First(&workout).Error
 	return workout, err
 }
