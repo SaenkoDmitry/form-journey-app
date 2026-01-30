@@ -19,6 +19,12 @@ type DateSummary struct {
 	MaxWeight   float32
 }
 
+type WeekSummary struct {
+	SumWeight  float32
+	SumMinutes int
+	SumMeters  int
+}
+
 type Progress struct {
 	MaxWeight float32
 	MaxReps   int

@@ -12,6 +12,7 @@ type Service interface {
 	BuildTotal(workouts []models.WorkoutDay, groupCodesMap map[string]string) map[string]*ExerciseSummary
 	BuildByDate(workouts []models.WorkoutDay) map[string]*DateSummary
 	BuildExerciseProgress(workouts []models.WorkoutDay, exerciseName string) map[string]*Progress
+	BuildByWeekAndExType(workouts []models.WorkoutDay, groupCodesMap map[string]string) map[string]map[string]*WeekSummary
 }
 
 type serviceImpl struct {
@@ -176,4 +177,26 @@ func (s *serviceImpl) BuildExerciseProgress(
 	}
 
 	return progress
+}
+
+func (s *serviceImpl) BuildByWeekAndExType(workouts []models.WorkoutDay, groupCodesMap map[string]string) map[string]map[string]*WeekSummary {
+	result := make(map[string]map[string]*WeekSummary)
+	for _, w := range workouts {
+		thisWeek := utils.GetThisWeek(w.StartedAt)
+		if _, ok := result[thisWeek]; !ok {
+			result[thisWeek] = map[string]*WeekSummary{}
+		}
+		for _, e := range w.Exercises {
+			groupName := groupCodesMap[e.ExerciseType.ExerciseGroupTypeCode]
+			if _, ok := result[thisWeek][groupName]; !ok {
+				result[thisWeek][groupName] = &WeekSummary{}
+			}
+			for _, set := range e.Sets {
+				result[thisWeek][groupName].SumWeight += float32(set.GetRealReps()) * set.GetRealWeight()
+				result[thisWeek][groupName].SumMinutes += set.GetRealMinutes()
+				result[thisWeek][groupName].SumMeters += set.GetRealMeters()
+			}
+		}
+	}
+	return result
 }

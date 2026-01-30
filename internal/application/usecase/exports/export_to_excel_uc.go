@@ -61,8 +61,10 @@ func (uc *ExportToExcelUseCase) Execute(chatID int64) (*bytes.Buffer, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	totalSummary := uc.summaryService.BuildTotal(workoutObjs, groupCodesMap)
 	byDateSummary := uc.summaryService.BuildByDate(workoutObjs)
+	weekExerciseTypeSummary := uc.summaryService.BuildByWeekAndExType(workoutObjs, groupCodesMap)
 
 	exerciseObjs, err := uc.exercisesRepo.FindAllByUserID(user.ID)
 	if err != nil {
@@ -78,7 +80,7 @@ func (uc *ExportToExcelUseCase) Execute(chatID int64) (*bytes.Buffer, error) {
 		progresses[e.ExerciseType.Name] = uc.summaryService.BuildExerciseProgress(workoutObjs, e.ExerciseType.Name)
 	}
 
-	file, err := uc.docGeneratorService.ExportToFile(workoutObjs, totalSummary, byDateSummary, progresses, groupCodesMap)
+	file, err := uc.docGeneratorService.ExportToFile(workoutObjs, totalSummary, byDateSummary, progresses, groupCodesMap, weekExerciseTypeSummary)
 	if err != nil {
 		return nil, err
 	}
