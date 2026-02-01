@@ -52,7 +52,7 @@ func (r *Router) routeMessage(message *tgbotapi.Message) {
 }
 
 func (r *Router) sendMainMenu(chatID int64, from *tgbotapi.User, hello bool) {
-	text := "♡"
+	text := "♡ 👇🏻"
 
 	if hello {
 		text = messages.Hello

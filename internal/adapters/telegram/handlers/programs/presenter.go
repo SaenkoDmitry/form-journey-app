@@ -41,7 +41,7 @@ func (p *Presenter) ShowProgramManageDialog(chatID int64, result *dto.GetAllProg
 	}
 	rows = append(rows, tgbotapi.NewInlineKeyboardRow(
 		tgbotapi.NewInlineKeyboardButtonData("➕ Добавить новую", "program_create"),
-		tgbotapi.NewInlineKeyboardButtonData(messages.BackTo, "/settings"),
+		tgbotapi.NewInlineKeyboardButtonData(messages.BackTo, "/menu"),
 	))
 
 	keyboard := tgbotapi.NewInlineKeyboardMarkup(rows...)
