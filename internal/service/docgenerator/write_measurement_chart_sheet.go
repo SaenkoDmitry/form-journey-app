@@ -58,13 +58,15 @@ func (s *serviceImpl) writeMeasurementChartSheet(
 
 	for i, ch := range charts {
 		chart := makeChart(sheet, firstRow, lastRow, ch.RangeSymbol, ch.CategoryName)
-		err := f.AddChart(sheet, fmt.Sprintf("J%d", i*15+2), chart)
+		err := f.AddChart(sheet, fmt.Sprintf("J%d", i*betweenChartRowsCount+2), chart)
 		if err != nil {
 			fmt.Println("error while build chart:", err.Error())
 			return
 		}
 	}
 }
+
+const betweenChartRowsCount = 14
 
 type ChartSetting struct {
 	RangeSymbol  string
