@@ -24,8 +24,8 @@ func (h *Handler) RouteCallback(chatID int64, data string) {
 	switch {
 	case strings.EqualFold(data, "measurements_menu"):
 		h.showMenu(chatID)
-	case strings.HasPrefix(data, "measurements_show_top_"):
-		parts := strings.TrimPrefix(data, "measurements_show_top_")
+	case strings.HasPrefix(data, "measurements_show_limit_"):
+		parts := strings.TrimPrefix(data, "measurements_show_limit_")
 		arr := strings.Split(parts, "_")
 		limit, _ := strconv.ParseInt(arr[0], 10, 64)
 		offset, _ := strconv.ParseInt(arr[1], 10, 64)
@@ -42,7 +42,7 @@ func (h *Handler) showWithLimitAndOffset(chatID int64, limit, offset int) {
 	if err != nil {
 		return
 	}
-	h.presenter.showAllLimitOffset(chatID, res)
+	h.presenter.showLimitOffset(chatID, limit, offset, res)
 }
 
 func (h *Handler) RouteMessage(chatID int64, text string) {

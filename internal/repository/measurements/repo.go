@@ -12,6 +12,7 @@ type Repo interface {
 	Delete(measurement *models.Measurement) error
 	FindAll(userID int64) ([]models.Measurement, error)
 	FindAllLimitOffset(userID int64, limit, offset int) ([]models.Measurement, error)
+	Count(userID int64) (int64, error)
 }
 
 type repoImpl struct {
@@ -68,4 +69,9 @@ func (u *repoImpl) FindAllLimitOffset(userID int64, limit, offset int) (measurem
 	}
 
 	return measurements, nil
+}
+
+func (u *repoImpl) Count(userID int64) (count int64, err error) {
+	err = u.db.Model(&models.Measurement{}).Where("user_id = ?", userID).Count(&count).Error
+	return count, err
 }

@@ -23,7 +23,7 @@ func (p Presenter) showMenu(chatID int64) {
 	keyboard := tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData("➕ Добавить новое", "change_add_new_measurement"),
-			tgbotapi.NewInlineKeyboardButtonData("🆕 Последние", "measurements_show_top_4_0"),
+			formatMoveToButton("📋 История", 3, 0),
 		),
 		//tgbotapi.NewInlineKeyboardRow(
 		//	tgbotapi.NewInlineKeyboardButtonData("🗑 Удалить последнее добавленное", "measurements_delete_last"),
@@ -37,7 +37,10 @@ func (p Presenter) showMenu(chatID int64) {
 	p.bot.Send(msg)
 }
 
-func (p Presenter) showAllLimitOffset(chatID int64, measurementObjs []dto.Measurement) {
+func (p Presenter) showLimitOffset(chatID int64, limit, offset int, result *dto.FindWithOffsetLimitMeasurement) {
+	measurementObjs := result.Items
+	count := result.Count
+
 	shoulders := make([]string, 0, len(measurementObjs))
 	chests := make([]string, 0, len(measurementObjs))
 	handLeft := make([]string, 0, len(measurementObjs))
@@ -98,6 +101,13 @@ func (p Presenter) showAllLimitOffset(chatID int64, measurementObjs []dto.Measur
 		strings.Join(weights, delimiter),
 	))
 	buttons := make([][]tgbotapi.InlineKeyboardButton, 0)
+	buttons = append(buttons, []tgbotapi.InlineKeyboardButton{})
+	if offset+limit < count {
+		buttons[len(buttons)-1] = append(buttons[len(buttons)-1], formatMoveToButton(messages.Earlier, limit, offset+limit))
+	}
+	if offset-limit >= 0 {
+		buttons[len(buttons)-1] = append(buttons[len(buttons)-1], formatMoveToButton(messages.Later, limit, offset-limit))
+	}
 	buttons = append(buttons, tgbotapi.NewInlineKeyboardRow(
 		tgbotapi.NewInlineKeyboardButtonData(messages.BackTo, "measurements_menu"),
 	))
@@ -106,6 +116,10 @@ func (p Presenter) showAllLimitOffset(chatID int64, measurementObjs []dto.Measur
 	msg.ParseMode = constants.HtmlParseMode
 	msg.ReplyMarkup = keyboard
 	p.bot.Send(msg)
+}
+
+func formatMoveToButton(text string, limit, offset int) tgbotapi.InlineKeyboardButton {
+	return tgbotapi.NewInlineKeyboardButtonData(text, fmt.Sprintf("measurements_show_limit_%d_%d", limit, offset))
 }
 
 const (

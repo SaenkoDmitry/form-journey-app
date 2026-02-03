@@ -15,3 +15,8 @@ type Measurement struct {
 	CalfRight string
 	Weight    string
 }
+
+type FindWithOffsetLimitMeasurement struct {
+	Items []Measurement
+	Count int
+}
