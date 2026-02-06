@@ -139,9 +139,9 @@ func (p *Presenter) ShowConfirmDeleteDialog(chatID int64, res *dto.ConfirmDelete
 
 	keyboard := tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData("✅ Да, удалить",
+			tgbotapi.NewInlineKeyboardButtonData(messages.YesDelete,
 				fmt.Sprintf("exercise_delete_%d", exercise.ID)),
-			tgbotapi.NewInlineKeyboardButtonData("❌ Нет, отмена",
+			tgbotapi.NewInlineKeyboardButtonData(messages.NoCancel,
 				fmt.Sprintf("workout_start_%d", exercise.WorkoutDayID)),
 		),
 	)

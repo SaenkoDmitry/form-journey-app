@@ -47,9 +47,9 @@ func (p *Presenter) ShowConfirmDelete(chatID int64, res *models.WorkoutDayType) 
 
 	keyboard := tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData("✅ Да, удалить",
+			tgbotapi.NewInlineKeyboardButtonData(messages.YesDelete,
 				fmt.Sprintf("day_type_delete_%d", res.ID)),
-			tgbotapi.NewInlineKeyboardButtonData("❌ Нет, отмена",
+			tgbotapi.NewInlineKeyboardButtonData(messages.NoCancel,
 				fmt.Sprintf("program_view_%d", res.WorkoutProgramID)),
 		),
 	)

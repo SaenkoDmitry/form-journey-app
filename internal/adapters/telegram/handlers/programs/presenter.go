@@ -145,9 +145,9 @@ func (p *Presenter) ConfirmDeleteDialog(chatID int64, res *dto.GetProgram) {
 
 	keyboard := tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData("✅ Да, удалить",
+			tgbotapi.NewInlineKeyboardButtonData(messages.YesDelete,
 				fmt.Sprintf("program_delete_%d", program.ID)),
-			tgbotapi.NewInlineKeyboardButtonData("❌ Нет, отмена",
+			tgbotapi.NewInlineKeyboardButtonData(messages.NoCancel,
 				fmt.Sprintf("program_view_%d", program.ID)),
 		),
 	)

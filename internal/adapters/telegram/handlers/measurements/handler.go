@@ -3,6 +3,7 @@ package measurements
 import (
 	"github.com/SaenkoDmitry/training-tg-bot/internal/adapters/telegram/common"
 	measurementsusecases "github.com/SaenkoDmitry/training-tg-bot/internal/application/usecase/measurements"
+	"github.com/SaenkoDmitry/training-tg-bot/internal/messages"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strconv"
 	"strings"
@@ -68,7 +69,7 @@ func (h *Handler) deleteMeasurement(chatID int64, measurementID int64) {
 	if err != nil {
 		return
 	}
-	h.commonPresenter.SendSimpleHtmlMessage(chatID, "✅ Успешно удалено!")
+	h.commonPresenter.SendSimpleHtmlMessage(chatID, messages.SuccessfullyDeletedMeasurement)
 	h.showMenu(chatID)
 }
 
