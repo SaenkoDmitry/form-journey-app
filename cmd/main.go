@@ -151,5 +151,5 @@ func initServer(container *usecase.Container) {
 	r.NotFound(web.SPAHandler().ServeHTTP)
 
 	log.Println("Server started on :8080")
-	http.ListenAndServe(":8080", r)
+	http.ListenAndServe("0.0.0.0:8080", r)
 }

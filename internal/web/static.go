@@ -11,7 +11,10 @@ import (
 var content embed.FS
 
 func SPAHandler() http.Handler {
-	sub, _ := fs.Sub(content, "dist")
+	sub, err := fs.Sub(content, "dist")
+	if err != nil {
+		panic(err)
+	}
 	fsHandler := http.FileServer(http.FS(sub))
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -23,13 +26,13 @@ func SPAHandler() http.Handler {
 			return
 		}
 
-		// 2. Проверяем, существует ли файл
+		// 2. Если файл реально существует, отдать
 		if _, err := sub.Open(strings.TrimPrefix(path, "/")); err == nil {
 			fsHandler.ServeHTTP(w, r)
 			return
 		}
 
-		// 3. Если файл не найден, отдаем index.html для React Router
+		// 3. SPA fallback для React Router
 		r.URL.Path = "/index.html"
 		fsHandler.ServeHTTP(w, r)
 	})
