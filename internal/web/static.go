@@ -1,21 +1,21 @@
 package web
 
 import (
+	"bytes"
 	"embed"
+	"io"
 	"io/fs"
 	"net/http"
 	"strings"
+
+	"github.com/go-chi/chi/v5"
 )
 
 //go:embed dist/*
 var content embed.FS
 
 func SPAHandler() http.Handler {
-	sub, err := fs.Sub(content, "dist")
-	if err != nil {
-		panic(err)
-	}
-	fsHandler := http.FileServer(http.FS(sub))
+	sub, _ := fs.Sub(content, "dist")
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := strings.TrimPrefix(r.URL.Path, "/")
@@ -25,17 +25,28 @@ func SPAHandler() http.Handler {
 			return
 		}
 
-		// Попробуем открыть как файл
+		// Попробуем открыть файл
 		if f, err := sub.Open(path); err == nil {
-			stat, _ := f.Stat()
-			if !stat.IsDir() { // важно, чтобы не было редиректа
-				fsHandler.ServeHTTP(w, r)
+			defer f.Close()
+			info, _ := f.Stat()
+			if !info.IsDir() {
+				// Читаем весь файл в память и создаём io.ReadSeeker
+				data, _ := io.ReadAll(f)
+				http.ServeContent(w, r, path, info.ModTime(), bytes.NewReader(data))
 				return
 			}
 		}
 
 		// SPA fallback
-		r.URL.Path = "/index.html"
-		fsHandler.ServeHTTP(w, r)
+		fallback, _ := sub.Open("index.html")
+		defer fallback.Close()
+		info, _ := fallback.Stat()
+		data, _ := io.ReadAll(fallback)
+		http.ServeContent(w, r, "index.html", info.ModTime(), bytes.NewReader(data))
 	})
+}
+
+// MountSPA подключает SPA на chi.Router, не ломая существующие api маршруты
+func MountSPA(r chi.Router, pathPrefix string) {
+	r.Handle(pathPrefix+"*", SPAHandler())
 }

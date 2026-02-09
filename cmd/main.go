@@ -148,7 +148,7 @@ func initServer(container *usecase.Container) {
 	})
 
 	// UI (React build)
-	r.NotFound(web.SPAHandler().ServeHTTP)
+	web.MountSPA(r, "/")
 
 	log.Println("Server started on :8080")
 	http.ListenAndServe("0.0.0.0:8080", r)
