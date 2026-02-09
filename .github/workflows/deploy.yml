@@ -17,11 +17,20 @@ jobs:
       # FRONTEND
       # -----------------
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install frontend deps
+        run: npm ci
+        working-directory: ui
+
       - name: Build frontend
         run: npm run build
         working-directory: ui
 
-      - name: Copy frontend dist to embed folder
+      - name: Copy frontend dist for Go embed
         run: |
           rm -rf internal/web/dist
           cp -r ui/dist internal/web/dist
