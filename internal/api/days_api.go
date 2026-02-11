@@ -16,6 +16,16 @@ func (s *serviceImpl) CreateProgramDay(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Разбираем JSON из тела запроса
+	var input struct {
+		Name string `json:"name"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
+
 	programID, err := helpers.ParseInt64Param("program_id", w, r)
 	if err != nil {
 		return
@@ -25,9 +35,7 @@ func (s *serviceImpl) CreateProgramDay(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newDayName := r.PathValue("day_new_name")
-
-	dayTypeID, err := s.container.DayTypesCreateUC.Execute(programID, newDayName)
+	dayTypeID, err := s.container.DayTypesCreateUC.Execute(programID, input.Name)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

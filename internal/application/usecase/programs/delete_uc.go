@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/programs"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/users"
+	"strings"
 )
 
 type DeleteUseCase struct {
@@ -26,7 +27,8 @@ func (uc *DeleteUseCase) Name() string {
 }
 
 var (
-	CannotDeleteCurrentProgramErr = errors.New("cannot delete current program")
+	CannotDeleteCurrentProgramErr  = errors.New("Не могу удалить активную программу")
+	CannotDeleteAlreadyUsedProgram = errors.New("Не могу удалить программу, которая уже есть в истории тренировок")
 )
 
 func (uc *DeleteUseCase) Execute(chatID, programID int64) error {
@@ -46,6 +48,9 @@ func (uc *DeleteUseCase) Execute(chatID, programID int64) error {
 
 	err = uc.programsRepo.Delete(&program)
 	if err != nil {
+		if strings.Contains(err.Error(), "update or delete on table \"workout_day_types\" violates foreign key constraint") {
+			return CannotDeleteAlreadyUsedProgram
+		}
 		return err
 	}
 

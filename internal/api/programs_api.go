@@ -100,7 +100,7 @@ func (s *serviceImpl) DeleteProgram(w http.ResponseWriter, r *http.Request) {
 
 	err = s.container.DeleteProgramUC.Execute(claims.ChatID, programID)
 	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 

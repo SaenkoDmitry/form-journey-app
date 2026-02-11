@@ -58,14 +58,15 @@ export default function ProgramDetailsPage() {
             await deleteDay(program.id, dayId);
             showToast("✅ День удалён");
             await load();
-        } catch {
-            showToast("❌ Ошибка при удалении дня");
+        } catch (e) {
+            const msg = e instanceof Error ? e.message : "Ошибка при удалении дня";
+            showToast(`❌ ${msg}`);
         }
     };
 
     const showToast = (text: string) => {
         setToast(text);
-        setTimeout(() => setToast(null), 1500);
+        setTimeout(() => setToast(null), 3000);
     };
 
     return (

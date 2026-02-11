@@ -241,15 +241,6 @@ const MeasurementsPage: React.FC = () => {
                         </div>
                     </div>
                 ))}
-
-                {!adding && (
-                    <button
-                        className="fab-button"
-                        onClick={() => setAdding(true)}
-                    >
-                        +
-                    </button>
-                )}
             </div>
 
         </div>
