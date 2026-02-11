@@ -1,5 +1,5 @@
-import "../index.css";
-import "./Button.css";
+import "../styles/index.css";
+import "../styles/Button.css";
 
 type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
     variant?: "primary" | "danger" | "ghost";

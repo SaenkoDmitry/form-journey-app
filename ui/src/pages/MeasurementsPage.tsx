@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import './MeasurementsPage.css';
+import '../styles/MeasurementsPage.css';
 import Button from "../components/Button.tsx";
 
 const PAGE_SIZE = 15;
@@ -109,7 +109,7 @@ const MeasurementsPage: React.FC = () => {
 
             {/* ===== DESKTOP BUTTON ===== */}
             {!adding && (
-                <Button onClick={() => setAdding(true)}>
+                <Button variant="primary" onClick={() => setAdding(true)}>
                     ➕ Добавить новое измерение
                 </Button>
             )}

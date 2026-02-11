@@ -1,5 +1,5 @@
 import Button from "./Button";
-import "./ProgramCard.css";
+import "../styles/ProgramCard.css";
 
 type Props = {
     name: string;

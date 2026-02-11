@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import WorkoutCard from '../components/WorkoutCard';
 import {useAuth} from '../context/AuthContext';
-import '../App.css';
+import '../styles/App.css';
 import Button from "../components/Button.tsx";
 
 const LIMIT = 10;

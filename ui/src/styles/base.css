@@ -1,0 +1,44 @@
+* {
+    box-sizing: border-box;
+}
+
+html, body, #root {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+}
+
+/* inputs */
+input, select {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 8px 10px;
+    min-height: var(--tap-size);
+    font-size: 16px;
+}
+
+/* links */
+a {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+/* toast общий */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 8px 14px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    opacity: 0.95;
+    z-index: 1000;
+}

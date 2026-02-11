@@ -4,7 +4,7 @@ import {getProgram} from "../api/days";
 import {parsePreset, savePreset} from "../api/presets";
 import {getExerciseGroups, getExerciseTypesByGroup} from "../api/exercises";
 import Button from "../components/Button";
-import "./DayDetailsPage.css";
+import "../styles/DayDetailsPage.css";
 
 export default function DayDetailsPage() {
     const {programId, dayId} = useParams();

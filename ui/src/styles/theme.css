@@ -1,0 +1,25 @@
+:root {
+    /* ========= COLORS ========= */
+    --color-primary: #4caf50;
+    --color-primary-hover: #43a047;
+    --color-primary-soft: #e8f5e9;
+
+    --color-danger: #ef4444;
+
+    --color-bg: #f6f8fa;
+    --color-card: #ffffff;
+
+    --color-text: #1f2937;
+    --color-text-muted: #6b7280;
+
+    --color-border: #e5e7eb;
+
+    /* ========= UI ========= */
+    --radius: 12px;
+    --radius-lg: 16px;
+
+    --shadow-sm: 0 1px 4px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.12);
+
+    --tap-size: 44px;
+}

@@ -9,8 +9,7 @@ import {
 import ProgramCard from "../components/ProgramCard";
 import Button from "../components/Button";
 import { useNavigate } from "react-router-dom";
-import "./ProgramBase.css";
-import {createDay} from "../api/days.ts";
+import "../styles/ProgramBase.css";
 
 export default function ProgramsPage() {
     const [programs, setPrograms] = useState<any[]>([]);

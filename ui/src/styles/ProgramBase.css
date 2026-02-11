@@ -1,0 +1,30 @@
+.page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+.stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.row-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* универсальная карточка */
+.card {
+    background: var(--color-card);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+    box-shadow: var(--shadow-sm);
+}

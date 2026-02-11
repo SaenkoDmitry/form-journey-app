@@ -1,0 +1,6 @@
+@import "./theme.css";
+@import "./base.css";
+
+#root {
+  height: 100%;
+}

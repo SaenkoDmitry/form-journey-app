@@ -1,0 +1,125 @@
+.measurements-page {
+    padding: 16px;
+}
+
+/* ===== TABLE ===== */
+
+.table-wrapper {
+    overflow: auto;
+    max-height: 70vh;
+}
+
+.measurements-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+
+    background: var(--color-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    font-size: 14px;
+}
+
+.measurements-table:first-child {
+    margin-top: 16px; /* или 24px, чтобы от кнопки было больше воздуха */
+}
+
+.measurements-table th,
+.measurements-table td {
+    padding: 10px;
+    text-align: center;
+}
+
+.measurements-table thead {
+    background: #f3f4f6;
+    position: sticky;
+    top: 0;
+}
+
+.measurements-table tbody tr:nth-child(even) {
+    background: #fafafa;
+}
+
+.measurements-table tbody tr:hover {
+    background: var(--color-primary-soft);
+}
+
+.weight {
+    font-weight: 700;
+}
+
+/* ===== CARDS (mobile) ===== */
+
+.cards-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 16px; /* было 12 → мало */
+    padding-bottom: 80px; /* чтобы FAB не перекрывал */
+}
+
+.measurement-card {
+    background: var(--color-card);
+    border-radius: var(--radius-lg);
+
+    padding: 24px; /* больше воздуха */
+    box-shadow: var(--shadow-md);
+
+    border: 1px solid var(--color-border); /* 👈 главный визуальный разделитель */
+}
+
+.measurement-card:first-child {
+    margin-top: 16px; /* или 24px, чтобы от кнопки было больше воздуха */
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.card-body.two-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 14px;
+}
+
+.card-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    padding: 4px 0;
+}
+
+/* форма добавления — тоже как card */
+.card-form {
+    background: var(--color-card);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--color-border);
+}
+
+.measurement-card:active {
+    transform: scale(0.99);
+}
+
+/* responsive */
+
+.desktop-only {
+    display: none;
+}
+
+.mobile-only {
+    display: block;
+}
+
+@media (min-width: 769px) {
+    .desktop-only {
+        display: block;
+    }
+
+    .mobile-only {
+        display: none;
+    }
+}

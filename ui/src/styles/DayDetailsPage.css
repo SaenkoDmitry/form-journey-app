@@ -1,0 +1,70 @@
+.exercise-card {
+    width: 100%;
+    padding: 12px;
+}
+
+.exercise-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.exercise-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.drag-handle {
+    cursor: grab;
+    font-size: 20px;
+    opacity: 0.5;
+    margin-right: 8px;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+.sets {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.set-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.minus {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.selector {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+}
+
+.selector select {
+    flex: 1;
+}
+
+.selector button {
+    min-height: var(--tap-size);
+}
+
+@media (max-width: 480px) {
+    .selector {
+        flex-direction: column;
+    }
+
+    .selector select,
+    .selector button {
+        width: 100%;
+    }
+}

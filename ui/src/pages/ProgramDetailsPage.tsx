@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { createDay, deleteDay, getProgram } from "../api/days";
 import Button from "../components/Button";
 import DayCard from "../components/DayCard";
-import "./ProgramBase.css";
+import "../styles/ProgramBase.css";
 
 export type WorkoutDayTypeDTO = {
     id: number;
