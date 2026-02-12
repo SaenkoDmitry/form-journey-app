@@ -1,5 +1,4 @@
 import Button from "./Button";
-import "../styles/ProgramCard.css";
 
 type Props = {
     name: string;
@@ -20,13 +19,11 @@ export default function ProgramCard({
                                     }: Props) {
     return (
         <div className="card row">
-            {/* Левый кликабельный блок */}
             <div
-                className="program-left-block"
                 onClick={onOpen}
                 style={{ cursor: "pointer", flex: 1 }}
             >
-                <div className="program-name">{name}</div>
+                <b>{name}</b>
                 {active && <div className="badge">🟢 Активна</div>}
             </div>
 

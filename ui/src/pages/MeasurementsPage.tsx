@@ -246,7 +246,7 @@ const MeasurementsPage: React.FC = () => {
                                 <span style={{ marginLeft: '10px' }}>⚖ {m.weight} кг</span>
                             </div>
                             <Button
-                                style={{ width: '44px', height: '44px', padding: '0', borderRadius: '50%' }}
+                                style={{ width: '44px', height: '44px' }}
                                 variant="danger"
                                 onClick={() => handleDeleteMeasurement(m.id)}
                                 disabled={!m.id}

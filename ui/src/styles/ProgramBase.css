@@ -28,3 +28,9 @@
     padding: 14px 16px;
     box-shadow: var(--shadow-sm);
 }
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    background: var(--color-primary-soft);
+}

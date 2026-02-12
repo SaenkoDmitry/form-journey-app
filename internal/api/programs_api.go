@@ -27,6 +27,35 @@ func (s *serviceImpl) GetUserPrograms(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(result.Programs)
 }
 
+func (s *serviceImpl) GetActiveProgramForUser(w http.ResponseWriter, r *http.Request) {
+	claims, ok := middlewares.FromContext(r.Context())
+	if !ok {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	user, err := s.container.GetUserUC.Execute(claims.ChatID)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	if user.ActiveProgramID == nil {
+		http.Error(w, "У вас нет активных программ, создайте хотя бы одну", http.StatusForbidden)
+		return
+	}
+
+	program, err := s.container.GetProgramUC.Execute(*user.ActiveProgramID, claims.ChatID)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(program)
+}
+
 func (s *serviceImpl) CreateProgram(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {

@@ -162,6 +162,8 @@ func initServer(container *usecase.Container) {
 		r.Get("/", s.GetUserPrograms)
 		r.Post("/", s.CreateProgram)
 
+		r.Post("/active", s.GetActiveProgramForUser)
+
 		r.Post("/{program_id}/choose", s.ChooseProgram)
 		r.Delete("/{program_id}", s.DeleteProgram)
 		r.Get("/{program_id}", s.GetProgram)
