@@ -43,9 +43,9 @@ const MainLayout: React.FC<{children: React.ReactNode}> = ({children}) => {
                     {/* Burger */}
                     {isMobile && (
                         <div onClick={() => setMenuOpen(!menuOpen)} style={{cursor: 'pointer'}}>
-                            <div style={{width: 25, height: 3, background: '#333', margin: '4px 0'}}/>
-                            <div style={{width: 25, height: 3, background: '#333', margin: '4px 0'}}/>
-                            <div style={{width: 25, height: 3, background: '#333', margin: '4px 0'}}/>
+                            <div style={{width: 25, height: 3, background: 'white', margin: '4px 0'}}/>
+                            <div style={{width: 25, height: 3, background: 'white', margin: '4px 0'}}/>
+                            <div style={{width: 25, height: 3, background: 'white', margin: '4px 0'}}/>
                         </div>
                     )}
                 </div>

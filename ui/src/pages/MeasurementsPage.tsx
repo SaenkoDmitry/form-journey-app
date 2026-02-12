@@ -130,7 +130,7 @@ const MeasurementsPage: React.FC = () => {
             <h1>Замеры</h1>
 
             {!adding && (
-                <Button variant="primary" onClick={() => setAdding(true)}>
+                <Button variant="active" onClick={() => setAdding(true)}>
                     ➕ Добавить новое измерение
                 </Button>
             )}
@@ -171,7 +171,7 @@ const MeasurementsPage: React.FC = () => {
                                 </td>
                             ))}
                             <td style={{ minWidth: "140px" }}>
-                                <Button variant="primary" onClick={handleSaveNewMeasurement}>💾</Button>
+                                <Button variant="active" onClick={handleSaveNewMeasurement}>💾</Button>
                                 <Button style={{ marginLeft: "10px" }} onClick={handleCancelNewMeasurement}>❌</Button>
                             </td>
                         </tr>
@@ -228,7 +228,7 @@ const MeasurementsPage: React.FC = () => {
                             </div>
                         ))}
                         <div className="card-form-buttons">
-                            <Button variant="primary" onClick={handleSaveNewMeasurement}>Сохранить</Button>
+                            <Button variant="active" onClick={handleSaveNewMeasurement}>Сохранить</Button>
                             <Button variant="ghost" onClick={handleCancelNewMeasurement}>Отмена</Button>
                         </div>
                     </div>
