@@ -62,12 +62,12 @@ const LibraryPage: React.FC = () => {
 
         {/* ---------- EXERCISES ---------- */
         }
-        {loading && <Loader />}
+        {loading && <Loader/>}
 
         <div style={{display: 'flex', flexDirection: 'column', gap: 12}}>
             {!loading && exercises.map((ex, index) => {
                 const isOpen = openedId === ex.id;
-                const softBg = index % 2 === 0 ? '#fff' : '#f9f9f9'; // мягкое чередование
+                const softBg = index % 2 === 0 ? '#fff' : '#f1f0f0'; // мягкое чередование
 
                 return (
                     <div
@@ -78,31 +78,19 @@ const LibraryPage: React.FC = () => {
                             padding: 12,
                             transition: 'all 0.2s ease',
                             boxShadow: isOpen ? '0 6px 12px rgba(0,0,0,0.15)' : '0 2px 4px rgba(0,0,0,0.05)',
-                            backgroundColor: isOpen ? 'var(--color-primary-soft)' : softBg,
+                            backgroundColor: softBg,
                             cursor: 'pointer',
                         }}
                         onClick={() => setOpenedId(prev => (prev === ex.id ? null : ex.id))}
-                        onMouseEnter={e => {
-                            if (!isOpen) e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
-                            if (!isOpen) e.currentTarget.style.backgroundColor = '#f6f6f6';
-                        }}
-                        onMouseLeave={e => {
-                            if (!isOpen) e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
-                            if (!isOpen) e.currentTarget.style.backgroundColor = softBg;
-                        }}
                     >
                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                             <strong>{ex.name}</strong>
                             {/* стрелка */}
-                            <span
-                                style={{
-                                    display: 'inline-block',
-                                    transition: 'transform 0.3s ease',
-                                    transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)',
-                                }}
-                            >
-            ▶
-          </span>
+                            <span style={{
+                                display: 'inline-block',
+                                transition: 'transform 0.3s ease',
+                                transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+                            }}>▶</span>
                         </div>
 
                         {/* раскрытие с плавным эффектом */}

@@ -8,7 +8,12 @@ import "../styles/DayDetailsPage.css";
 import {Loader} from "lucide-react";
 
 import {closestCenter, DndContext} from "@dnd-kit/core";
-import {arrayMove, SortableContext, useSortable, verticalListSortingStrategy,} from "@dnd-kit/sortable";
+import {
+    arrayMove,
+    SortableContext,
+    useSortable,
+    verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import {CSS} from "@dnd-kit/utilities";
 
 // ================= SORTABLE ITEM =================
@@ -120,10 +125,10 @@ export default function DayDetailsPage() {
         const ex: any = types.find((t) => t.id === Number(selectedType));
         if (!ex) return;
 
-        let reps = ex.units.includes("reps") ? 10 : 0
-        let weight = ex.units.includes("weight") ? 10 : 0
-        let minutes = ex.units.includes("minutes") ? 10 : 0
-        let meters = ex.units.includes("meters") ? 10 : 0
+        let reps = ex.units.includes("reps") ? 10 : 0;
+        let weight = ex.units.includes("weight") ? 10 : 0;
+        let minutes = ex.units.includes("minutes") ? 10 : 0;
+        let meters = ex.units.includes("meters") ? 10 : 0;
 
         setExercises([
             ...exercises,
@@ -131,7 +136,7 @@ export default function DayDetailsPage() {
                 uid: crypto.randomUUID(),
                 id: ex.id,
                 name: ex.name,
-                sets: [{reps: reps, weight: weight, minutes: minutes, meters: meters}],
+                sets: [{reps, weight, minutes, meters}],
             },
         ]);
     };
@@ -150,17 +155,17 @@ export default function DayDetailsPage() {
 
     const addSet = (ei: number, sets: SetDTO[]) => {
         const copy = [...exercises];
-        let reps = 0
-        let weight = 0
-        let minutes = 0
-        let meters = 0
+        let reps = 0;
+        let weight = 0;
+        let minutes = 0;
+        let meters = 0;
         if (sets.length > 0) {
-            reps = sets[sets.length-1].reps
-            weight = sets[sets.length-1].weight
-            minutes = sets[sets.length-1].minutes
-            meters = sets[sets.length-1].meters
+            reps = sets[sets.length - 1].reps;
+            weight = sets[sets.length - 1].weight;
+            minutes = sets[sets.length - 1].minutes;
+            meters = sets[sets.length - 1].meters;
         }
-        copy[ei].sets.push({reps: reps, weight: weight, minutes: minutes, meters: meters});
+        copy[ei].sets.push({reps, weight, minutes, meters});
         setExercises(copy);
     };
 
@@ -221,12 +226,8 @@ export default function DayDetailsPage() {
                             {({listeners, attributes}: any) => (
                                 <div className="card exercise-card animate">
 
-                                    {/* 🔥 drag handle на отдельный div */}
-                                    <div
-                                        className="drag-handle"
-                                        {...listeners}
-                                        {...attributes}
-                                    >
+                                    {/* 🔥 drag handle только на ручку */}
+                                    <div className="drag-handle" {...listeners} {...attributes}>
                                         ☰
                                     </div>
 

@@ -2,7 +2,24 @@
 .exercise-card {
     width: 100%;
     padding: 12px;
-    touch-action: none; /* 🔥 для мобильного drag */
+    touch-action: auto; /* теперь карточка пропускает скролл */
+}
+
+/* ================= DRAG HANDLE ================= */
+.drag-handle {
+    cursor: grab;
+    touch-action: none; /* drag только через ручку */
+    padding: 6px 8px;
+    margin-bottom: 6px;
+    display: inline-block;
+    user-select: none;
+    background: #eee;
+    border-radius: 4px;
+    font-size: 18px;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
 }
 
 /* ================= HEADER ================= */
@@ -11,13 +28,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    cursor: grab;
 }
-
-.exercise-header:active {
-    cursor: grabbing;
-}
-
 
 /* ================= SETS ================= */
 .sets {
