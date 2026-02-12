@@ -1,7 +1,6 @@
 package workouts
 
 import (
-	"github.com/SaenkoDmitry/training-tg-bot/internal/application/dto"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/exercises"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/sets"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/workouts"
@@ -21,27 +20,27 @@ func (uc *DeleteUseCase) Name() string {
 	return "Удаление тренировки"
 }
 
-func (uc *DeleteUseCase) Execute(workoutID int64) (*dto.DeleteWorkout, error) {
+func (uc *DeleteUseCase) Execute(workoutID int64) error {
 	workoutDay, err := uc.workoutsRepo.Get(workoutID)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	for _, exercise := range workoutDay.Exercises {
 		deleteErr := uc.setsRepo.DeleteAllBy(exercise.ID)
 		if deleteErr != nil {
-			return nil, deleteErr
+			return deleteErr
 		}
 	}
 
 	err = uc.exercisesRepo.DeleteByWorkout(workoutID)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	err = uc.workoutsRepo.Delete(&workoutDay)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return &dto.DeleteWorkout{}, nil
+	return nil
 }

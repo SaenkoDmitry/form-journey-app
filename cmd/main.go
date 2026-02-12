@@ -129,8 +129,9 @@ func initServer(container *usecase.Container) {
 	r.Route("/api/workouts", func(r chi.Router) {
 		r.Use(middlewares.Auth)
 
-		r.Get("/", s.GetAllWorkouts)          // GET /api/workouts
-		r.Get("/{workout_id}", s.ReadWorkout) // GET /api/workouts/123
+		r.Get("/", s.GetAllWorkouts)               // GET /api/workouts
+		r.Get("/{workout_id}", s.ReadWorkout)      // GET /api/workouts/123
+		r.Delete("/{workout_id}", s.DeleteWorkout) // DELETE /api/workouts/123
 	})
 
 	r.Route("/api/measurements", func(r chi.Router) {

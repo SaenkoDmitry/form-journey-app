@@ -8,6 +8,7 @@ import (
 type Service interface {
 	GetAllWorkouts(w http.ResponseWriter, r *http.Request)
 	ReadWorkout(w http.ResponseWriter, r *http.Request)
+	DeleteWorkout(w http.ResponseWriter, r *http.Request)
 	GetMeasurements(w http.ResponseWriter, r *http.Request)
 	CreateMeasurement(w http.ResponseWriter, r *http.Request)
 	DeleteMeasurement(w http.ResponseWriter, r *http.Request)

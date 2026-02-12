@@ -69,3 +69,44 @@ type ReadWorkoutDTO struct {
 	Progress *dto.WorkoutProgress `json:"progress"`
 	Stats    *dto.WorkoutStatistic
 }
+
+func (s *serviceImpl) DeleteWorkout(w http.ResponseWriter, r *http.Request) {
+	claims, ok := middlewares.FromContext(r.Context())
+	if !ok {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	workoutIDStr := r.PathValue("workout_id")
+	workoutID, err := strconv.ParseInt(workoutIDStr, 10, 64)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	progress, err := s.container.ShowWorkoutProgressUC.Execute(workoutID)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	user, err := s.container.GetUserUC.Execute(claims.ChatID)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	if progress.Workout.UserID != user.ID {
+		http.Error(w, "access denied", http.StatusForbidden)
+		return
+	}
+
+	err = s.container.DeleteWorkoutUC.Execute(workoutID)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte("{}"))
+}

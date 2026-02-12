@@ -1,10 +1,11 @@
 :root {
     /* ========= COLORS ========= */
-    --color-primary: #1768a1;
-    --color-primary-hover: #1768a1;
-    --color-primary-soft: #e1f3ff;
+    --color-primary: #2c709d;
+    --color-primary-hover: #084c7a;
+    --color-primary-soft: #eef4fc;
 
     --color-danger: #e36565;
+    --color-danger-hover: #ff1f1f;
 
     --color-bg: #f6f8fa;
     --color-card: #ffffff;

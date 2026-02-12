@@ -51,8 +51,7 @@ export default function ProgramDetailsPage() {
     };
 
     const removeDay = async (dayId: number) => {
-        const confirmed = window.confirm("Вы уверены, что хотите удалить день?");
-        if (!confirmed) return;
+        if (!window.confirm("Вы уверены, что хотите удалить день?")) return;
 
         try {
             await deleteDay(program.id, dayId);

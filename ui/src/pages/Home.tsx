@@ -4,6 +4,7 @@ import WorkoutCard from '../components/WorkoutCard';
 import {useAuth} from '../context/AuthContext';
 import '../styles/App.css';
 import Button from "../components/Button.tsx";
+import {deleteWorkout} from "../api/workouts.ts";
 
 const LIMIT = 10;
 
@@ -17,6 +18,13 @@ const Home: React.FC = () => {
 
     const loaderRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
+
+    const handleDelete = async (id: number) => {
+        if (!confirm('"Вы уверены, что хотите удалить тренировку?')) return;
+
+        await deleteWorkout(id);
+        setWorkouts(prev => prev.filter(w => w.id !== id));
+    };
 
     // ---------------- WORKOUTS ----------------
 
@@ -103,8 +111,16 @@ const Home: React.FC = () => {
                         onClick={() => navigate(`/workout/${w.id}`)}
                         className="workout-item"
                     >
-                        <WorkoutCard w={w} idx={idx+1}/>
-                        {/*<hr/>*/}
+                        <WorkoutCard w={w} idx={idx + 1}/>
+
+                        <Button
+                            variant={"danger"}
+                            style={{position: "absolute", bottom: 8, right: 8}}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(w.id);
+                            }}
+                        >🗑️</Button>
                     </div>
                 ))}
             </div>

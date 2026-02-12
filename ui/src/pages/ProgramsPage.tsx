@@ -69,6 +69,7 @@ export default function ProgramsPage() {
     };
 
     const handleDelete = async (id: number) => {
+        if (!window.confirm("Вы уверены, что хотите удалить программу?")) return;
 
         try {
             await deleteProgram(id);

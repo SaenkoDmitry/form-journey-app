@@ -148,7 +148,7 @@ func (h *Handler) confirmDelete(chatID int64, workoutID int64) {
 }
 
 func (h *Handler) delete(chatID int64, workoutID int64) {
-	_, err := h.deleteUC.Execute(workoutID)
+	err := h.deleteUC.Execute(workoutID)
 	if err != nil {
 		h.commonPresenter.HandleInternalError(err, chatID, h.deleteUC.Name())
 		return

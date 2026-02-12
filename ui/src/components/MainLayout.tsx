@@ -65,8 +65,8 @@ const MainLayout: React.FC<{children: React.ReactNode}> = ({children}) => {
                             style={{
                                 padding: '0.5rem 1rem',
                                 borderBottom:
-                                    location.pathname === tab.path ? '3px solid var(--color-primary-hover)' : 'none',
-                                color: location.pathname === tab.path ? 'var(--color-primary-hover)' : '#333',
+                                    location.pathname === tab.path ? '3px solid var(--color-primary)' : 'none',
+                                color: location.pathname === tab.path ? 'var(--color-primary)' : '#333',
                                 fontWeight: location.pathname === tab.path ? 'bold' : 'normal',
                                 textDecoration: 'none',
                                 whiteSpace: 'nowrap',

@@ -36,7 +36,7 @@ const WorkoutPage = () => {
         <div style={{maxWidth: '700px', margin: '0 auto', padding: '1rem'}}>
             <h2>{workout.day_type_name || `Тренировка ${workout.id}`}</h2>
             <p>
-                Статус: {workout.status}
+                Статус: {workout.status} {progress?.workout?.duration && <span><span>~ </span>{progress.workout.duration}</span>}
             </p>
             <p>{workout.started_at}</p>
             {RemainingMin !== undefined && RemainingMin > 0 && <p>Оставшееся время: {RemainingMin} мин</p>}

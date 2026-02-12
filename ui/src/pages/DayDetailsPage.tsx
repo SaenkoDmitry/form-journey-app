@@ -98,7 +98,7 @@ export default function DayDetailsPage() {
         let reps = ex.units.includes("reps") ? 10 : 0
         let weight = ex.units.includes("weight") ? 10 : 0
         let minutes = ex.units.includes("minutes") ? 10 : 0
-        let meters = ex.units.includes("weight") ? 10 : 0
+        let meters = ex.units.includes("meters") ? 10 : 0
         setExercises([
             ...exercises,
             {
@@ -220,6 +220,21 @@ export default function DayDetailsPage() {
                     <div className="sets">
                         {ex.sets.map((s: any, si: number) => (
                             <div key={si} className="set-row">
+                                {s.meters > 0 && <div>
+                                    <input
+                                        type="number"
+                                        value={s.meters}
+                                        onChange={(e) =>
+                                            updateSet(
+                                                ei,
+                                                si,
+                                                "meters",
+                                                +e.target.value
+                                            )
+                                        }
+                                    />
+                                    <span> метр.</span>
+                                </div>}
                                 {s.minutes > 0 && <div>
                                     <input
                                         type="number"
@@ -234,8 +249,7 @@ export default function DayDetailsPage() {
                                         }
                                     />
                                     <span> мин.</span>
-                                </div>
-                                }
+                                </div>}
                                 {s.weight > 0 && <div>
                                     <input
                                         type="number"
