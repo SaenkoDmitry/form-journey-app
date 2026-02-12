@@ -7,6 +7,20 @@ import {useNavigate} from "react-router-dom";
 
 const PAGE_SIZE = 15;
 
+const fields: { key: keyof ToCreateMeasurement; label: string }[] = [
+    {key: 'shoulders', label: 'Плечи'},
+    {key: 'chest', label: 'Грудь'},
+    {key: 'hand_left', label: 'Л. рука'},
+    {key: 'hand_right', label: 'П. рука'},
+    {key: 'waist', label: 'Талия'},
+    {key: 'buttocks', label: 'Ягодицы'},
+    {key: 'hip_left', label: 'Л. бедро'},
+    {key: 'hip_right', label: 'П. бедро'},
+    {key: 'calf_left', label: 'Л. икра'},
+    {key: 'calf_right', label: 'П. икра'},
+    {key: 'weight', label: 'Вес'},
+];
+
 const MeasurementsPage: React.FC = () => {
     const {user, loading: authLoading} = useAuth();
     const navigate = useNavigate();
@@ -128,14 +142,7 @@ const MeasurementsPage: React.FC = () => {
         }
     };
 
-    // -------- login --------
-    useEffect(() => {
-        if (!authLoading && !user) {
-            navigate('/profile');
-        }
-    }, [authLoading, user]);
-
-    return user && <div className="measurements-page">
+    return <div className="measurements-page">
         <h1>Замеры</h1>
 
         {!adding && (
@@ -289,19 +296,5 @@ const MeasurementsPage: React.FC = () => {
         {toast && <div className="toast">{toast}</div>}
     </div>;
 };
-
-const fields: { key: keyof ToCreateMeasurement; label: string }[] = [
-    {key: 'shoulders', label: 'Плечи'},
-    {key: 'chest', label: 'Грудь'},
-    {key: 'hand_left', label: 'Л. рука'},
-    {key: 'hand_right', label: 'П. рука'},
-    {key: 'waist', label: 'Талия'},
-    {key: 'buttocks', label: 'Ягодицы'},
-    {key: 'hip_left', label: 'Л. бедро'},
-    {key: 'hip_right', label: 'П. бедро'},
-    {key: 'calf_left', label: 'Л. икра'},
-    {key: 'calf_right', label: 'П. икра'},
-    {key: 'weight', label: 'Вес'},
-];
 
 export default MeasurementsPage;

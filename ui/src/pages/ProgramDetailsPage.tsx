@@ -6,22 +6,6 @@ import DayCard from "../components/DayCard";
 import "../styles/ProgramBase.css";
 import {useAuth} from "../context/AuthContext.tsx";
 
-export type WorkoutDayTypeDTO = {
-    id: number;
-    program_id: number;
-    name: string;
-    preset?: string;
-    created_at: string;
-};
-
-export type ProgramDTO = {
-    id: number;
-    user_id: number;
-    name: string;
-    created_at: string;
-    day_types: WorkoutDayTypeDTO[];
-};
-
 export default function ProgramDetailsPage() {
     const {user, loading: authLoading} = useAuth();
     const navigate = useNavigate();
@@ -71,14 +55,7 @@ export default function ProgramDetailsPage() {
         setTimeout(() => setToast(null), 3000);
     };
 
-    // -------- login --------
-    useEffect(() => {
-        if (!authLoading && !user) {
-            navigate('/profile');
-        }
-    }, [authLoading, user]);
-
-    return user && <div className="page stack">
+    return <div className="page stack">
         <h2 className="title">{program.name}</h2>
 
         <Button variant="active" onClick={addDay}>

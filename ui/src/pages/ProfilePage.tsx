@@ -40,7 +40,7 @@ const ProfilePage: React.FC = () => {
                         Войдите в аккаунт
                     </div>
 
-                    <TelegramLoginWidget />
+                    <TelegramLoginWidget/>
                 </div>
             )}
 

@@ -1,30 +1,91 @@
+import React from 'react';
+import {Route, Routes} from 'react-router-dom';
+import {AuthProvider} from './context/AuthContext';
+import MainLayout from './components/MainLayout';
+
 import Home from './pages/Home';
 import WorkoutPage from './pages/WorkoutPage';
 import StatsPage from './pages/StatsPage';
 import ProgramsPage from './pages/ProgramsPage';
 import ProgramDetailsPage from './pages/ProgramDetailsPage';
+import DayDetailsPage from './pages/DayDetailsPage';
 import MeasurementsPage from './pages/MeasurementsPage';
 import LibraryPage from './pages/LibraryPage';
-import DayDetailsPage from "./pages/DayDetailsPage";
-import { Route, Routes } from 'react-router-dom';
-import MainLayout from './components/MainLayout';
-import React from "react";
+import ProfilePage from './pages/ProfilePage';
 
-import { AuthProvider } from './context/AuthContext';
-import ProfilePage from "./pages/ProfilePage.tsx";
+import RequireAuth from './components/RequireAuth';
 
 const App = () => (
     <AuthProvider>
         <Routes>
-            <Route path="/" element={<MainLayout><Home/></MainLayout>} />
-            <Route path="/workout/:id" element={<MainLayout><WorkoutPage/></MainLayout>} />
-            <Route path="/stats" element={<MainLayout><StatsPage/></MainLayout>} />
-            <Route path="/profile" element={<MainLayout><ProfilePage/></MainLayout>} />
-            <Route path="/programs" element={<MainLayout><ProgramsPage/></MainLayout>} />
-            <Route path="/programs/:id" element={<MainLayout><ProgramDetailsPage/></MainLayout>} />
-            <Route path="/programs/:programId/days/:dayId" element={<MainLayout><DayDetailsPage/></MainLayout>} />
-            <Route path="/measurements" element={<MainLayout><MeasurementsPage/></MainLayout>} />
-            <Route path="/library" element={<MainLayout><LibraryPage/></MainLayout>} />
+            {/* Публичная страница профиля */}
+            <Route path="/profile" element={<MainLayout><ProfilePage/></MainLayout>}/>
+
+            {/* Защищённые страницы */}
+            <Route
+                path="/"
+                element={
+                    <RequireAuth>
+                        <MainLayout><Home/></MainLayout>
+                    </RequireAuth>
+                }
+            />
+            <Route
+                path="/workout/:id"
+                element={
+                    <RequireAuth>
+                        <MainLayout><WorkoutPage/></MainLayout>
+                    </RequireAuth>
+                }
+            />
+            <Route
+                path="/stats"
+                element={
+                    <RequireAuth>
+                        <MainLayout><StatsPage/></MainLayout>
+                    </RequireAuth>
+                }
+            />
+            <Route
+                path="/programs"
+                element={
+                    <RequireAuth>
+                        <MainLayout><ProgramsPage/></MainLayout>
+                    </RequireAuth>
+                }
+            />
+            <Route
+                path="/programs/:id"
+                element={
+                    <RequireAuth>
+                        <MainLayout><ProgramDetailsPage/></MainLayout>
+                    </RequireAuth>
+                }
+            />
+            <Route
+                path="/programs/:programId/days/:dayId"
+                element={
+                    <RequireAuth>
+                        <MainLayout><DayDetailsPage/></MainLayout>
+                    </RequireAuth>
+                }
+            />
+            <Route
+                path="/measurements"
+                element={
+                    <RequireAuth>
+                        <MainLayout><MeasurementsPage/></MainLayout>
+                    </RequireAuth>
+                }
+            />
+            <Route
+                path="/library"
+                element={
+                    <RequireAuth>
+                        <MainLayout><LibraryPage/></MainLayout>
+                    </RequireAuth>
+                }
+            />
         </Routes>
     </AuthProvider>
 );

@@ -80,14 +80,7 @@ const Home: React.FC = () => {
         return () => observer.disconnect();
     }, [offset, pagination, fetchWorkouts]);
 
-    // -------- login --------
-    useEffect(() => {
-        if (!authLoading && !user) {
-            navigate('/profile');
-        }
-    }, [authLoading, user]);
-
-    return user && <div className="page stack">
+    return <div className="page stack">
         <h1>Мои тренировки</h1>
 
         {user && (

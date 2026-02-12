@@ -151,10 +151,6 @@ type Group = {
     name: string;
 };
 
-interface GetAllPrograms {
-    programs: ProgramDTO[];
-}
-
 interface WorkoutDayTypeDTO {
     id: number;
     program_id: number;   // оставил snake_case, чтобы совпадало с API

@@ -1,11 +1,8 @@
-import {useNavigate, useParams} from 'react-router-dom';
+import {useParams} from 'react-router-dom';
 import React, {useEffect, useState} from 'react';
 import SafeTextRenderer from "../components/SafeTextRenderer.tsx";
-import {useAuth} from "../context/AuthContext.tsx";
 
 const WorkoutPage = () => {
-    const {user, loading: authLoading} = useAuth();
-    const navigate = useNavigate();
     const {id} = useParams<{ id: string }>();
     const [data, setData] = useState<ReadWorkoutDTO | null>(null);
     const [loading, setLoading] = useState(true);
@@ -14,6 +11,7 @@ const WorkoutPage = () => {
     useEffect(() => {
         const fetchWorkout = async () => {
             try {
+                setLoading(true);
                 const res = await fetch(`/api/workouts/${id}`);
                 if (!res.ok) throw new Error(`Ошибка: ${res.status}`);
                 const json: ReadWorkoutDTO = await res.json();
@@ -28,20 +26,14 @@ const WorkoutPage = () => {
         fetchWorkout();
     }, [id]);
 
+    if (loading) return <p>Загрузка...</p>;
     if (error) return <p style={{color: 'red'}}>{error}</p>;
     if (!data) return <p>Данные тренировки не найдены</p>;
 
     const {progress, Stats} = data;
     const {workout, ProgressPercent, RemainingMin, SessionStarted, CompletedExercises, TotalExercises} = progress;
 
-    // -------- login --------
-    useEffect(() => {
-        if (!authLoading && !user) {
-            navigate('/profile');
-        }
-    }, [authLoading, user]);
-
-    return user && <div style={{maxWidth: '700px', margin: '0 auto', padding: '1rem'}}>
+    return <div style={{maxWidth: '700px', margin: '0 auto', padding: '1rem'}}>
         <h2>{workout.day_type_name || `Тренировка ${workout.id}`}</h2>
         <p>
             Статус: {workout.status} {progress?.workout?.duration &&

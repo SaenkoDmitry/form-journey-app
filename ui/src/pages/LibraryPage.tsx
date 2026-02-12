@@ -3,11 +3,9 @@ import {useAuth} from '../context/AuthContext';
 import SafeTextRenderer from "../components/SafeTextRenderer.tsx";
 import {getExerciseGroups, getExerciseTypesByGroup} from "../api/exercises.ts";
 import Button from "../components/Button.tsx";
-import {useNavigate} from "react-router-dom";
 
 const LibraryPage: React.FC = () => {
     const {user, loading: authLoading} = useAuth();
-    const navigate = useNavigate();
 
     const [groups, setGroups] = useState<Group[]>([]);
     const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
@@ -37,14 +35,7 @@ const LibraryPage: React.FC = () => {
         })
     }, [selectedGroup]);
 
-    // -------- login --------
-    useEffect(() => {
-        if (!authLoading && !user) {
-            navigate('/profile');
-        }
-    }, [authLoading, user]);
-
-    return user && <div>
+    return <div>
         <h1>Библиотека упражнений</h1>
 
         {/* ---------- GROUP TABS ---------- */}
