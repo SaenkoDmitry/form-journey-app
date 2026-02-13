@@ -4,16 +4,18 @@ import (
 	"errors"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/application/dto"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/daytypes"
+	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/exercisegrouptypes"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/exercisetypes"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/sessions"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/workouts"
 )
 
 type ShowCurrentExerciseSessionUseCase struct {
-	workoutsRepo      workouts.Repo
-	sessionsRepo      sessions.Repo
-	exerciseTypesRepo exercisetypes.Repo
-	dayTypesRepo      daytypes.Repo
+	workoutsRepo           workouts.Repo
+	sessionsRepo           sessions.Repo
+	exerciseTypesRepo      exercisetypes.Repo
+	dayTypesRepo           daytypes.Repo
+	exerciseGroupTypesRepo exercisegrouptypes.Repo
 }
 
 func NewShowCurrentExerciseUseCase(
@@ -21,12 +23,14 @@ func NewShowCurrentExerciseUseCase(
 	sessionsRepo sessions.Repo,
 	exerciseTypesRepo exercisetypes.Repo,
 	dayTypesRepo daytypes.Repo,
+	exerciseGroupTypesRepo exercisegrouptypes.Repo,
 ) *ShowCurrentExerciseSessionUseCase {
 	return &ShowCurrentExerciseSessionUseCase{
-		workoutsRepo:      workoutsRepo,
-		sessionsRepo:      sessionsRepo,
-		exerciseTypesRepo: exerciseTypesRepo,
-		dayTypesRepo:      dayTypesRepo,
+		workoutsRepo:           workoutsRepo,
+		sessionsRepo:           sessionsRepo,
+		exerciseTypesRepo:      exerciseTypesRepo,
+		dayTypesRepo:           dayTypesRepo,
+		exerciseGroupTypesRepo: exerciseGroupTypesRepo,
 	}
 }
 
@@ -62,6 +66,16 @@ func (uc *ShowCurrentExerciseSessionUseCase) Execute(workoutID int64) (*dto.Curr
 		return nil, NotFoundExerciseErr
 	}
 
+	groups, err := uc.exerciseGroupTypesRepo.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	groupsMap := make(map[string]string)
+	for _, v := range groups {
+		groupsMap[v.Code] = v.Name
+	}
+
 	dayType, err := uc.dayTypesRepo.Get(workoutDay.WorkoutDayTypeID)
 	if err != nil {
 		return nil, err
@@ -69,9 +83,9 @@ func (uc *ShowCurrentExerciseSessionUseCase) Execute(workoutID int64) (*dto.Curr
 
 	return &dto.CurrentExerciseSession{
 		ExerciseIndex: exerciseIndex,
-		WorkoutDay:    workoutDay,
-		Exercise:      exercise,
-		ExerciseObj:   exerciseObj,
-		DayType:       dayType,
+		WorkoutDay:    dto.MapToFormattedWorkout(workoutDay, groupsMap),
+		Exercise:      dto.MapToFormattedExercise(exercise, groupsMap),
+		ExerciseObj:   dto.MapExerciseTypeDTO(exerciseObj, groupsMap),
+		DayType:       dto.MapDayTypeDTO(dayType),
 	}, nil
 }

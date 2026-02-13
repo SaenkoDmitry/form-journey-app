@@ -7,6 +7,8 @@ import (
 
 type Service interface {
 	GetAllWorkouts(w http.ResponseWriter, r *http.Request)
+	StartWorkout(w http.ResponseWriter, r *http.Request)
+	FinishWorkout(w http.ResponseWriter, r *http.Request)
 	ReadWorkout(w http.ResponseWriter, r *http.Request)
 	DeleteWorkout(w http.ResponseWriter, r *http.Request)
 	GetMeasurements(w http.ResponseWriter, r *http.Request)
@@ -27,6 +29,8 @@ type Service interface {
 	GetProgramDay(w http.ResponseWriter, r *http.Request)
 	ParsePreset(w http.ResponseWriter, r *http.Request)
 	SavePreset(w http.ResponseWriter, r *http.Request)
+	ShowCurrentExerciseSession(w http.ResponseWriter, r *http.Request)
+	MoveToExerciseSession(w http.ResponseWriter, r *http.Request)
 }
 
 type serviceImpl struct {

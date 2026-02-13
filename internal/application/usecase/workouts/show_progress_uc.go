@@ -3,10 +3,8 @@ package workouts
 import (
 	"errors"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/application/dto"
-	"github.com/SaenkoDmitry/training-tg-bot/internal/models"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/exercisegrouptypes"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/sessions"
-	"github.com/SaenkoDmitry/training-tg-bot/internal/utils"
 	"time"
 
 	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/workouts"
@@ -83,10 +81,15 @@ func (uc *ShowProgressUseCase) Execute(workoutID int64) (*dto.WorkoutProgress, e
 		return nil, err
 	}
 
+	groupsMap := make(map[string]string)
+	for _, v := range groups {
+		groupsMap[v.Code] = v.Name
+	}
+
 	session, _ := uc.sessionsRepo.GetByWorkoutID(workoutID)
 
 	return &dto.WorkoutProgress{
-		Workout:            mapToFormattedWorkout(w, groups),
+		Workout:            dto.MapToFormattedWorkout(w, groupsMap),
 		TotalExercises:     totalExercises,
 		CompletedExercises: completedExercises,
 		TotalSets:          totalSets,
@@ -95,56 +98,4 @@ func (uc *ShowProgressUseCase) Execute(workoutID int64) (*dto.WorkoutProgress, e
 		RemainingMin:       remaining,
 		SessionStarted:     session.IsActive,
 	}, nil
-}
-
-func mapToFormattedWorkout(w models.WorkoutDay, groups []models.ExerciseGroupType) *dto.FormattedWorkout {
-	groupsMap := make(map[string]string)
-	for _, v := range groups {
-		groupsMap[v.Code] = v.Name
-	}
-
-	res := &dto.FormattedWorkout{
-		ID:          w.ID,
-		UserID:      w.UserID,
-		StartedAt:   "📆️ " + utils.FormatDateTimeWithDayOfWeek(w.StartedAt),
-		Status:      w.Status(),
-		Duration:    utils.BetweenTimes(w.StartedAt, w.EndedAt),
-		DayTypeName: w.WorkoutDayType.Name,
-		Completed:   w.Completed,
-	}
-	for _, ex := range w.Exercises {
-		sumWeight := float32(0)
-		sets := make([]*dto.FormattedSet, 0, len(ex.Sets))
-		for _, s := range ex.Sets {
-			if s.Completed {
-				sumWeight += s.GetRealWeight() * float32(s.GetRealReps())
-			}
-			newSet := &dto.FormattedSet{
-				ID:              s.ID,
-				FormattedString: s.String(w.Completed),
-				Completed:       s.Completed,
-				Index:           s.Index,
-			}
-			if s.CompletedAt != nil {
-				newSet.CompletedAt = s.CompletedAt.Add(3 * time.Hour).Format("15:04:05")
-			}
-			sets = append(sets, newSet)
-		}
-		res.Exercises = append(res.Exercises, &dto.FormattedExercise{
-			ID:            ex.ID,
-			Name:          ex.ExerciseType.Name,
-			Units:         ex.ExerciseType.Units,
-			GroupName:     groupsMap[ex.ExerciseType.ExerciseGroupTypeCode],
-			RestInSeconds: ex.ExerciseType.RestInSeconds,
-			Accent:        ex.ExerciseType.Accent,
-			Description:   ex.ExerciseType.Description,
-			SumWeight:     sumWeight,
-			Index:         ex.Index,
-			Sets:          sets,
-		})
-	}
-	if w.EndedAt != nil {
-		res.EndedAt = utils.FormatDate(*w.EndedAt)
-	}
-	return res
 }

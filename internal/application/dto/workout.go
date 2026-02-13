@@ -2,6 +2,8 @@ package dto
 
 import (
 	"github.com/SaenkoDmitry/training-tg-bot/internal/models"
+	"github.com/SaenkoDmitry/training-tg-bot/internal/utils"
+	"time"
 )
 
 type WorkoutItem struct {
@@ -57,6 +59,57 @@ type FormattedWorkout struct {
 	DayTypeName string               `json:"day_type_name"`
 	Completed   bool                 `json:"completed"`
 	Exercises   []*FormattedExercise `json:"exercises"`
+}
+
+func MapToFormattedWorkout(w models.WorkoutDay, groupsMap map[string]string) *FormattedWorkout {
+	res := &FormattedWorkout{
+		ID:          w.ID,
+		UserID:      w.UserID,
+		StartedAt:   "📆️ " + utils.FormatDateTimeWithDayOfWeek(w.StartedAt),
+		Status:      w.Status(),
+		Duration:    utils.BetweenTimes(w.StartedAt, w.EndedAt),
+		DayTypeName: w.WorkoutDayType.Name,
+		Completed:   w.Completed,
+	}
+	for _, ex := range w.Exercises {
+		res.Exercises = append(res.Exercises, MapToFormattedExercise(ex, groupsMap))
+	}
+	if w.EndedAt != nil {
+		res.EndedAt = utils.FormatDate(*w.EndedAt)
+	}
+	return res
+}
+
+func MapToFormattedExercise(ex models.Exercise, groupsMap map[string]string) *FormattedExercise {
+	sets := make([]*FormattedSet, 0, len(ex.Sets))
+	sumWeight := float32(0)
+	for _, s := range ex.Sets {
+		if s.Completed {
+			sumWeight += s.GetRealWeight() * float32(s.GetRealReps())
+		}
+		newSet := &FormattedSet{
+			ID:              s.ID,
+			FormattedString: s.String(ex.WorkoutDay.Completed),
+			Completed:       s.Completed,
+			Index:           s.Index,
+		}
+		if s.CompletedAt != nil {
+			newSet.CompletedAt = s.CompletedAt.Add(3 * time.Hour).Format("15:04:05")
+		}
+		sets = append(sets, newSet)
+	}
+	return &FormattedExercise{
+		ID:            ex.ID,
+		Name:          ex.ExerciseType.Name,
+		Units:         ex.ExerciseType.Units,
+		GroupName:     groupsMap[ex.ExerciseType.ExerciseGroupTypeCode],
+		RestInSeconds: ex.ExerciseType.RestInSeconds,
+		Accent:        ex.ExerciseType.Accent,
+		Description:   ex.ExerciseType.Description,
+		SumWeight:     sumWeight,
+		Index:         ex.Index,
+		Sets:          sets,
+	}
 }
 
 type FormattedExercise struct {

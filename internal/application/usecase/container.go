@@ -182,8 +182,9 @@ func NewContainer(db *gorm.DB) *Container {
 		DeleteDayTypeUC:  daytypeusecases.NewDeleteUseCase(dayTypesRepo),
 
 		// sessions
-		ShowCurrentExerciseSessionUC: sessionusecases.NewShowCurrentExerciseUseCase(workoutsRepo, sessionsRepo, exerciseTypesRepo, dayTypesRepo),
-		MoveSessionToExerciseUC:      sessionusecases.NewMoveToExerciseUseCase(sessionsRepo, exercisesRepo),
+		ShowCurrentExerciseSessionUC: sessionusecases.NewShowCurrentExerciseUseCase(
+			workoutsRepo, sessionsRepo, exerciseTypesRepo, dayTypesRepo, exerciseGroupTypesRepo),
+		MoveSessionToExerciseUC: sessionusecases.NewMoveToExerciseUseCase(sessionsRepo, exercisesRepo),
 
 		// users
 		CreateUserUC: userusecases.NewCreateUseCase(usersRepo, programsRepo),

@@ -170,6 +170,18 @@ interface WorkoutDayTypeDTO {
     created_at: string;   // ISO string
 }
 
+interface StartWorkoutDTO {
+    workout_id: number;
+}
+
+interface CurrentExerciseSession {
+    exercise: FormattedExercise;
+    exercise_type: ExerciseType;
+    day_type: WorkoutDayTypeDTO;
+    workout: FormattedWorkout;
+    exercise_index: number;
+}
+
 interface ProgramDTO {
     id: number;
     user_id: number;

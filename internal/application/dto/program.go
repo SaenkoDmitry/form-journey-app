@@ -2,6 +2,7 @@ package dto
 
 import (
 	"github.com/SaenkoDmitry/training-tg-bot/internal/models"
+	"time"
 )
 
 type DeleteProgramResult struct {
@@ -24,6 +25,16 @@ type ProgramDTO struct {
 	CreatedAt string               `json:"created_at"`
 	DayTypes  []*WorkoutDayTypeDTO `json:"day_types"`
 	IsActive  bool                 `json:"is_active"`
+}
+
+func MapDayTypeDTO(obj models.WorkoutDayType) *WorkoutDayTypeDTO {
+	return &WorkoutDayTypeDTO{
+		ID:               obj.ID,
+		WorkoutProgramID: obj.WorkoutProgramID,
+		Name:             obj.Name,
+		Preset:           obj.Preset,
+		CreatedAt:        "📅 " + obj.CreatedAt.Add(time.Hour*3).Format("02.01.2006 15:04"),
+	}
 }
 
 type WorkoutDayTypeDTO struct {

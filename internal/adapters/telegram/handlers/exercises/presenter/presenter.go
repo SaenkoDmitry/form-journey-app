@@ -36,29 +36,29 @@ func (p *Presenter) ShowCurrentSession(chatID int64, res *dto.CurrentExerciseSes
 
 	text.WriteString("<b>Подходы:</b>\n")
 	for _, set := range exercise.Sets {
-		text.WriteString(set.String(workoutDay.Completed))
+		text.WriteString(set.FormattedString)
 	}
 
 	var changeSettingsButtons []tgbotapi.InlineKeyboardButton
-	if exercise.ExerciseType.ShowMinutes() {
+	if strings.Contains(exercise.Units, constants.MinutesUnit) {
 		changeSettingsButtons = tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData(messages.Minutes, fmt.Sprintf("change_minutes_ex_%d", exercise.ID)),
 		)
 	}
 
-	if exercise.ExerciseType.ShowMeters() {
+	if strings.Contains(exercise.Units, constants.MetersUnit) {
 		changeSettingsButtons = append(changeSettingsButtons,
 			tgbotapi.NewInlineKeyboardButtonData(messages.Meters, fmt.Sprintf("change_meters_ex_%d", exercise.ID)),
 		)
 	}
 
-	if exercise.ExerciseType.ShowReps() {
+	if strings.Contains(exercise.Units, constants.RepsUnit) {
 		changeSettingsButtons = append(changeSettingsButtons,
 			tgbotapi.NewInlineKeyboardButtonData(messages.Reps, fmt.Sprintf("change_reps_ex_%d", exercise.ID)),
 		)
 	}
 
-	if exercise.ExerciseType.ShowWeight() {
+	if strings.Contains(exercise.Units, constants.WeightUnit) {
 		changeSettingsButtons = append(changeSettingsButtons,
 			tgbotapi.NewInlineKeyboardButtonData(messages.Weight, fmt.Sprintf("change_weight_ex_%d", exercise.ID)),
 		)
@@ -69,7 +69,7 @@ func (p *Presenter) ShowCurrentSession(chatID int64, res *dto.CurrentExerciseSes
 		tgbotapi.NewInlineKeyboardButtonData(messages.DoneSet, fmt.Sprintf("set_complete_%d", exercise.ID)),
 		tgbotapi.NewInlineKeyboardButtonData(messages.AddSet, fmt.Sprintf("set_add_one_%d", exercise.ID)),
 		tgbotapi.NewInlineKeyboardButtonData(messages.RemoveSet, fmt.Sprintf("set_remove_last_%d", exercise.ID)),
-		tgbotapi.NewInlineKeyboardButtonData(messages.Timer, fmt.Sprintf("timer_start_%d_ex_%d", exercise.ExerciseType.RestInSeconds, exercise.ID)),
+		tgbotapi.NewInlineKeyboardButtonData(messages.Timer, fmt.Sprintf("timer_start_%d_ex_%d", exerciseObj.RestInSeconds, exercise.ID)),
 	))
 
 	if len(changeSettingsButtons) > 0 {
@@ -77,7 +77,7 @@ func (p *Presenter) ShowCurrentSession(chatID int64, res *dto.CurrentExerciseSes
 	}
 
 	rows = append(rows, tgbotapi.NewInlineKeyboardRow(
-		tgbotapi.NewInlineKeyboardButtonData(messages.Technique, fmt.Sprintf("exercise_show_hint_%d_%d", exercise.WorkoutDayID, exercise.ExerciseTypeID)),
+		tgbotapi.NewInlineKeyboardButtonData(messages.Technique, fmt.Sprintf("exercise_show_hint_%d_%d", workoutDay.ID, exerciseObj.ID)),
 		tgbotapi.NewInlineKeyboardButtonData(messages.EndWorkout, fmt.Sprintf("workout_confirm_finish_%d", workoutID)),
 	))
 
@@ -107,7 +107,7 @@ func (p *Presenter) ShowNotFoundExercise(chatID int64) {
 	p.bot.Send(msg)
 }
 
-func (p *Presenter) ShowSelectExerciseForProgramDayDialog(chatID, dayTypeID int64, group *dto.Group, exerciseTypes []dto.ExerciseTypeDTO) {
+func (p *Presenter) ShowSelectExerciseForProgramDayDialog(chatID, dayTypeID int64, group *dto.Group, exerciseTypes []*dto.ExerciseTypeDTO) {
 	text := fmt.Sprintf("<b>Тип:</b> %s \n\n %s", group.Name, messages.SelectExercise)
 
 	rows := make([][]tgbotapi.InlineKeyboardButton, 0)
@@ -215,7 +215,7 @@ func (p *Presenter) AddExerciseDialog(chatID, workoutID int64, groups []dto.Grou
 	p.bot.Send(msg)
 }
 
-func (p *Presenter) ShowSelectExerciseForCurrentWorkoutDialog(chatID, workoutID int64, group *dto.Group, exerciseTypes []dto.ExerciseTypeDTO) {
+func (p *Presenter) ShowSelectExerciseForCurrentWorkoutDialog(chatID, workoutID int64, group *dto.Group, exerciseTypes []*dto.ExerciseTypeDTO) {
 	text := fmt.Sprintf("<b>Тип:</b> %s \n\n %s", group.Name, messages.SelectExercise)
 
 	rows := make([][]tgbotapi.InlineKeyboardButton, 0)
@@ -257,7 +257,7 @@ func (p *Presenter) ShowAllGroups(chatID int64, groups []dto.Group) {
 	p.bot.Send(msg)
 }
 
-func (p *Presenter) ShowAllExercises(chatID int64, exerciseTypes []dto.ExerciseTypeDTO, groupName string) {
+func (p *Presenter) ShowAllExercises(chatID int64, exerciseTypes []*dto.ExerciseTypeDTO, groupName string) {
 	buttons := make([][]tgbotapi.InlineKeyboardButton, 0)
 	for _, ex := range exerciseTypes {
 		buttons = append(buttons,

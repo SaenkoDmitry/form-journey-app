@@ -61,20 +61,10 @@ func mapToProgramDTO(objs []models.WorkoutProgram, user *models.User) []*dto.Pro
 	return result
 }
 
-func mapDayTypeDTO(obj models.WorkoutDayType) *dto.WorkoutDayTypeDTO {
-	return &dto.WorkoutDayTypeDTO{
-		ID:               obj.ID,
-		WorkoutProgramID: obj.WorkoutProgramID,
-		Name:             obj.Name,
-		Preset:           obj.Preset,
-		CreatedAt:        "📅 " + obj.CreatedAt.Add(time.Hour*3).Format("02.01.2006 15:04"),
-	}
-}
-
 func mapProgramDTO(obj models.WorkoutProgram, user *models.User) *dto.ProgramDTO {
 	dayTypes := make([]*dto.WorkoutDayTypeDTO, 0, len(obj.DayTypes))
 	for _, d := range obj.DayTypes {
-		dayTypes = append(dayTypes, mapDayTypeDTO(d))
+		dayTypes = append(dayTypes, dto.MapDayTypeDTO(d))
 	}
 	isActive := false
 	if user.ActiveProgramID != nil {
