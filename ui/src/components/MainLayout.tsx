@@ -77,9 +77,6 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({children}) => {
                         {user && (
                             <>
                                 <Button variant={"ghost"} onClick={() => navigate('/profile')}>{user.first_name} 👋</Button>
-                                <Button variant={"danger"} onClick={logout}>
-                                    Выйти
-                                </Button>
                             </>
                         )}
                     </div>

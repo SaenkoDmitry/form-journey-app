@@ -140,15 +140,19 @@ const MeasurementsPage: React.FC = () => {
     };
 
     return <div className="measurements-page">
-        <h1>Замеры</h1>
 
-        {!adding && (
-            <Button variant="active" onClick={() => setAdding(true)}>
-                ➕ Добавить новое измерение
-            </Button>
-        )}
+    {/* ===== HEADER (одинаковый с Home/Programs) ===== */}
+            <div className="desktop-only" style={{marginBottom: 12}}>
+                <h1>Замеры</h1>
 
-        {/* ======== TABLE (DESKTOP) ======== */}
+                {!adding && (
+                    <Button variant="active" onClick={() => setAdding(true)}>
+                        ➕ Добавить новое измерение
+                    </Button>
+                )}
+            </div>
+
+            {/* ======== TABLE (DESKTOP) ======== */}
         <div className="desktop-only table-wrapper">
             <table className="measurements-table">
                 <thead>
@@ -223,6 +227,17 @@ const MeasurementsPage: React.FC = () => {
 
         {/* ======== CARDS (MOBILE) ======== */}
         <div className="mobile-only cards-wrapper">
+
+            <div className="page-header stack">
+                <h1>Замеры</h1>
+
+                {!adding && (
+                    <Button variant="active" onClick={() => setAdding(true)}>
+                        ➕ Добавить новое измерение
+                    </Button>
+                )}
+            </div>
+
             {adding && (
                 <div className="card-form">
                     {fields.map(field => (

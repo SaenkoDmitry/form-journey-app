@@ -36,7 +36,7 @@ const LibraryPage: React.FC = () => {
         })
     }, [selectedGroup]);
 
-    return <div>
+    return <div className={"page stack"}>
         <h1>Библиотека упражнений</h1>
 
         {/* ---------- GROUP TABS ---------- */}
