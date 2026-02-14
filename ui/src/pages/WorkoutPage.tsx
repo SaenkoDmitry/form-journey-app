@@ -105,6 +105,12 @@ const WorkoutPage = () => {
             ))}
         </div>
 
+        {data.progress.SessionStarted &&
+            <Button variant={"primary"} onClick={() => {
+
+            }}>Добавить упражнение</Button>
+        }
+
         {!data.progress.SessionStarted && <div>
             {(Stats.CardioTime > 0 || Stats.TotalWeight > 0) && <h3>Статистика</h3>}
             <div>

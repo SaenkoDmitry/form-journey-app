@@ -6,7 +6,7 @@ import {finishWorkout} from "../api/workouts";
 import ExerciseView from "../components/ExerciseView";
 import WorkoutControls from "../components/WorkoutControls";
 
-import {Loader} from "lucide-react";
+import {Flag, Loader} from "lucide-react";
 import Button from "../components/Button.tsx";
 
 export default function WorkoutSession() {
@@ -73,6 +73,8 @@ export default function WorkoutSession() {
 
     // ---------------- FINISH ----------------
     const finish = async () => {
+        if (!confirm("Вы уверены, что хотите завершить тренировку?")) return;
+
         try {
             await finishWorkout(workoutID);
             navigate("/");
@@ -109,12 +111,15 @@ export default function WorkoutSession() {
                     />
                 </div>
             )}
-            <Button variant={"active"} onClick={() => navigate(`/workouts/${workoutID}`)}>Прогресс</Button>
+            <Button variant="primary" onClick={finish}>
+                <Flag size={18} />
+                Завершить всё
+            </Button>
 
             <WorkoutControls
                 onPrev={() => move(false)}
                 onNext={() => move(true)}
-                onFinish={finish}
+                workoutID={workoutID}
                 disablePrev={isFirst}
                 disableNext={isLast}
             />

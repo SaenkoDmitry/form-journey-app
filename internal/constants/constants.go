@@ -18,3 +18,10 @@ const (
 	BlueColor    = "#6488EA"
 	SkyBlueColor = "#2271B3"
 )
+
+const (
+	DefaultReps    = 10
+	DefaultWeight  = 10
+	DefaultMinutes = 1
+	DefaultMeters  = 100
+)

@@ -3,6 +3,7 @@ package workouts
 import (
 	"fmt"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/application/dto"
+	"github.com/SaenkoDmitry/training-tg-bot/internal/constants"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/models"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/daytypes"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/exercises"
@@ -60,11 +61,7 @@ func (uc *CreateUseCase) Execute(chatID, dayTypeID int64) (*dto.CreateWorkout, e
 
 func (uc *CreateUseCase) buildExercises(workoutID int64, dayTypeID int64, user *models.User) ([]models.Exercise, error) {
 	activeProgramID := *user.ActiveProgramID
-	//previousWorkout, err := uc.workoutsRepo.FindPreviousByType(user.ID, dayTypeID, activeProgramID)
-	//if err != nil {
 	return uc.createExercisesFromPresets(workoutID, dayTypeID, activeProgramID)
-	//}
-	//return uc.createExercisesFromLastWorkout(workoutID, previousWorkout.ID, activeProgramID)
 }
 
 func (uc *CreateUseCase) createExercisesFromPresets(workoutDayID, dayTypeID, activeProgramID int64) ([]models.Exercise, error) {
@@ -140,6 +137,16 @@ func buildSetsFrom(previousEx models.Exercise) []models.Set {
 			Minutes: set.GetRealMinutes(),
 			Meters:  set.GetRealMeters(),
 			Index:   set.Index,
+		}
+		switch {
+		case newSet.Reps == 0 && previousEx.ExerciseType.ContainsReps():
+			newSet.Reps = constants.DefaultReps
+		case newSet.Weight == 0 && previousEx.ExerciseType.ContainsWeight():
+			newSet.Weight = constants.DefaultWeight
+		case newSet.Minutes == 0 && previousEx.ExerciseType.ContainsMinutes():
+			newSet.Minutes = constants.DefaultMinutes
+		case newSet.Meters == 0 && previousEx.ExerciseType.ContainsMeters():
+			newSet.Meters = constants.DefaultMeters
 		}
 		sets = append(sets, newSet)
 	}

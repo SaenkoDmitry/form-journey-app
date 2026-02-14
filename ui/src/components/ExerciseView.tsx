@@ -158,7 +158,7 @@ export default function ExerciseView({session, onAllSetsCompleted, onReload}) {
                 <Button variant={"ghost"}
                         onClick={() => handleAdd(ex.id, sets.length > 0 ? sets[sets.length - 1] : null)}
                 >+ Добавить подход</Button>
-                <Button variant={"danger"} onClick={() => handleDeleteExercise(ex.id)}>Убрать упражнение</Button>
+                <Button variant={"danger"} onClick={() => handleDeleteExercise(ex.id)}>✕ Убрать упражнение</Button>
             </div>
 
             {toast && <Toast message={toast} onClose={() => setToast(null)}/>}

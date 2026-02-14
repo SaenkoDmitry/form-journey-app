@@ -104,26 +104,38 @@ func (s *Set) GetRealReps() int {
 	if s == nil {
 		return 0
 	}
-	return s.FactReps
+	if s.FactReps > 0 {
+		return s.FactReps
+	}
+	return s.Reps
 }
 
 func (s *Set) GetRealWeight() float32 {
 	if s == nil {
 		return 0
 	}
-	return s.FactWeight
+	if s.FactWeight > 0 {
+		return s.FactWeight
+	}
+	return s.Weight
 }
 
 func (s *Set) GetRealMinutes() int {
 	if s == nil {
 		return 0
 	}
-	return s.FactMinutes
+	if s.FactMinutes > 0 {
+		return s.FactMinutes
+	}
+	return s.Minutes
 }
 
 func (s *Set) GetRealMeters() int {
 	if s == nil {
 		return 0
 	}
-	return s.FactMeters
+	if s.FactMeters > 0 {
+		return s.FactMeters
+	}
+	return s.Meters
 }

@@ -2,11 +2,11 @@ package exercises
 
 import (
 	"github.com/SaenkoDmitry/training-tg-bot/internal/application/dto"
+	"github.com/SaenkoDmitry/training-tg-bot/internal/constants"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/models"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/exercises"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/exercisetypes"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/workouts"
-	"strings"
 )
 
 type CreateUseCase struct {
@@ -49,14 +49,14 @@ func (uc *CreateUseCase) Execute(workoutID int64, exerciseTypeID int64) (*dto.Cr
 		},
 	}
 	switch {
-	case strings.Contains(exerciseObj.Units, "meters"):
-		newExercise.Sets[0].Meters = 100
-	case strings.Contains(exerciseObj.Units, "minutes"):
-		newExercise.Sets[0].Minutes = 1
-	case strings.Contains(exerciseObj.Units, "reps"):
-		newExercise.Sets[0].Reps = 10
-	case strings.Contains(exerciseObj.Units, "weight"):
-		newExercise.Sets[0].Weight = 10
+	case exerciseObj.ContainsReps():
+		newExercise.Sets[0].Reps = constants.DefaultReps
+	case exerciseObj.ContainsWeight():
+		newExercise.Sets[0].Weight = constants.DefaultWeight
+	case exerciseObj.ContainsMinutes():
+		newExercise.Sets[0].Minutes = constants.DefaultMinutes
+	case exerciseObj.ContainsMeters():
+		newExercise.Sets[0].Meters = constants.DefaultMeters
 	}
 	err = uc.exercisesRepo.Save(&newExercise)
 	if err != nil {

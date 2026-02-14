@@ -256,6 +256,7 @@ export default function DayDetailsPage() {
                                     <div className="sets">
                                         {ex.sets.map((s: any, si: number) => (
                                             <div key={si} className="set-row">
+                                                <>{si+1}</>
                                                 {s.reps > 0 && (
                                                     <>
                                                         <input

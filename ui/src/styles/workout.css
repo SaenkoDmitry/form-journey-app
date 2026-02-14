@@ -8,7 +8,6 @@
 
     display: flex;
     flex-direction: column;
-    gap: 8px;
 }
 
 /* ============ HEADER ============ */
@@ -16,6 +15,7 @@
 .exercise-card-view-header {
     display: flex;
     flex-direction: column;
+    align-items: center;   /* 👈 центрирует по горизонтали */
     padding: 8px;
 }
 
@@ -27,7 +27,6 @@
 
 .exercise-card-view-link {
     font-size: 13px;
-    opacity: .6;
     text-decoration: underline;
     padding: 8px;
 }
