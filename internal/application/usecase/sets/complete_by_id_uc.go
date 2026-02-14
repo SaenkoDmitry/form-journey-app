@@ -2,6 +2,7 @@ package sets
 
 import (
 	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/sets"
+	"time"
 )
 
 type CompleteByIDUseCase struct {
@@ -26,6 +27,8 @@ func (uc *CompleteByIDUseCase) Execute(setID int64) error {
 		return err
 	}
 	set.Completed = !set.Completed
+	now := time.Now()
+	set.CompletedAt = &now
 
 	err = uc.setsRepo.Save(set)
 	if err != nil {
