@@ -5,7 +5,7 @@ import {parsePreset, savePreset} from "../api/presets";
 import {getExerciseGroups, getExerciseTypesByGroup} from "../api/exercises";
 import Button from "../components/Button";
 import "../styles/DayDetailsPage.css";
-import {Loader} from "lucide-react";
+import {Loader, Plus, Trash2, X} from "lucide-react";
 
 import {closestCenter, DndContext} from "@dnd-kit/core";
 import {arrayMove, SortableContext, useSortable, verticalListSortingStrategy,} from "@dnd-kit/sortable";
@@ -222,7 +222,7 @@ export default function DayDetailsPage() {
                 </select>
 
                 <Button variant="active" onClick={addExercise}>
-                    ➕️ Добавить
+                    <Plus size={14}/>Добавить
                 </Button>
             </div>
 
@@ -249,7 +249,7 @@ export default function DayDetailsPage() {
                                             variant="danger"
                                             onClick={() => removeExercise(ei)}
                                         >
-                                            ✕
+                                            <X size={12}/>
                                         </Button>
                                     </div>
 
@@ -309,7 +309,7 @@ export default function DayDetailsPage() {
                                                         removeSet(ei, si);
                                                     }}
                                                 >
-                                                    🗑
+                                                    <Trash2 size={18}/>
                                                 </button>
                                             </div>
                                         ))}
@@ -320,7 +320,7 @@ export default function DayDetailsPage() {
                                                 addSet(ei, ex.sets, ex.units);
                                             }}
                                         >
-                                            + сет
+                                            <Plus size={14}/>сет
                                         </Button>
                                     </div>
                                 </div>

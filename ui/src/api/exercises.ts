@@ -19,4 +19,3 @@ export const addExercise = (workoutID, exerciseTypeID: number) =>
             exercise_type_id: exerciseTypeID,
         }),
     });
-

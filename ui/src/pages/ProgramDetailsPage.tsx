@@ -5,6 +5,7 @@ import Button from "../components/Button";
 import DayCard from "../components/DayCard";
 import "../styles/ProgramBase.css";
 import {useAuth} from "../context/AuthContext.tsx";
+import {Plus} from "lucide-react";
 
 export default function ProgramDetailsPage() {
     const {user, loading: authLoading} = useAuth();
@@ -58,7 +59,7 @@ export default function ProgramDetailsPage() {
         <h2 className="title">{program.name}</h2>
 
         <Button variant="active" onClick={addDay}>
-            + Добавить день
+            <Plus size={14}/>Добавить день
         </Button>
 
         {program.day_types && program.day_types.length > 0 ? (

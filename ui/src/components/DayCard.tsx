@@ -1,5 +1,6 @@
 import Button from "./Button";
 import { useNavigate } from "react-router-dom";
+import {Trash2} from "lucide-react";
 
 type Props = {
     day: WorkoutDayTypeDTO;
@@ -29,7 +30,7 @@ export default function DayCard({ day, programId, onDelete }: Props) {
                     await onDelete(day.id);
                 }}
             >
-                🗑
+                <Trash2 size={14}/>
             </Button>
         </div>
     );
