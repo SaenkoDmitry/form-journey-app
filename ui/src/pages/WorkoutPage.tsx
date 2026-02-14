@@ -1,7 +1,7 @@
 import {useNavigate, useParams} from 'react-router-dom';
 import React, {useEffect, useState} from 'react';
 import SafeTextRenderer from "../components/SafeTextRenderer.tsx";
-import {Loader} from "lucide-react";
+import {Loader, Play, Plus} from "lucide-react";
 import Button from "../components/Button.tsx";
 
 const WorkoutPage = () => {
@@ -61,7 +61,7 @@ const WorkoutPage = () => {
 
         {data.progress.SessionStarted &&
             <Button variant={"active"} onClick={() => navigate(`/sessions/${data?.progress.workout.id}`)}>
-                К тренировке</Button>
+                <Play size={14}/>К тренировке</Button>
         }
 
         {/* Упражнения */}
@@ -108,7 +108,7 @@ const WorkoutPage = () => {
         {data.progress.SessionStarted &&
             <Button variant={"primary"} onClick={() => {
 
-            }}>Добавить упражнение</Button>
+            }}><Plus size={14}/>Добавить упражнение</Button>
         }
 
         {!data.progress.SessionStarted && <div>

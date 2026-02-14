@@ -3,7 +3,7 @@ import {useAuth} from '../context/AuthContext';
 import SafeTextRenderer from "../components/SafeTextRenderer.tsx";
 import {getExerciseGroups, getExerciseTypesByGroup} from "../api/exercises.ts";
 import Button from "../components/Button.tsx";
-import {Loader} from "lucide-react";
+import {ChevronDown, Loader, Triangle} from "lucide-react";
 
 const LibraryPage: React.FC = () => {
     const {user, loading: authLoading} = useAuth();
@@ -90,7 +90,7 @@ const LibraryPage: React.FC = () => {
                                 display: 'inline-block',
                                 transition: 'transform 0.3s ease',
                                 transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)',
-                            }}>▶</span>
+                            }}><ChevronDown size={22}/></span>
                         </div>
 
                         {/* раскрытие с плавным эффектом */}

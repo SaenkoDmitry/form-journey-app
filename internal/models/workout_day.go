@@ -16,6 +16,7 @@ type WorkoutDay struct {
 	EndedAt          *time.Time
 	Completed        bool
 
+	User           *User           `gorm:"foreignKey:UserID;references:ID"`
 	WorkoutDayType *WorkoutDayType `gorm:"foreignKey:WorkoutDayTypeID;references:ID"`
 }
 

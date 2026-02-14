@@ -5,7 +5,7 @@ import {useAuth} from '../context/AuthContext';
 import '../styles/App.css';
 import Button from "../components/Button.tsx";
 import {deleteWorkout, getWorkouts} from "../api/workouts.ts";
-import {Loader} from "lucide-react";
+import {Loader, Play, Trash2} from "lucide-react";
 
 const LIMIT = 10;
 
@@ -70,7 +70,7 @@ const Home: React.FC = () => {
                     variant="active"
                     onClick={() => navigate('/start')}
                 >
-                    ▶️ Начать новую тренировку
+                    <Play/> Начать новую тренировку
                 </Button>
             )}
 
@@ -92,7 +92,7 @@ const Home: React.FC = () => {
                                         e.stopPropagation();
                                     }}
                                 >
-                                    ▶️
+                                    <Play size={14}/>
                                 </Button>
                             )}
 
@@ -103,7 +103,7 @@ const Home: React.FC = () => {
                                     handleDelete(w.id);
                                 }}
                             >
-                                🗑️
+                                <Trash2 size={14}/>
                             </Button>
                         </div>
                     </div>

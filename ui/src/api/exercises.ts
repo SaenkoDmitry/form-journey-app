@@ -10,3 +10,13 @@ export const deleteExercise = (id: number) =>
     api(`/api/exercises/${id}`, {
         method: "DELETE",
     });
+
+export const addExercise = (workoutID, exerciseTypeID: number) =>
+    api(`/api/exercises`, {
+        method: "POST",
+        body: JSON.stringify({
+            workout_id: workoutID,
+            exercise_type_id: exerciseTypeID,
+        }),
+    });
+

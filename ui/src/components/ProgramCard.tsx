@@ -1,4 +1,5 @@
 import Button from "./Button";
+import {Edit, Pencil, PencilLine, Star, Trash2} from "lucide-react";
 
 type Props = {
     name: string;
@@ -32,11 +33,11 @@ export default function ProgramCard({
                     onClick={onActivate}
                     variant={active ? "active" : "ghost"}
                 >
-                    ⭐
+                    <Star size={14}/>
                 </Button>
-                <Button onClick={onRename}>✏️</Button>
+                <Button onClick={onRename}><PencilLine size={14}/></Button>
                 <Button variant="danger" onClick={onDelete}>
-                    🗑
+                    <Trash2 size={14}/>
                 </Button>
             </div>
         </div>

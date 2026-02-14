@@ -47,6 +47,7 @@ func (u *repoImpl) Save(workout *models.WorkoutDay) error {
 func (u *repoImpl) Get(workoutID int64) (workoutDay models.WorkoutDay, err error) {
 	err = u.db.Transaction(func(tx *gorm.DB) error {
 		return tx.
+			Preload("User").
 			Preload("WorkoutDayType").
 			Preload("Exercises.WorkoutDay").
 			Preload("Exercises.ExerciseType").

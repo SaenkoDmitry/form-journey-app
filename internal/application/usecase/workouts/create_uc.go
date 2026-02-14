@@ -83,7 +83,7 @@ func (uc *CreateUseCase) createExercisesFromPresets(workoutDayID, dayTypeID, act
 		}
 
 		if prevEx, prevErr := uc.exercisesRepo.FindPreviousByType(presetEx.ID, activeProgramID); prevErr == nil {
-			newExercise.Sets = buildSetsFrom(prevEx)
+			newExercise.Sets = prevEx.CloneSets()
 		} else {
 			for idx2, set := range presetEx.Sets {
 				newSet := models.Set{Index: idx2}

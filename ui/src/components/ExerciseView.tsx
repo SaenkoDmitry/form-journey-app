@@ -6,6 +6,7 @@ import Button from "./Button.tsx";
 import Toast from "./Toast.tsx";
 import "../styles/workout.css";
 import {deleteExercise} from "../api/exercises.ts";
+import {Plus, X} from "lucide-react";
 
 export default function ExerciseView({session, onAllSetsCompleted, onReload}) {
     const [sets, setSets] = useState(session.exercise.sets);
@@ -166,8 +167,8 @@ export default function ExerciseView({session, onAllSetsCompleted, onReload}) {
             <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px"}}>
                 <Button variant={"ghost"}
                         onClick={() => handleAdd(ex.id, sets.length > 0 ? sets[sets.length - 1] : null)}
-                >+ Добавить подход</Button>
-                <Button variant={"danger"} onClick={() => handleDeleteExercise(ex.id)}>✕ Убрать упражнение</Button>
+                ><Plus size={14}/>Добавить подход</Button>
+                <Button variant={"danger"} onClick={() => handleDeleteExercise(ex.id)}><X size={14}/>Убрать упражнение</Button>
             </div>
 
             {toast && <Toast message={toast} onClose={() => setToast(null)}/>}

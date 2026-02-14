@@ -2,6 +2,7 @@ import EditableValue from "./EditableValue";
 import Button from "./Button.tsx";
 import "../styles/SetRow.css";
 import "../styles/workout.css";
+import {Check, X} from "lucide-react";
 
 type Props = {
     set: FormattedSet;
@@ -61,8 +62,8 @@ export default function SetRow({ set, index, onDelete, onComplete, onChange }: P
             )}
 
             <div className="set-actions">
-                <Button variant={"active"} onClick={onComplete}>✓</Button>
-                <Button variant={"danger"} onClick={onDelete}>✕</Button>
+                <Button variant={"active"} onClick={onComplete}><Check size={10}/></Button>
+                <Button variant={"danger"} onClick={onDelete}><X size={10}/></Button>
             </div>
         </div>
     );

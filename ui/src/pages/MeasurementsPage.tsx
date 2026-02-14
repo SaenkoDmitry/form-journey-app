@@ -3,7 +3,7 @@ import '../styles/MeasurementsPage.css';
 import Button from "../components/Button.tsx";
 import {deleteMeasurement as apiDeleteMeasurement, getMeasurements} from "../api/measurements.ts";
 import {useAuth} from "../context/AuthContext.tsx";
-import {Loader} from "lucide-react";
+import {Loader, Plus, Trash2} from "lucide-react";
 
 const LIMIT = 10;
 
@@ -141,18 +141,18 @@ const MeasurementsPage: React.FC = () => {
 
     return <div className="measurements-page">
 
-    {/* ===== HEADER (одинаковый с Home/Programs) ===== */}
-            <div className="desktop-only" style={{marginBottom: 12}}>
-                <h1>Замеры</h1>
+        {/* ===== HEADER (одинаковый с Home/Programs) ===== */}
+        <div className="desktop-only" style={{marginBottom: 12}}>
+            <h1>Замеры</h1>
 
-                {!adding && (
-                    <Button variant="active" onClick={() => setAdding(true)}>
-                        ➕ Добавить новое измерение
-                    </Button>
-                )}
-            </div>
+            {!adding && (
+                <Button variant="active" onClick={() => setAdding(true)}>
+                    <Plus size={14}/>Новое измерение
+                </Button>
+            )}
+        </div>
 
-            {/* ======== TABLE (DESKTOP) ======== */}
+        {/* ======== TABLE (DESKTOP) ======== */}
         <div className="desktop-only table-wrapper">
             <table className="measurements-table">
                 <thead>
@@ -215,7 +215,7 @@ const MeasurementsPage: React.FC = () => {
                                 variant="danger"
                                 onClick={() => handleDeleteMeasurement(m.id)}
                                 disabled={!m.id} // <-- блокируем, если id = 0 или undefined
-                            >🗑</Button>
+                            ><Trash2 size={14}/></Button>
                         </td>
                     </tr>
                 ))}
@@ -233,7 +233,7 @@ const MeasurementsPage: React.FC = () => {
 
                 {!adding && (
                     <Button variant="active" onClick={() => setAdding(true)}>
-                        ➕ Добавить новое измерение
+                        <Plus size={14}/>Новое измерение
                     </Button>
                 )}
             </div>
@@ -278,7 +278,7 @@ const MeasurementsPage: React.FC = () => {
                             onClick={() => handleDeleteMeasurement(m.id)}
                             disabled={!m.id}
                         >
-                            🗑
+                            <Trash2 size={14}/>
                         </Button>
                     </div>
 
@@ -298,7 +298,7 @@ const MeasurementsPage: React.FC = () => {
                             <div className="card-row"><span>П. икра:</span><span>{m.calf_right}</span></div>
                         </div>
                     </div>
-                    <div style={{marginTop: '16px'}}><b>{idx+1} из {count}</b></div>
+                    <div style={{marginTop: '16px'}}><b>{idx + 1} из {count}</b></div>
                 </div>
             ))}
 

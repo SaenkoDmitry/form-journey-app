@@ -1,6 +1,7 @@
 package exercises
 
 import (
+	"errors"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/application/dto"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/constants"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/models"
@@ -27,13 +28,21 @@ func (uc *CreateUseCase) Name() string {
 	return "Добавить в тренировку упражнение"
 }
 
-func (uc *CreateUseCase) Execute(workoutID int64, exerciseTypeID int64) (*dto.CreateExercise, error) {
+func (uc *CreateUseCase) Execute(workoutID, exerciseTypeID int64) (*dto.CreateExercise, error) {
 	exerciseObj, err := uc.exerciseTypesRepo.Get(exerciseTypeID)
 	if err != nil {
 		return nil, err
 	}
 
-	workout, _ := uc.workoutsRepo.Get(workoutID)
+	workout, err := uc.workoutsRepo.Get(workoutID)
+	if err != nil {
+		return nil, err
+	}
+
+	if workout.User.ActiveProgramID == nil {
+		return nil, errors.New("Сначала создайте хотя бы одну программу")
+	}
+
 	idx := 0
 	if len(workout.Exercises) > 0 {
 		lastExercise := workout.Exercises[len(workout.Exercises)-1]
@@ -44,19 +53,22 @@ func (uc *CreateUseCase) Execute(workoutID int64, exerciseTypeID int64) (*dto.Cr
 		ExerciseTypeID: exerciseObj.ID,
 		Index:          idx,
 		WorkoutDayID:   workoutID,
-		Sets: []models.Set{
-			{Index: 1}, // по дефолту один подход
-		},
 	}
-	switch {
-	case exerciseObj.ContainsReps():
-		newExercise.Sets[0].Reps = constants.DefaultReps
-	case exerciseObj.ContainsWeight():
-		newExercise.Sets[0].Weight = constants.DefaultWeight
-	case exerciseObj.ContainsMinutes():
-		newExercise.Sets[0].Minutes = constants.DefaultMinutes
-	case exerciseObj.ContainsMeters():
-		newExercise.Sets[0].Meters = constants.DefaultMeters
+	if prev, prevErr := uc.exercisesRepo.FindPreviousByType(exerciseTypeID, *workout.User.ActiveProgramID); prevErr == nil {
+		newExercise.Sets = prev.CloneSets()
+	} else {
+		// ставим хотя бы дефолты
+		newExercise.Sets = []models.Set{{Index: 1}}
+		switch {
+		case exerciseObj.ContainsReps():
+			newExercise.Sets[0].Reps = constants.DefaultReps
+		case exerciseObj.ContainsWeight():
+			newExercise.Sets[0].Weight = constants.DefaultWeight
+		case exerciseObj.ContainsMinutes():
+			newExercise.Sets[0].Minutes = constants.DefaultMinutes
+		case exerciseObj.ContainsMeters():
+			newExercise.Sets[0].Meters = constants.DefaultMeters
+		}
 	}
 	err = uc.exercisesRepo.Save(&newExercise)
 	if err != nil {

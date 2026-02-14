@@ -1,5 +1,7 @@
 package models
 
+import "github.com/SaenkoDmitry/training-tg-bot/internal/constants"
+
 type Exercise struct {
 	ID int64 `gorm:"primaryKey;autoIncrement"`
 
@@ -15,6 +17,31 @@ type Exercise struct {
 
 func (*Exercise) TableName() string {
 	return "exercises"
+}
+
+func (e *Exercise) CloneSets() []Set {
+	sets := make([]Set, 0, len(e.Sets))
+	for _, set := range e.Sets {
+		newSet := Set{
+			Reps:    set.GetRealReps(),
+			Weight:  set.GetRealWeight(),
+			Minutes: set.GetRealMinutes(),
+			Meters:  set.GetRealMeters(),
+			Index:   set.Index,
+		}
+		switch {
+		case newSet.Reps == 0 && e.ExerciseType.ContainsReps():
+			newSet.Reps = constants.DefaultReps
+		case newSet.Weight == 0 && e.ExerciseType.ContainsWeight():
+			newSet.Weight = constants.DefaultWeight
+		case newSet.Minutes == 0 && e.ExerciseType.ContainsMinutes():
+			newSet.Minutes = constants.DefaultMinutes
+		case newSet.Meters == 0 && e.ExerciseType.ContainsMeters():
+			newSet.Meters = constants.DefaultMeters
+		}
+		sets = append(sets, newSet)
+	}
+	return sets
 }
 
 func (e *Exercise) GetExerciseType() *ExerciseType {
