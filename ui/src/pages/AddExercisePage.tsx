@@ -72,7 +72,7 @@ const AddExercisePage = () => {
             await addExercise(Number(id), exerciseId);
 
             // возвращаемся назад
-            navigate(-1);
+            navigate(`/workouts/${id}`, { replace: true });
         } catch (e) {
             alert("Ошибка добавления упражнения");
         } finally {
