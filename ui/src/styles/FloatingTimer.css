@@ -1,0 +1,86 @@
+.floating-timer {
+    position: fixed;
+    z-index: 9999;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #222, #111);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+    cursor: grab;
+    user-select: none;
+}
+
+.floating-timer svg {
+    position: absolute;
+    transform: rotate(-90deg);
+}
+
+.floating-timer .bg {
+    fill: none;
+    stroke: #333;
+    stroke-width: 6;
+}
+
+.floating-timer .progress {
+    fill: none;
+    stroke: #4ade80;
+    stroke-width: 6;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.2s linear;
+}
+
+.floating-time {
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    z-index: 2;
+}
+
+.floating-close {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: none;
+    background: #ff4d4f;
+    color: white;
+    font-size: 10px;
+    cursor: pointer;
+    z-index: 3;
+}
+
+.floating-timer.done {
+    animation: pulse 1s infinite;
+    background: linear-gradient(145deg, #111, #222);
+}
+
+.floating-notification {
+    position: absolute;
+    top: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #4ade80;
+    color: #111;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    animation: fadeinout 2s forwards;
+}
+
+@keyframes fadeinout {
+    0% { opacity: 0; transform: translateX(-50%) translateY(-10px);}
+    10% { opacity: 1; transform: translateX(-50%) translateY(0);}
+    90% { opacity: 1; transform: translateX(-50%) translateY(0);}
+    100% { opacity: 0; transform: translateX(-50%) translateY(-10px);}
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}

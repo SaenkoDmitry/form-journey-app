@@ -1,18 +1,20 @@
-import {useEffect, useState} from "react";
-import {addSet, changeSet, completeSet, deleteSet,} from "../api/sets";
-import SetRow from "./SetRow.tsx";
-import RestTimer from "./RestTimer.tsx";
-import Button from "./Button.tsx";
-import Toast from "./Toast.tsx";
+import { useEffect, useState } from "react";
+import { addSet, changeSet, completeSet, deleteSet } from "../api/sets";
+import SetRow from "./SetRow";
+import Button from "./Button";
+import Toast from "./Toast";
 import "../styles/workout.css";
-import {deleteExercise} from "../api/exercises.ts";
-import {Plus, X} from "lucide-react";
+import { deleteExercise } from "../api/exercises";
+import { Plus, X } from "lucide-react";
+import { useGlobalTimer } from "../context/TimerContext";
 
-export default function ExerciseView({session, onAllSetsCompleted, onReload}) {
+export default function ExerciseView({ session, onAllSetsCompleted, onReload }) {
     const [sets, setSets] = useState(session.exercise.sets);
     const [toast, setToast] = useState<string | null>(null);
+    const [justCompletedSet, setJustCompletedSet] = useState<number | null>(null);
+    const { start } = useGlobalTimer();
 
-    const [restTrigger, setRestTrigger] = useState(0);
+    const ex = session.exercise;
 
     useEffect(() => {
         setSets(session.exercise.sets);
@@ -20,24 +22,14 @@ export default function ExerciseView({session, onAllSetsCompleted, onReload}) {
 
     const showError = () => setToast("Ошибка сервера 😢");
 
-    // ---------- ADD ----------
-    const handleAdd = async (exerciseID: number, lastSet: FormattedSet | null) => {
-        const temp: FormattedSet = {
+    const handleAdd = async (exerciseID: number, lastSet: any) => {
+        const temp = {
             id: Date.now(),
-
-            reps: (lastSet?.fact_reps > 0 ? lastSet?.fact_reps : lastSet?.reps) ?? 0,
-            weight: (lastSet?.fact_weight > 0 ? lastSet?.fact_weight : lastSet?.weight) ?? 0,
-            minutes: (lastSet?.fact_minutes > 0 ? lastSet?.fact_minutes : lastSet?.minutes) ?? 0,
-            meters: (lastSet?.fact_meters > 0 ? lastSet?.fact_meters : lastSet?.meters) ?? 0,
-
+            reps: lastSet?.fact_reps > 0 ? lastSet.fact_reps : lastSet?.reps ?? 0,
+            weight: lastSet?.fact_weight > 0 ? lastSet.fact_weight : lastSet?.weight ?? 0,
             fact_reps: 0,
             fact_weight: 0,
-            fact_minutes: 0,
-            fact_meters: 0,
-
-            formatted_string: "",
             completed: false,
-            completed_at: "",
             index: sets.length,
         };
 
@@ -45,10 +37,66 @@ export default function ExerciseView({session, onAllSetsCompleted, onReload}) {
 
         try {
             await addSet(exerciseID);
-            await onReload(); // сервер даст правильный id
+            await onReload();
         } catch {
             showError();
             setSets(prev => prev.slice(0, -1));
+        }
+    };
+
+    const handleDeleteSet = async (id: number) => {
+        const old = sets;
+        setSets(prev => prev.filter(s => s.id !== id));
+        try {
+            await deleteSet(id);
+        } catch {
+            showError();
+            setSets(old);
+        }
+    };
+
+    const handleCompleteSet = async (id: number) => {
+        const old = sets;
+        let updatedSets: any[] = [];
+
+        setSets(prev => {
+            updatedSets = prev.map(s => s.id === id ? { ...s, completed: !s.completed } : s);
+
+            const setNowCompleted = updatedSets.find(s => s.id === id)?.completed;
+            if (setNowCompleted) setJustCompletedSet(id);
+
+            const allDone = updatedSets.every(s => s.completed);
+            if (allDone) onAllSetsCompleted?.();
+
+            return updatedSets;
+        });
+
+        const currentSet = sets.find(s => s.id === id);
+        if (currentSet) {
+            let reps = currentSet.fact_reps > 0 ? currentSet.fact_reps : currentSet.reps;
+            let weight = currentSet.fact_weight > 0 ? currentSet.fact_weight : currentSet.weight;
+            await handleChange(id, reps, weight);
+        }
+
+        try {
+            await completeSet(id);
+        } catch {
+            showError();
+            setSets(old);
+        }
+    };
+
+    const handleChange = async (id, reps, weight) => {
+        setSets(prev =>
+            prev.map(s =>
+                s.id === id ? { ...s, fact_reps: reps, fact_weight: weight } : s
+            )
+        );
+
+        try {
+            await changeSet(id, reps, weight, 0, 0);
+        } catch {
+            showError();
         }
     };
 
@@ -63,95 +111,19 @@ export default function ExerciseView({session, onAllSetsCompleted, onReload}) {
         }
     };
 
-    // ---------- DELETE ----------
-    const handleDeleteSet = async (id: number) => {
-        const old = sets;
-
-        setSets(prev => prev.filter(s => s.id !== id));
-
-        try {
-            await deleteSet(id);
-        } catch {
-            showError();
-            setSets(old);
+    // ---- Автостарт глобального таймера ----
+    useEffect(() => {
+        if (justCompletedSet !== null) {
+            start(ex.rest_in_seconds); // старт таймера
+            setJustCompletedSet(null);
         }
-    };
-
-    // ---------- COMPLETE ----------
-    const handleCompleteSet = async (id: number) => {
-        const old = sets; // для rollback
-
-        let updatedSets: FormattedSet[] = [];
-
-        // optimistic
-        setSets(prev => {
-            updatedSets = prev.map(s =>
-                s.id === id ? {...s, completed: !s.completed} : s
-            );
-
-            const justCompleted = updatedSets.find(s => s.id === id)?.completed;
-
-            // 🔥 если подход завершён — запускаем отдых
-            if (justCompleted) {
-                setRestTrigger(Date.now());
-            }
-
-            const allDone = updatedSets.every(s => s.completed);
-            if (allDone) onAllSetsCompleted?.();
-
-            return updatedSets;
-        });
-
-        const currentSet = sets.find(s => s.id === id);
-        if (currentSet) {
-            let reps = currentSet.fact_reps > 0 ? currentSet.fact_reps : currentSet.reps;
-            let weight = currentSet.fact_weight > 0 ? currentSet.fact_weight : currentSet.weight;
-            let minutes = currentSet.fact_minutes > 0 ? currentSet.fact_minutes : currentSet.minutes;
-            let meters = currentSet.fact_meters > 0 ? currentSet.fact_meters : currentSet.meters;
-            await handleChange(id, reps, weight, minutes, meters);
-        }
-
-        try {
-            await completeSet(id);
-        } catch {
-            showError();
-            setSets(old); // rollback
-        }
-    };
-
-
-    // ---------- CHANGE ----------
-    const handleChange = async (id, reps, weight, minutes, meters) => {
-        setSets(prev =>
-            prev.map(s =>
-                s.id === id ? {
-                    ...s,
-                    fact_reps: reps,
-                    fact_weight: weight,
-                    fact_minutes: minutes,
-                    fact_meters: meters
-                } : s
-            )
-        );
-
-        try {
-            await changeSet(id, reps, weight, minutes, meters);
-        } catch {
-            showError();
-        }
-    };
-
-    const ex = session.exercise;
+    }, [justCompletedSet, start, ex.rest_in_seconds]);
 
     return (
         <div className="exercise-card-view">
-
             <div className="exercise-card-view-header">
                 <div className="exercise-card-view-title">{ex.name}</div>
-
-                {ex.url && <a className="exercise-card-view-link" href={ex.url}>
-                    Техника упражнения ↗
-                </a>}
+                {ex.url && <a className="exercise-card-view-link" href={ex.url}>Техника упражнения ↗</a>}
             </div>
 
             <div className="sets">
@@ -167,17 +139,13 @@ export default function ExerciseView({session, onAllSetsCompleted, onReload}) {
                 ))}
             </div>
 
-            <RestTimer
-                seconds={ex.rest_in_seconds}
-                autoStartTrigger={restTrigger}
-                onFinish={() => setToast("Отдых закончен 💪")}
-            />
-
-            <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px"}}>
-                <Button variant={"ghost"}
-                        onClick={() => handleAdd(ex.id, sets.length > 0 ? sets[sets.length - 1] : null)}
-                >Добавить подход</Button>
-                <Button variant={"danger"} onClick={() => handleDeleteExercise(ex.id)}>Убрать упражнение</Button>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                <Button variant={"ghost"} onClick={() => handleAdd(ex.id, sets.length > 0 ? sets[sets.length - 1] : null)}>
+                    Добавить подход
+                </Button>
+                <Button variant={"danger"} onClick={() => handleDeleteExercise(ex.id)}>
+                    Убрать упражнение
+                </Button>
             </div>
 
             {toast && <Toast message={toast} onClose={() => setToast(null)}/>}
