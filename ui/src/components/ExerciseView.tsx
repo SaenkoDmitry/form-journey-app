@@ -184,7 +184,7 @@ export default function ExerciseView({session, onAllSetsCompleted, onReload}) {
                 seconds={ex.rest_in_seconds}
                 autoStartTrigger={restTrigger}
                 onFinish={() => setToast("Отдых закончен 💪")}
-                onStartUrl={`/sessions/${session.id}`}
+                workoutID={session.workout.id}
             />
 
             <div style={{display: "grid", gridTemplateColumns: "1fr", gap: "8px"}}>

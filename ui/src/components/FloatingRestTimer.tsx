@@ -3,7 +3,6 @@ import { useRestTimer } from "../context/RestTimerContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/FloatingRestTimer.css";
 
-// 🔹 Константы размера и позиции круга
 const TIMER_SIZE = 100; // размер SVG
 const RADIUS = 45;      // радиус круга
 const CENTER = TIMER_SIZE / 2;
@@ -19,28 +18,28 @@ export default function FloatingRestTimer() {
     const [mounted, setMounted] = useState(false);
     const touchRef = useRef<{ startX: number; startY: number } | null>(null);
 
-    useEffect(() => {
-        setMounted(true); // для плавного появления прогресса
-    }, []);
+    useEffect(() => setMounted(true), []);
 
+    // загрузка сохранённой позиции
     useEffect(() => {
         const saved = localStorage.getItem("floatingTimerPosition");
         if (saved) setPosition(JSON.parse(saved));
     }, []);
 
+    // сохранение позиции
     useEffect(() => {
         localStorage.setItem("floatingTimerPosition", JSON.stringify(position));
     }, [position]);
 
     const shouldRender = running && !location.pathname.startsWith("/sessions/");
 
-    // Пульс на последние 5 секунд
+    // пульс на последние 5 секунд
     useEffect(() => {
         if (!shouldRender) return;
         setBlinking(remaining > 0 && remaining <= 5);
     }, [remaining, shouldRender]);
 
-    // Вибрация по завершению
+    // вибрация по завершению
     useEffect(() => {
         if (!shouldRender) return;
         if (remaining === 0 && running) {
@@ -48,28 +47,43 @@ export default function FloatingRestTimer() {
         }
     }, [remaining, running, shouldRender]);
 
-    if (!shouldRender || seconds <= 0) return null; // защищаем от "0 секунд"
+    if (!shouldRender || seconds <= 0) return null;
 
-    // 🔹 расчёт прогресса
-    const safeProgress = Math.max(0, Math.min(1, 1 - remaining / seconds));
     const circumference = 2 * Math.PI * RADIUS;
+    const safeProgress = Math.max(0, Math.min(1, 1 - remaining / seconds));
     const strokeOffset = mounted ? circumference * (1 - safeProgress) : circumference;
 
-    // touch для перемещения
+    // 🔹 touch для перемещения с ограничением по экрану
     const onTouchStart = (e: React.TouchEvent) => {
         const touch = e.touches[0];
         touchRef.current = { startX: touch.clientX - position.x, startY: touch.clientY - position.y };
     };
+
     const onTouchMove = (e: React.TouchEvent) => {
         if (!touchRef.current) return;
         const touch = e.touches[0];
-        setPosition({ x: touch.clientX - touchRef.current.startX, y: touch.clientY - touchRef.current.startY });
+
+        let newX = touch.clientX - touchRef.current.startX;
+        let newY = touch.clientY - touchRef.current.startY;
+
+        // 🔹 ограничения по экрану
+        const minX = 0;
+        const minY = 0;
+        const maxX = window.innerWidth - TIMER_SIZE;
+        const maxY = window.innerHeight - TIMER_SIZE;
+
+        newX = Math.min(Math.max(newX, minX), maxX);
+        newY = Math.min(Math.max(newY, minY), maxY);
+
+        setPosition({ x: newX, y: newY });
     };
+
     const onTouchEnd = () => { touchRef.current = null; };
 
+    // клик по таймеру → переход на текущую сессию
     const handleClick = () => {
-        const link = localStorage.getItem("floatingTimerLink");
-        if (link) navigate(link);
+        const workoutID = localStorage.getItem("floatingTimerWorkoutID");
+        if (workoutID) navigate(`/sessions/${workoutID}`);
     };
 
     const minutes = Math.floor(remaining / 60);

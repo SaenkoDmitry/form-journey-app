@@ -8,10 +8,10 @@ import { toast } from "react-hot-toast";
 type Props = {
     seconds: number;
     autoStartTrigger?: number;
-    onStartUrl: string;
+    workoutID?: number | string;
 };
 
-export default function RestTimer({ seconds, autoStartTrigger, onStartUrl }: Props) {
+export default function RestTimer({ seconds, autoStartTrigger, workoutID }: Props) {
     const {
         remaining,
         running,
@@ -23,19 +23,16 @@ export default function RestTimer({ seconds, autoStartTrigger, onStartUrl }: Pro
 
     // 🔥 автостарт после завершения подхода
     useEffect(() => {
-        if (!autoStartTrigger) return;
-        localStorage.setItem("floatingTimerLink", onStartUrl);
+        if (!autoStartTrigger || !workoutID) return; // защита
+        localStorage.setItem("floatingTimerWorkoutID", workoutID.toString());
         start(seconds);
-    }, [autoStartTrigger]);
+    }, [autoStartTrigger, workoutID]);
 
     // 🔹 уведомление и вибрация при завершении таймера
     useEffect(() => {
         if (remaining === 0 && running) {
             // Вибрация
             navigator.vibrate?.([300, 150, 300]);
-
-            // сбрасываем localStorage link
-            localStorage.setItem("floatingTimerLink", "");
 
             // Toast уведомление
             toast.success("Таймер завершён!");
@@ -52,6 +49,9 @@ export default function RestTimer({ seconds, autoStartTrigger, onStartUrl }: Pro
                     });
                 }
             }
+
+            // очищаем ID
+            localStorage.removeItem("floatingTimerWorkoutID");
         }
     }, [remaining, running]);
 
@@ -99,7 +99,7 @@ export default function RestTimer({ seconds, autoStartTrigger, onStartUrl }: Pro
                             } else if (remaining > 0) {
                                 start(remaining);
                             } else {
-                                localStorage.setItem("floatingTimerLink", onStartUrl);
+                                localStorage.setItem("floatingTimerWorkoutID", workoutID.toString());
                                 start(seconds);
                             }
                         }}
