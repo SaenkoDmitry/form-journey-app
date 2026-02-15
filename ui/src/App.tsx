@@ -17,7 +17,6 @@ import RequireAuth from './components/RequireAuth';
 import StartWorkout from "./pages/StartWorkout.tsx";
 import WorkoutSession from "./pages/WorkoutSession.tsx";
 import AddExercisePage from "./pages/AddExercisePage.tsx";
-import FloatingTimer from "./components/FloatingTimer.tsx";
 
 const App = () => (
     <AuthProvider>
@@ -112,7 +111,6 @@ const App = () => (
                 }
             />
         </Routes>
-        <FloatingTimer />
     </AuthProvider>
 );
 
