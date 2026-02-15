@@ -93,6 +93,7 @@ export default function ExerciseView({session, onAllSetsCompleted, onReload}) {
 
             // 🔥 если подход завершён — запускаем отдых
             if (justCompleted) {
+                localStorage.setItem("floatingTimerLink", `/sessions/${session.id}`);
                 setRestTrigger(Date.now());
             }
 

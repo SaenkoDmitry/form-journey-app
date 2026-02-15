@@ -1,41 +1,35 @@
 import { useEffect, useState, useRef } from "react";
 import { useRestTimer } from "../context/RestTimerContext";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import "../styles/FloatingRestTimer.css";
 
 export default function FloatingRestTimer() {
     const { remaining, seconds, running } = useRestTimer();
     const location = useLocation();
+    const navigate = useNavigate();
 
     const [position, setPosition] = useState({ x: 20, y: 100 });
-    const [blink, setBlink] = useState(false);
-
+    const [blinking, setBlinking] = useState(false);
     const touchRef = useRef<{ startX: number; startY: number } | null>(null);
 
-    // 🔹 читаем сохранённую позицию при монтировании
     useEffect(() => {
         const saved = localStorage.getItem("floatingTimerPosition");
         if (saved) setPosition(JSON.parse(saved));
     }, []);
 
-    // 🔹 сохраняем позицию при изменении
     useEffect(() => {
         localStorage.setItem("floatingTimerPosition", JSON.stringify(position));
     }, [position]);
 
     const shouldRender = running && !location.pathname.startsWith("/sessions/");
 
-    // 🔹 мигание последние 5 секунд
+    // Пульс на последние 5 секунд
     useEffect(() => {
         if (!shouldRender) return;
-        if (remaining <= 5 && remaining > 0) {
-            const interval = setInterval(() => setBlink(prev => !prev), 500);
-            return () => clearInterval(interval);
-        } else {
-            setBlink(false);
-        }
+        setBlinking(remaining > 0 && remaining <= 5);
     }, [remaining, shouldRender]);
 
-    // 🔹 вибрация по завершению
+    // Вибрация по завершению
     useEffect(() => {
         if (!shouldRender) return;
         if (remaining === 0 && running) {
@@ -46,78 +40,55 @@ export default function FloatingRestTimer() {
     if (!shouldRender) return null;
 
     const progress = seconds > 0 ? 1 - remaining / seconds : 0;
-    const radius = 26;
+    const radius = 34; // увеличенный радиус
     const circumference = 2 * Math.PI * radius;
 
-    // 🔹 обработчики touch для iOS
+    // touch для перемещения
     const onTouchStart = (e: React.TouchEvent) => {
         const touch = e.touches[0];
-        touchRef.current = {
-            startX: touch.clientX - position.x,
-            startY: touch.clientY - position.y,
-        };
+        touchRef.current = { startX: touch.clientX - position.x, startY: touch.clientY - position.y };
     };
 
     const onTouchMove = (e: React.TouchEvent) => {
         if (!touchRef.current) return;
         const touch = e.touches[0];
-        setPosition({
-            x: touch.clientX - touchRef.current.startX,
-            y: touch.clientY - touchRef.current.startY,
-        });
+        setPosition({ x: touch.clientX - touchRef.current.startX, y: touch.clientY - touchRef.current.startY });
     };
 
-    const onTouchEnd = () => {
-        touchRef.current = null;
+    const onTouchEnd = () => { touchRef.current = null; };
+
+    const handleClick = () => {
+        // Переход на текущую тренировку
+        let link = localStorage.getItem("floatingTimerLink");
+        if (link != "") {
+            navigate(link);
+        }
     };
+
+    const minutes = Math.floor(remaining / 60);
+    const secs = (remaining % 60).toString().padStart(2, "0");
 
     return (
         <div
-            style={{
-                position: "fixed",
-                top: position.y,
-                left: position.x,
-                zIndex: 9999,
-                width: "64px",
-                height: "64px",
-                background: "#fff",
-                borderRadius: "50%",
-                boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                userSelect: "none",
-                opacity: blink ? 0.4 : 1,
-                transition: "opacity 0.3s",
-                touchAction: "none",
-            }}
+            className={`floating-rest-timer ${blinking ? "blinking" : ""}`}
+            style={{ top: position.y, left: position.x }}
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
+            onClick={handleClick}
         >
-            <svg width="64" height="64">
-                <circle r={radius} cx="32" cy="32" fill="none" />
+            <svg>
+                <circle r={radius} cx="40" cy="40" />
                 <circle
+                    className="progress"
                     r={radius}
-                    cx="32"
-                    cy="32"
-                    fill="none"
-                    stroke="var(--color-primary)"
-                    strokeWidth={6}
+                    cx="40"
+                    cy="40"
                     strokeDasharray={circumference}
                     strokeDashoffset={circumference * (1 - progress)}
-                    strokeLinecap="round"
-                    style={{ transition: "stroke-dashoffset 0.3s linear" }}
                 />
-                <text
-                    x="32"
-                    y="36"
-                    textAnchor="middle"
-                    fontSize="14"
-                    fontWeight="600"
-                    fill="#111"
-                >
-                    {remaining > 0 ? `${Math.floor(remaining / 60)}:${(remaining % 60).toString().padStart(2, "0")}` : ""}
+                <text x="40" y="46" textAnchor="middle" className="timer-text">
+                    {remaining > 0 ? `${minutes}:${secs}` : ""}
                 </text>
             </svg>
         </div>

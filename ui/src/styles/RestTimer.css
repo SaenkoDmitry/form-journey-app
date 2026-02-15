@@ -43,7 +43,7 @@
 
 /* 🔥 прогресс */
 .circle .progress {
-    stroke: #4ade80;
+    stroke: var(--color-primary);
     transition: stroke-dashoffset 0.4s linear;
 }
 

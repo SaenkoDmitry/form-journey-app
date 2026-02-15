@@ -1,10 +1,22 @@
-import {useEffect} from "react";
+import React, { useEffect } from "react";
+import "../styles/Toast.css";
 
-export default function Toast({message, onClose}) {
+interface ToastProps {
+    message: string;
+    onClose?: () => void;
+}
+
+export default function Toast({ message, onClose }: ToastProps) {
     useEffect(() => {
-        const t = setTimeout(onClose, 2500);
-        return () => clearTimeout(t);
-    }, []);
+        const timer = setTimeout(() => {
+            onClose?.();
+        }, 3000); // показываем 3 секунды
+        return () => clearTimeout(timer);
+    }, [onClose]);
 
-    return <div className="toast">{message}</div>;
+    return (
+        <div className="toast">
+            {message}
+        </div>
+    );
 }
