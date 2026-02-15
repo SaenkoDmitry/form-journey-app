@@ -2,52 +2,81 @@ import { useEffect, useRef, useState } from "react";
 import Button from "./Button";
 import "../styles/RestTimer.css";
 
+const STORAGE_KEY = "rest_timer_end";
+
 export default function RestTimer({
                                       seconds,
                                       onFinish,
+                                      autoStartTrigger,
                                   }: {
     seconds: number;
     onFinish?: () => void;
+    autoStartTrigger?: number;
 }) {
-    const [time, setTime] = useState(seconds);
+    const [endTime, setEndTime] = useState<number | null>(null);
+    const [remaining, setRemaining] = useState(seconds);
     const [running, setRunning] = useState(false);
-    const [finished, setFinished] = useState(false);
 
     const intervalRef = useRef<number | null>(null);
 
-    // старт / пауза
+    // восстановление
     useEffect(() => {
-        if (!running) return;
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            const parsed = Number(saved);
+            if (parsed > Date.now()) {
+                setEndTime(parsed);
+                setRunning(true);
+            } else {
+                localStorage.removeItem(STORAGE_KEY);
+            }
+        }
+    }, []);
+
+    // автостарт
+    useEffect(() => {
+        if (!autoStartTrigger) return;
+        start();
+    }, [autoStartTrigger]);
+
+    useEffect(() => {
+        if (!running || !endTime) return;
 
         intervalRef.current = window.setInterval(() => {
-            setTime((t) => t - 1);
-        }, 1000);
+            const diff = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+            setRemaining(diff);
+
+            if (diff <= 0) finish();
+        }, 500);
 
         return () => {
             if (intervalRef.current) clearInterval(intervalRef.current);
         };
-    }, [running]);
+    }, [running, endTime]);
 
-    // окончание — срабатывает только когда таймер реально идёт
-    useEffect(() => {
-        if (!running) return; // <--- добавили проверку
-        if (time > 0) return;
+    const start = () => {
+        const newEnd = Date.now() + seconds * 1000;
+        setEndTime(newEnd);
+        localStorage.setItem(STORAGE_KEY, String(newEnd));
+        setRunning(true);
+    };
 
+    const pause = () => {
         setRunning(false);
-        setFinished(true);
-
-        // вибрация
-        navigator.vibrate?.([200, 100, 200]);
-
-        onFinish?.();
-    }, [time, running]);
-
-    const toggle = () => setRunning((r) => !r);
+        localStorage.removeItem(STORAGE_KEY);
+    };
 
     const reset = () => {
-        setRunning(false);
-        setTime(seconds);
-        setFinished(false);
+        pause();
+        setRemaining(seconds);
+        setEndTime(null);
+    };
+
+    const finish = () => {
+        pause();
+        setRemaining(0);
+        navigator.vibrate?.([300, 150, 300]);
+        onFinish?.();
     };
 
     const format = (t: number) => {
@@ -56,23 +85,51 @@ export default function RestTimer({
         return `${m}:${s.toString().padStart(2, "0")}`;
     };
 
+    const progress = seconds > 0
+        ? 1 - remaining / seconds
+        : 0;
+
+    const radius = 28;
+    const circumference = 2 * Math.PI * radius;
+
     return (
-        <div className={`rest-timer ${finished ? "done" : ""}`}>
-            <div className="timer-time">{format(Math.max(time, 0))}</div>
+        <div className={`rest-timer ${running ? "active" : ""}`}>
+            <div className="timer-inner">
 
-            <div className="timer-actions">
-                <Button onClick={toggle}>
-                    {running ? "⏸ Пауза" : "▶ Старт"}
-                </Button>
+                <div className="circle">
+                    <svg width="70" height="70">
+                        <circle
+                            className="bg"
+                            strokeWidth="6"
+                            r={radius}
+                            cx="35"
+                            cy="35"
+                        />
+                        <circle
+                            className="progress"
+                            strokeWidth="6"
+                            r={radius}
+                            cx="35"
+                            cy="35"
+                            strokeDasharray={circumference}
+                            strokeDashoffset={circumference * (1 - progress)}
+                        />
+                    </svg>
+                    <div className="time">{format(remaining)}</div>
+                </div>
 
-                <Button variant="ghost" onClick={reset}>
-                    🔄 Сброс
-                </Button>
+                <div className="actions">
+                    {!running ? (
+                        <Button onClick={start}>Старт</Button>
+                    ) : (
+                        <Button onClick={pause}>Пауза</Button>
+                    )}
+                    <Button variant="ghost" onClick={reset}>
+                        Сброс
+                    </Button>
+                </div>
+
             </div>
-
-            {finished && (
-                <div className="timer-finished">Отдых закончен 💪</div>
-            )}
         </div>
     );
 }

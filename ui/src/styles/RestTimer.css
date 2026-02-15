@@ -1,36 +1,63 @@
 .rest-timer {
-    margin-top: 14px;
-    padding: 12px;
-    border-radius: 14px;
+    position: sticky;
+    bottom: 0;
+
+    margin-top: 20px;
+    padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+
     background: var(--color-card);
-    text-align: center;
+    border-top: 1px solid rgba(255,255,255,0.06);
+
+    transition: all 0.3s ease;
+    z-index: 5;
 }
 
-.timer-time {
-    font-size: 30px;
-    font-weight: 700;
+.timer-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 600px;
+    margin: 0 auto;
+    gap: 12px;
 }
 
-.timer-actions {
-    margin-top: 8px;
+.circle {
+    position: relative;
+    width: 70px;
+    height: 70px;
+}
+
+.circle svg {
+    transform: rotate(-90deg);
+}
+
+.circle circle {
+    fill: none;
+    stroke-linecap: round;
+}
+
+/* 🔥 фон-круг (трек) */
+.circle .bg {
+    stroke: rgba(148, 144, 144, 0.25);
+}
+
+/* 🔥 прогресс */
+.circle .progress {
+    stroke: #4ade80;
+    transition: stroke-dashoffset 0.4s linear;
+}
+
+.circle .time {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.actions {
     display: flex;
     gap: 8px;
-    justify-content: center;
-}
-
-.rest-timer.done {
-    background: #d7ffd9;
-    animation: pulse 1s infinite;
-}
-
-.timer-finished {
-    margin-top: 6px;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.04); }
-    100% { transform: scale(1); }
 }

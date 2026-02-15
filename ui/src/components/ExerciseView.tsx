@@ -11,7 +11,8 @@ import {Plus, X} from "lucide-react";
 export default function ExerciseView({session, onAllSetsCompleted, onReload}) {
     const [sets, setSets] = useState(session.exercise.sets);
     const [toast, setToast] = useState<string | null>(null);
-    console.log('session', session)
+
+    const [restTrigger, setRestTrigger] = useState(0);
 
     useEffect(() => {
         setSets(session.exercise.sets);
@@ -88,6 +89,13 @@ export default function ExerciseView({session, onAllSetsCompleted, onReload}) {
                 s.id === id ? {...s, completed: !s.completed} : s
             );
 
+            const justCompleted = updatedSets.find(s => s.id === id)?.completed;
+
+            // 🔥 если подход завершён — запускаем отдых
+            if (justCompleted) {
+                setRestTrigger(Date.now());
+            }
+
             const allDone = updatedSets.every(s => s.completed);
             if (allDone) onAllSetsCompleted?.();
 
@@ -161,14 +169,15 @@ export default function ExerciseView({session, onAllSetsCompleted, onReload}) {
 
             <RestTimer
                 seconds={ex.rest_in_seconds}
+                autoStartTrigger={restTrigger}
                 onFinish={() => setToast("Отдых закончен 💪")}
             />
 
             <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px"}}>
                 <Button variant={"ghost"}
                         onClick={() => handleAdd(ex.id, sets.length > 0 ? sets[sets.length - 1] : null)}
-                ><Plus size={14}/>Добавить подход</Button>
-                <Button variant={"danger"} onClick={() => handleDeleteExercise(ex.id)}><X size={14}/>Убрать упражнение</Button>
+                >Добавить подход</Button>
+                <Button variant={"danger"} onClick={() => handleDeleteExercise(ex.id)}>Убрать упражнение</Button>
             </div>
 
             {toast && <Toast message={toast} onClose={() => setToast(null)}/>}
