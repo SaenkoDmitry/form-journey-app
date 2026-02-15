@@ -6,7 +6,7 @@ import Button from "./Button.tsx";
 import Toast from "./Toast.tsx";
 import "../styles/workout.css";
 import {deleteExercise} from "../api/exercises.ts";
-import {Plus, X} from "lucide-react";
+import {Plus, Trash2} from "lucide-react";
 
 export default function ExerciseView({session, onAllSetsCompleted, onReload}) {
     const [sets, setSets] = useState(session.exercise.sets);
@@ -147,12 +147,25 @@ export default function ExerciseView({session, onAllSetsCompleted, onReload}) {
         <div className="exercise-card-view">
 
             <div className="exercise-card-view-header">
-                <div className="exercise-card-view-title">{ex.name}</div>
+                <div className="exercise-card-view-title">
+                    {ex.name}
+                </div>
 
-                {ex.url && <a className="exercise-card-view-link" href={ex.url}>
-                    Техника упражнения ↗
-                </a>}
+                <Button
+                    variant="danger"
+                    style={{position: "absolute", right: 0}}
+                    onClick={() => handleDeleteExercise(ex.id)}
+                >
+                    <Trash2 size={14}/>
+                </Button>
+
+                {ex.url && (
+                    <a className="exercise-card-view-link" href={ex.url}>
+                        Техника упражнения ↗
+                    </a>
+                )}
             </div>
+
 
             <div className="sets">
                 {sets.map((s, i) => (
@@ -173,11 +186,10 @@ export default function ExerciseView({session, onAllSetsCompleted, onReload}) {
                 onFinish={() => setToast("Отдых закончен 💪")}
             />
 
-            <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px"}}>
-                <Button variant={"ghost"}
+            <div style={{display: "grid", gridTemplateColumns: "1fr", gap: "8px"}}>
+                <Button variant={"primary"}
                         onClick={() => handleAdd(ex.id, sets.length > 0 ? sets[sets.length - 1] : null)}
-                >Добавить подход</Button>
-                <Button variant={"danger"} onClick={() => handleDeleteExercise(ex.id)}>Убрать упражнение</Button>
+                ><Plus size={14}/>Добавить подход</Button>
             </div>
 
             {toast && <Toast message={toast} onClose={() => setToast(null)}/>}

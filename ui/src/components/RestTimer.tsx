@@ -1,84 +1,33 @@
-import { useEffect, useRef, useState } from "react";
+import {useEffect} from "react";
+import {useRestTimer} from "../context/RestTimerContext";
 import Button from "./Button";
 import "../styles/RestTimer.css";
 import {Pause, Play, RotateCcw} from "lucide-react";
 
-const STORAGE_KEY = "rest_timer_end";
+type Props = {
+    seconds: number;
+    autoStartTrigger?: number;
+};
 
 export default function RestTimer({
                                       seconds,
-                                      onFinish,
                                       autoStartTrigger,
-                                  }: {
-    seconds: number;
-    onFinish?: () => void;
-    autoStartTrigger?: number;
-}) {
-    const [endTime, setEndTime] = useState<number | null>(null);
-    const [remaining, setRemaining] = useState(seconds);
-    const [running, setRunning] = useState(false);
+                                  }: Props) {
 
-    const intervalRef = useRef<number | null>(null);
+    const {
+        remaining,
+        running,
+        start,
+        pause,
+        reset,
+        seconds: totalSeconds
+    } = useRestTimer();
 
-    // восстановление
-    useEffect(() => {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-            const parsed = Number(saved);
-            if (parsed > Date.now()) {
-                setEndTime(parsed);
-                setRunning(true);
-            } else {
-                localStorage.removeItem(STORAGE_KEY);
-            }
-        }
-    }, []);
-
-    // автостарт
+    // 🔥 автостарт после завершения подхода
     useEffect(() => {
         if (!autoStartTrigger) return;
-        start();
+        start(seconds);
     }, [autoStartTrigger]);
-
-    useEffect(() => {
-        if (!running || !endTime) return;
-
-        intervalRef.current = window.setInterval(() => {
-            const diff = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
-            setRemaining(diff);
-
-            if (diff <= 0) finish();
-        }, 500);
-
-        return () => {
-            if (intervalRef.current) clearInterval(intervalRef.current);
-        };
-    }, [running, endTime]);
-
-    const start = () => {
-        const newEnd = Date.now() + seconds * 1000;
-        setEndTime(newEnd);
-        localStorage.setItem(STORAGE_KEY, String(newEnd));
-        setRunning(true);
-    };
-
-    const pause = () => {
-        setRunning(false);
-        localStorage.removeItem(STORAGE_KEY);
-    };
-
-    const reset = () => {
-        pause();
-        setRemaining(seconds);
-        setEndTime(null);
-    };
-
-    const finish = () => {
-        pause();
-        setRemaining(0);
-        navigator.vibrate?.([300, 150, 300]);
-        onFinish?.();
-    };
 
     const format = (t: number) => {
         const m = Math.floor(t / 60);
@@ -86,9 +35,10 @@ export default function RestTimer({
         return `${m}:${s.toString().padStart(2, "0")}`;
     };
 
-    const progress = seconds > 0
-        ? 1 - remaining / seconds
-        : 0;
+    const progress =
+        totalSeconds > 0
+            ? 1 - remaining / totalSeconds
+            : 0;
 
     const radius = 28;
     const circumference = 2 * Math.PI * radius;
@@ -113,19 +63,40 @@ export default function RestTimer({
                             cx="35"
                             cy="35"
                             strokeDasharray={circumference}
-                            strokeDashoffset={circumference * (1 - progress)}
+                            strokeDashoffset={
+                                circumference * (1 - progress)
+                            }
                         />
                     </svg>
-                    <div className="time">{format(remaining)}</div>
+
+                    <div className="time">
+                        {format(remaining)}
+                    </div>
                 </div>
 
                 <div className="actions">
                     {!running ? (
-                        <Button variant={"active"} onClick={start}><Play size={14}/>Старт</Button>
+                        <Button
+                            variant="active"
+                            onClick={() => start(seconds)}
+                        >
+                            <Play size={14}/>Старт
+                        </Button>
                     ) : (
-                        <Button variant={"ghost"} onClick={pause}><Pause size={14}/>Пауза</Button>
+                        <Button
+                            variant="primary"
+                            onClick={pause}
+                        >
+                            <Pause size={14}/>Пауза
+                        </Button>
                     )}
-                    <Button variant="ghost" onClick={reset}><RotateCcw size={14}/>Сброс</Button>
+
+                    <Button
+                        variant="ghost"
+                        onClick={reset}
+                    >
+                        <RotateCcw size={14}/>Сброс
+                    </Button>
                 </div>
 
             </div>

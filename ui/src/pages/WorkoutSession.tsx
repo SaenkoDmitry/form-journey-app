@@ -111,7 +111,7 @@ export default function WorkoutSession() {
                     />
                 </div>
             )}
-            <Button variant="primary" onClick={finish}>
+            <Button variant="danger" onClick={finish}>
                 <Flag size={18} />
                 Завершить всё
             </Button>

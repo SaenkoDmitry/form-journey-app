@@ -177,9 +177,11 @@ const MeasurementsPage: React.FC = () => {
                 </thead>
                 <tbody>
                 {isEmpty && !adding && !loading && (
-                    <div>
-                        <div style={{marginTop: 20, fontSize: 18, marginBottom: 20}}>У вас пока нет ни одного замера.</div>
-                    </div>
+                    <tr>
+                        <td colSpan={14} style={{textAlign: 'center', padding: '20px 0', fontSize: 18}}>
+                            У вас пока нет ни одного замера.
+                        </td>
+                    </tr>
                 )}
                 {adding && (
                     <tr className="new-measurement-row">
@@ -227,7 +229,13 @@ const MeasurementsPage: React.FC = () => {
                     </tr>
                 ))}
 
-                {loading && <Loader/>}
+                {loading && (
+                    <tr>
+                        <td colSpan={14} style={{textAlign: 'center', padding: '20px 0'}}>
+                            <Loader />
+                        </td>
+                    </tr>
+                )}
                 </tbody>
             </table>
         </div>

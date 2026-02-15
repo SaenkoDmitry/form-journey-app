@@ -13,22 +13,24 @@
 /* ============ HEADER ============ */
 
 .exercise-card-view-header {
+    position: relative; /* важно */
     display: flex;
     flex-direction: column;
-    align-items: center;   /* 👈 центрирует по горизонтали */
-    padding: 8px;
+    padding-top: 8px;
 }
 
 .exercise-card-view-title {
     font-size: 20px;
     font-weight: 700;
-    padding: 8px;
+
+    padding: 0 40px 0 0; /* место под крестик */
+    word-break: break-word;
 }
 
 .exercise-card-view-link {
     font-size: 13px;
     text-decoration: underline;
-    padding: 8px;
+    padding: 16px 0 16px 0;
 }
 
 /* ============ CONTROLS ============ */

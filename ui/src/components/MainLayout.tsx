@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Link, useLocation, useNavigate} from 'react-router-dom';
 import {useAuth} from '../context/AuthContext';
 import Button from "./Button.tsx";
@@ -10,6 +10,8 @@ import {
     BookOpen,
     User
 } from "lucide-react";
+import FloatingRestTimer from "./FloatingRestTimer.tsx";
+import Toast from "./Toast.tsx";
 
 const tabs = [
     {name: 'Тренировки', path: '/', icon: Dumbbell},
@@ -23,6 +25,13 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({children}) => {
     const location = useLocation();
     const {user, logout, loading} = useAuth();
     const navigate = useNavigate();
+    const [toast, setToast] = useState<string | null>(null);
+
+    useEffect(() => {
+        const handler = () => setToast("Отдых закончен 💪");
+        window.addEventListener("rest_timer_finished", handler);
+        return () => window.removeEventListener("rest_timer_finished", handler);
+    }, []);
 
     const isMobile = window.innerWidth <= 768;
 
@@ -151,6 +160,9 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({children}) => {
                     })}
                 </div>
             )}
+
+            <FloatingRestTimer />
+            {toast && <Toast message={toast} onClose={() => setToast(null)} />}
         </div>
     );
 };
