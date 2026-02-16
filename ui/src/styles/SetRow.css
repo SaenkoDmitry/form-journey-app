@@ -34,7 +34,6 @@
 }
 
 .set-row.done {
-    display: grid;
     opacity: .55;
     text-decoration: line-through;
 }
