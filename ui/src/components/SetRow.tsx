@@ -13,12 +13,15 @@ type Props = {
 };
 
 export default function SetRow({ set, index, onDelete, onComplete, onChange }: Props) {
+    // const columnLength = (set.reps > 0 ? 1 : 0) + (set.weight > 0 ? 1 : 0) + (set.minutes > 0 ? 1 : 0) + (set.meters > 0 ? 1 : 0);
+
     return (
         <div className={`set-row ${set.completed ? "done" : ""}`}>
             <div className="set-index">{index + 1}</div>
 
             {set.reps > 0 && (
                 <EditableValue
+                    // columnLength={columnLength}
                     fact={set.fact_reps}
                     planned={set.reps}
                     suffix="повт."
@@ -30,6 +33,7 @@ export default function SetRow({ set, index, onDelete, onComplete, onChange }: P
 
             {set.weight > 0 && (
                 <EditableValue
+                    // columnLength={columnLength}
                     fact={set.fact_weight}
                     planned={set.weight}
                     suffix="кг"
@@ -41,6 +45,7 @@ export default function SetRow({ set, index, onDelete, onComplete, onChange }: P
 
             {set.minutes > 0 && (
                 <EditableValue
+                    // columnLength={columnLength}
                     fact={set.fact_minutes}
                     planned={set.minutes}
                     suffix="мин"
@@ -52,6 +57,7 @@ export default function SetRow({ set, index, onDelete, onComplete, onChange }: P
 
             {set.meters > 0 && (
                 <EditableValue
+                    // columnLength={columnLength}
                     fact={set.fact_meters}
                     planned={set.meters}
                     suffix="м"
