@@ -20,13 +20,13 @@ const TelegramLoginWidget: React.FC = () => {
         script.setAttribute('data-telegram-login', botUsername);
         script.setAttribute('data-size', 'large');
         script.setAttribute('data-userpic', 'true');
-        // ключевое для redirect flow
-        const origin = window.location.origin; // dev: https://ff06670896d562.lhr.life, prod: https://form-journey.ru
-        const callbackUrl = `${origin}/api/telegram/callback`;
-        script.setAttribute('data-auth-url', callbackUrl);
+
+        // Redirect flow: убираем data-auth-url
+        // Telegram будет редиректить на /api/telegram/callback, который ставит cookie и делает редирект обратно
 
         widgetRef.current.appendChild(script);
     }, [user]);
+
 
     if (user) return null;
     return <div ref={widgetRef}/>;
