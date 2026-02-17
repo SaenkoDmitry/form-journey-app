@@ -16,38 +16,28 @@ const TelegramLoginWidget: React.FC = () => {
 
         const callbackUrl = `${window.location.origin}/api/telegram/callback`;
 
-        // Проверяем, iOS PWA или нет
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
         const isPWA = window.matchMedia('(display-mode: standalone)').matches;
-
         const isIOSPWA = isIOS && isPWA;
 
+        const script = document.createElement('script');
+        script.src = 'https://telegram.org/js/telegram-widget.js?15';
+        script.async = true;
+        script.setAttribute('data-telegram-login', botUsername);
+        script.setAttribute('data-size', 'large');
+        script.setAttribute('data-userpic', 'true');
+
         if (isIOSPWA) {
-            // iOS PWA → используем redirect flow через window.location
-            const button = document.createElement('button');
-            button.textContent = 'Login via Telegram';
-            button.style.fontSize = '16px';
-            button.style.padding = '12px 24px';
-            button.onclick = () => {
-                // Просто редиректим на backend callback
-                window.location.href = callbackUrl;
-            };
-            widgetRef.current.appendChild(button);
+            // Redirect flow для iOS PWA
+            script.setAttribute('data-redirect-url', callbackUrl);
         } else {
-            // Остальные → fetch flow через data-auth-url
-            const script = document.createElement('script');
-            script.src = 'https://telegram.org/js/telegram-widget.js?15';
-            script.async = true;
-            script.setAttribute('data-telegram-login', botUsername);
-            script.setAttribute('data-size', 'large');
-            script.setAttribute('data-userpic', 'true');
-            script.setAttribute('data-auth-url', callbackUrl); // fetch flow
-            widgetRef.current.appendChild(script);
+            // Fetch flow для остальных платформ
+            script.setAttribute('data-auth-url', callbackUrl);
         }
 
         // Redirect flow: убираем data-auth-url
         // Telegram будет редиректить на /api/telegram/callback, который ставит cookie и делает редирект обратно
-
+        widgetRef.current.appendChild(script);
     }, [user]);
 
 
