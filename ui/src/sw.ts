@@ -1,11 +1,8 @@
 /// <reference lib="webworker" />
-import { precacheAndRoute } from 'workbox-precaching'
 import { registerRoute } from 'workbox-routing'
 import { NetworkOnly } from 'workbox-strategies'
 
 declare let self: ServiceWorkerGlobalScope
-
-precacheAndRoute(self.__WB_MANIFEST)
 
 // SW не должен перехватывать Telegram callback
 registerRoute(
