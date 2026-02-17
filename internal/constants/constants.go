@@ -2,7 +2,7 @@ package constants
 
 const (
 	Domain = "https://form-journey.ru"
-	Origin = "https://form-journey.ru"
+	Topic  = "web.form-journey.ru"
 )
 
 const (
