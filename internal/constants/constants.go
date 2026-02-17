@@ -1,6 +1,11 @@
 package constants
 
 const (
+	Domain = "https://form-journey.ru"
+	Origin = "form-journey.ru"
+)
+
+const (
 	RepsUnit    = "reps"
 	WeightUnit  = "weight"
 	MinutesUnit = "minutes"

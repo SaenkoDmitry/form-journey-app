@@ -3,6 +3,7 @@ package push
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/SaenkoDmitry/training-tg-bot/internal/constants"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/models"
 	"github.com/SherClockHolmes/webpush-go"
 	"gorm.io/gorm"
@@ -18,6 +19,13 @@ func NewService(db *gorm.DB) *Service {
 	return &Service{db: db}
 }
 
+type Payload struct {
+	Title string `json:"title"`
+	Body  string `json:"body"`
+	URL   string `json:"url"`
+	Tag   string `json:"tag"`
+}
+
 func (p *Service) SendWorkoutFinished(userID, workoutID int64) error {
 	var workout models.WorkoutDay
 
@@ -30,11 +38,11 @@ func (p *Service) SendWorkoutFinished(userID, workoutID int64) error {
 		return err
 	}
 
-	payload := map[string]interface{}{
-		"title": "Отдых закончен 💪",
-		"body":  workout.WorkoutDayType.Name,
-		"url":   fmt.Sprintf("/sessions/%d", workout.ID),
-		"tag":   fmt.Sprintf("workout-%d", workout.ID),
+	payload := &Payload{
+		Title: "Отдых закончен 💪",
+		Body:  workout.WorkoutDayType.Name,
+		URL:   fmt.Sprintf("/sessions/%d", workout.ID),
+		Tag:   fmt.Sprintf("workout-%d", workout.ID),
 	}
 
 	payloadJSON, _ := json.Marshal(payload)
@@ -63,9 +71,10 @@ func sendPush(sub *models.PushSubscription, payload []byte) (int, error) {
 	options := &webpush.Options{
 		TTL:             3600,
 		Urgency:         webpush.UrgencyHigh,
+		Topic:           constants.Origin, // ← ВАЖНО
 		VAPIDPrivateKey: os.Getenv("VAPID_PRIVATE_KEY"),
 		VAPIDPublicKey:  os.Getenv("VAPID_PUBLIC_KEY"),
-		Subscriber:      "https://form-journey.ru",
+		Subscriber:      constants.Domain,
 	}
 
 	resp, err := webpush.SendNotification(payload, subscription, options)
@@ -77,5 +86,6 @@ func sendPush(sub *models.PushSubscription, payload []byte) (int, error) {
 	}
 
 	defer resp.Body.Close()
+	fmt.Println("Push status:", resp.StatusCode)
 	return resp.StatusCode, nil
 }
