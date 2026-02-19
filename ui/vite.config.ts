@@ -54,7 +54,7 @@ export default defineConfig({
         allowedHosts: [
             'localhost',
             '127.0.0.1',
-            '189cfed595c8de.lhr.life',
+            '7c277c509d00d9.lhr.life',
         ],
         proxy: {
             '/api': 'http://localhost:8080',

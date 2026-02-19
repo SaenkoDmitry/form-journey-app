@@ -61,6 +61,7 @@ export default function WorkoutSession() {
 
     // ---------------- MOVE ----------------
     const move = async (next: boolean) => {
+        if (isLast && next) return;
         try {
             setLoading(true);
             await moveToExerciseSession(workoutID, next);

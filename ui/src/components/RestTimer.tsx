@@ -24,6 +24,7 @@ export default function RestTimer({ seconds, autoStartTrigger, workoutID }: Prop
 
     // 🔥 функция старта с API
     const start = async (secs: number) => {
+        if (secs <= 0) return;
 
         // серверный таймер и push
         if (!workoutID) return;

@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 )
 
 func (s *serviceImpl) TelegramRedirectHandler(w http.ResponseWriter, r *http.Request) {
@@ -39,6 +40,9 @@ func (s *serviceImpl) TelegramRedirectHandler(w http.ResponseWriter, r *http.Req
 }
 
 func (s *serviceImpl) isAllowedOrigin(origin string) bool {
+	if strings.HasSuffix(origin, ".lhr.life") {
+		return true
+	}
 	allowed := []string{
 		"http://localhost:3000",
 		"https://form-journey.ru",
