@@ -25,16 +25,6 @@ func (uc *CreateUseCase) Name() string {
 	return "Создать подписку"
 }
 
-func (uc *CreateUseCase) Execute(chatID int64, sub dto.PushSubscription) error {
-	user, err := uc.usersRepo.GetByChatID(chatID)
-	if err != nil {
-		return err
-	}
-
-	err = uc.pushSubscriptionsRepo.Create(user.ID, sub)
-	if err != nil {
-		return err
-	}
-
-	return nil
+func (uc *CreateUseCase) Execute(userID int64, sub dto.PushSubscription) error {
+	return uc.pushSubscriptionsRepo.Create(userID, sub)
 }

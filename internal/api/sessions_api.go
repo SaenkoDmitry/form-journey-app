@@ -2,38 +2,29 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/SaenkoDmitry/training-tg-bot/internal/middlewares"
 	"net/http"
 	"strconv"
+
+	"github.com/SaenkoDmitry/training-tg-bot/internal/api/helpers"
+	"github.com/SaenkoDmitry/training-tg-bot/internal/api/validator"
+	"github.com/SaenkoDmitry/training-tg-bot/internal/middlewares"
 )
 
 func (s *serviceImpl) ShowCurrentExerciseSession(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	workoutID, err := strconv.ParseInt(r.PathValue("workout_id"), 10, 64)
 	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	workout, err := s.container.ShowWorkoutProgressUC.Execute(workoutID)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-
-	user, err := s.container.GetUserUC.Execute(claims.ChatID)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-
-	if workout.Workout.UserID != user.ID {
-		http.Error(w, "access denied", http.StatusForbidden)
+	if err = validator.ValidateAccessToWorkout(s.container, claims.UserID, workoutID); err != nil {
+		helpers.WriteError(w, err)
 		return
 	}
 
@@ -50,7 +41,7 @@ func (s *serviceImpl) ShowCurrentExerciseSession(w http.ResponseWriter, r *http.
 func (s *serviceImpl) MoveToExerciseSession(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -65,25 +56,13 @@ func (s *serviceImpl) MoveToExerciseSession(w http.ResponseWriter, r *http.Reque
 		Next bool `json:"next"` // Если false, то двигаемся к предыдущему упражнению, если true – к следующему
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+	if err = json.NewDecoder(r.Body).Decode(&input); err != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return
 	}
 
-	workout, err := s.container.ShowWorkoutProgressUC.Execute(workoutID)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-
-	user, err := s.container.GetUserUC.Execute(claims.ChatID)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-
-	if workout.Workout.UserID != user.ID {
-		http.Error(w, "access denied", http.StatusForbidden)
+	if err = validator.ValidateAccessToWorkout(s.container, claims.UserID, workoutID); err != nil {
+		helpers.WriteError(w, err)
 		return
 	}
 

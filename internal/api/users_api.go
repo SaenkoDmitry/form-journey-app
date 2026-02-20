@@ -10,11 +10,11 @@ import (
 func (s *serviceImpl) GetIcon(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
-	user, err := s.container.GetUserUC.Execute(claims.ChatID)
+	user, err := s.container.GetUserByIDUC.Execute(claims.UserID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -30,7 +30,7 @@ func (s *serviceImpl) GetIcon(w http.ResponseWriter, r *http.Request) {
 func (s *serviceImpl) ChangeIcon(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -44,13 +44,7 @@ func (s *serviceImpl) ChangeIcon(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := s.container.GetUserUC.Execute(claims.ChatID)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	err = s.container.ChangeIconUC.Execute(user.ID, input.Name)
+	err := s.container.ChangeIconUC.Execute(claims.UserID, input.Name)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

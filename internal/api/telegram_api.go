@@ -7,9 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/users"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/golang-jwt/jwt/v4"
 	"net/http"
 	"net/url"
 	"os"
@@ -17,6 +14,10 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/users"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 var (
@@ -25,7 +26,7 @@ var (
 )
 
 type TelegramUser struct {
-	ID           int64  `json:"id"`
+	ID           int64  `json:"id"` // chat_id
 	FirstName    string `json:"first_name"`
 	LastName     string `json:"last_name"`
 	Username     string `json:"username"`
@@ -49,25 +50,29 @@ func (s *serviceImpl) TelegramLoginHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	user, err := s.container.GetUserUC.Execute(tgUser.ID)
+	chatID := tgUser.ID
+
+	user, err := s.container.GetUserUC.Execute(chatID)
 	if err != nil && errors.Is(err, users.NotFoundUserErr) {
-		user, _ = s.container.CreateUserUC.Execute(tgUser.ID, &tgbotapi.User{
+		user, err = s.container.CreateUserUC.Execute(tgUser.ID, &tgbotapi.User{
 			ID:        tgUser.ID,
 			FirstName: tgUser.FirstName,
 			LastName:  tgUser.LastName,
 			UserName:  tgUser.Username,
 		})
 	}
-	if user == nil {
+	if user == nil || err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	claims := jwt.MapClaims{
-		"id":        tgUser.ID,
-		"name":      tgUser.FirstName,
-		"photo_url": tgUser.PhotoURL,
-		"exp":       time.Now().Add(7 * 24 * time.Hour).Unix(),
+		"user_id":    user.ID,
+		"chat_id":    tgUser.ID,
+		"first_name": tgUser.FirstName,
+		"last_name":  tgUser.LastName,
+		"photo_url":  tgUser.PhotoURL,
+		"exp":        time.Now().Add(7 * 24 * time.Hour).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -80,7 +85,6 @@ func (s *serviceImpl) TelegramLoginHandler(w http.ResponseWriter, r *http.Reques
 }
 
 func verifyTelegram(user TelegramUser, botToken string) bool {
-	// Создаём map[string]string для HMAC
 	data := map[string]string{
 		"id":         strconv.FormatInt(user.ID, 10),
 		"first_name": user.FirstName,
@@ -107,7 +111,6 @@ func verifyTelegram(user TelegramUser, botToken string) bool {
 	}
 	checkString := strings.Join(parts, "\n")
 
-	// secret = sha256(botToken)
 	secret := sha256.Sum256([]byte(botToken))
 
 	mac := hmac.New(sha256.New, secret[:])

@@ -79,7 +79,7 @@ func (h *Handler) deleteDayType(chatID int64, dayTypeID int64) {
 		h.commonPresenter.HandleInternalError(err, chatID, h.getDayUC.Name())
 		return
 	}
-	programResult, err := h.getProgramUC.Execute(dayResult.WorkoutProgramID, chatID)
+	programResult, err := h.getProgramUC.ExecuteByChatID(dayResult.WorkoutProgramID, chatID)
 	if err != nil {
 		h.commonPresenter.HandleInternalError(err, chatID, h.getProgramUC.Name())
 		return
@@ -112,7 +112,7 @@ func (h *Handler) ViewDayType(chatID int64, dayTypeID int64) {
 		h.commonPresenter.HandleInternalError(err, chatID, h.getDayUC.Name())
 		return
 	}
-	program, err := h.getProgramUC.Execute(day.WorkoutProgramID, chatID)
+	program, err := h.getProgramUC.ExecuteByChatID(day.WorkoutProgramID, chatID)
 	if err != nil {
 		h.commonPresenter.HandleInternalError(err, chatID, h.getDayUC.Name())
 		return

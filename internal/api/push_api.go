@@ -3,9 +3,10 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"github.com/SaenkoDmitry/training-tg-bot/internal/application/dto"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/middlewares"
-	"net/http"
 )
 
 func (s *serviceImpl) PushSubscribe(w http.ResponseWriter, r *http.Request) {
@@ -22,7 +23,7 @@ func (s *serviceImpl) PushSubscribe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := s.container.CreatePushSubscriptionUC.Execute(claims.ChatID, sub)
+	err := s.container.CreatePushSubscriptionUC.Execute(claims.UserID, sub)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -44,7 +45,7 @@ func (s *serviceImpl) PushUnsubscribe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := s.container.DeletePushSubscriptionUC.Execute(claims.ChatID, sub.Endpoint)
+	err := s.container.DeletePushSubscriptionUC.Execute(claims.UserID, sub.Endpoint)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

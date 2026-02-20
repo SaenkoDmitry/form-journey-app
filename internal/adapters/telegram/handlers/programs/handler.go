@@ -3,6 +3,7 @@ package programs
 import (
 	"errors"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/adapters/telegram/common"
+	userusecases "github.com/SaenkoDmitry/training-tg-bot/internal/application/usecase/users"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/messages"
 	"strconv"
 	"strings"
@@ -21,6 +22,7 @@ type Handler struct {
 	activateProgramUC       *programusecases.ActivateUseCase
 	getProgramUC            *programusecases.GetUseCase
 	findAllProgramsByUserUC *programusecases.FindAllByUserUseCase
+	getUserUC               *userusecases.GetUseCase
 }
 
 func NewHandler(
@@ -30,6 +32,7 @@ func NewHandler(
 	activateProgramUC *programusecases.ActivateUseCase,
 	editProgramUC *programusecases.GetUseCase,
 	manageProgramUC *programusecases.FindAllByUserUseCase,
+	getUserUC *userusecases.GetUseCase,
 ) *Handler {
 	return &Handler{
 		presenter:               NewPresenter(bot),
@@ -39,6 +42,7 @@ func NewHandler(
 		activateProgramUC:       activateProgramUC,
 		getProgramUC:            editProgramUC,
 		findAllProgramsByUserUC: manageProgramUC,
+		getUserUC:               getUserUC,
 	}
 }
 
@@ -80,7 +84,7 @@ func (h *Handler) RouteCallback(chatID int64, data string) {
 }
 
 func (h *Handler) programManagement(chatID int64) {
-	res, err := h.findAllProgramsByUserUC.Execute(chatID)
+	res, err := h.findAllProgramsByUserUC.ExecuteByChatID(chatID)
 	if err != nil {
 		if errors.Is(err, programusecases.NoProgramsErr) {
 			h.commonPresenter.SendSimpleHtmlMessage(chatID, messages.NoProgramsFound)
@@ -93,11 +97,16 @@ func (h *Handler) programManagement(chatID int64) {
 }
 
 func (h *Handler) createProgram(chatID int64) {
-	if err := h.createProgramUC.Execute(chatID, ""); err != nil {
+	user, err := h.getUserUC.Execute(chatID)
+	if err != nil {
+		h.commonPresenter.HandleInternalError(err, chatID, h.getUserUC.Name())
+		return
+	}
+	if err = h.createProgramUC.Execute(user.ID, ""); err != nil {
 		h.commonPresenter.HandleInternalError(err, chatID, h.createProgramUC.Name())
 		return
 	}
-	programsResult, err := h.findAllProgramsByUserUC.Execute(chatID)
+	programsResult, err := h.findAllProgramsByUserUC.ExecuteByChatID(chatID)
 	if err != nil {
 		h.commonPresenter.HandleInternalError(err, chatID, h.findAllProgramsByUserUC.Name())
 		return
@@ -107,11 +116,16 @@ func (h *Handler) createProgram(chatID int64) {
 }
 
 func (h *Handler) activateProgram(chatID int64, programID int64) {
-	if err := h.activateProgramUC.Execute(chatID, programID); err != nil {
+	user, err := h.getUserUC.Execute(chatID)
+	if err != nil {
+		h.commonPresenter.HandleInternalError(err, chatID, h.getUserUC.Name())
+		return
+	}
+	if err = h.activateProgramUC.Execute(user.ID, programID); err != nil {
 		h.commonPresenter.HandleInternalError(err, chatID, h.activateProgramUC.Name())
 		return
 	}
-	programsResult, err := h.findAllProgramsByUserUC.Execute(chatID)
+	programsResult, err := h.findAllProgramsByUserUC.ExecuteByChatID(chatID)
 	if err != nil {
 		h.commonPresenter.HandleInternalError(err, chatID, h.findAllProgramsByUserUC.Name())
 		return
@@ -121,7 +135,12 @@ func (h *Handler) activateProgram(chatID int64, programID int64) {
 }
 
 func (h *Handler) deleteProgram(chatID int64, programID int64) {
-	err := h.deleteProgramUC.Execute(chatID, programID)
+	user, err := h.getUserUC.Execute(chatID)
+	if err != nil {
+		h.commonPresenter.HandleInternalError(err, chatID, h.getUserUC.Name())
+		return
+	}
+	err = h.deleteProgramUC.Execute(user.ID, programID)
 	if err != nil {
 		if errors.Is(err, programusecases.CannotDeleteCurrentProgramErr) {
 			h.commonPresenter.SendSimpleHtmlMessage(chatID, messages.CannotDeleteCurrentProgram)
@@ -130,7 +149,7 @@ func (h *Handler) deleteProgram(chatID int64, programID int64) {
 		h.commonPresenter.HandleInternalError(err, chatID, h.deleteProgramUC.Name())
 		return
 	}
-	programsResult, err := h.findAllProgramsByUserUC.Execute(chatID)
+	programsResult, err := h.findAllProgramsByUserUC.ExecuteByChatID(chatID)
 	if err != nil {
 		h.commonPresenter.HandleInternalError(err, chatID, h.findAllProgramsByUserUC.Name())
 		return
@@ -140,7 +159,7 @@ func (h *Handler) deleteProgram(chatID int64, programID int64) {
 }
 
 func (h *Handler) ViewProgram(chatID int64, programID int64) {
-	res, err := h.getProgramUC.Execute(programID, chatID)
+	res, err := h.getProgramUC.ExecuteByChatID(programID, chatID)
 	if err != nil {
 		h.commonPresenter.HandleInternalError(err, chatID, h.getProgramUC.Name())
 		return
@@ -149,7 +168,7 @@ func (h *Handler) ViewProgram(chatID int64, programID int64) {
 }
 
 func (h *Handler) confirmDeleteProgram(chatID int64, programID int64) {
-	res, err := h.getProgramUC.Execute(programID, chatID)
+	res, err := h.getProgramUC.ExecuteByChatID(programID, chatID)
 	if err != nil {
 		h.commonPresenter.HandleInternalError(err, chatID, h.getProgramUC.Name())
 		return
@@ -158,7 +177,7 @@ func (h *Handler) confirmDeleteProgram(chatID int64, programID int64) {
 }
 
 func (h *Handler) viewAllDays(chatID int64, programID int64) {
-	res, err := h.getProgramUC.Execute(programID, chatID)
+	res, err := h.getProgramUC.ExecuteByChatID(programID, chatID)
 	if err != nil {
 		h.commonPresenter.HandleInternalError(err, chatID, h.getProgramUC.Name())
 		return

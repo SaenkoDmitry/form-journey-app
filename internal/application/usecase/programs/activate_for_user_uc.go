@@ -20,8 +20,8 @@ func (uc *ActivateUseCase) Name() string {
 	return "Активировать программу"
 }
 
-func (uc *ActivateUseCase) Execute(chatID, programID int64) error {
-	user, err := uc.usersRepo.GetByChatID(chatID)
+func (uc *ActivateUseCase) Execute(userID, programID int64) error {
+	user, err := uc.usersRepo.GetByID(userID)
 	if err != nil {
 		return err
 	}

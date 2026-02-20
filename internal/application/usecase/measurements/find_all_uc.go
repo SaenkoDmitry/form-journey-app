@@ -26,18 +26,13 @@ func (uc *FindAllByUserUseCase) Name() string {
 	return "Показать измерения"
 }
 
-func (uc *FindAllByUserUseCase) Execute(chatID int64, limit, offset int) (*dto.FindWithOffsetLimitMeasurement, error) {
-	user, err := uc.usersRepo.GetByChatID(chatID)
+func (uc *FindAllByUserUseCase) Execute(userID int64, limit, offset int) (*dto.FindWithOffsetLimitMeasurement, error) {
+	measurementObjs, err := uc.measurementsRepo.FindAllLimitOffset(userID, limit, offset)
 	if err != nil {
 		return nil, err
 	}
 
-	measurementObjs, err := uc.measurementsRepo.FindAllLimitOffset(user.ID, limit, offset)
-	if err != nil {
-		return nil, err
-	}
-
-	count, _ := uc.measurementsRepo.Count(user.ID)
+	count, _ := uc.measurementsRepo.Count(userID)
 
 	result := make([]dto.Measurement, 0, len(measurementObjs))
 	for _, m := range measurementObjs {

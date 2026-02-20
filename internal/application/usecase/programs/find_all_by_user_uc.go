@@ -33,8 +33,16 @@ var (
 	NoProgramsErr = errors.New("no training programs")
 )
 
-func (uc *FindAllByUserUseCase) Execute(chatID int64) (*dto.GetAllPrograms, error) {
+func (uc *FindAllByUserUseCase) ExecuteByChatID(chatID int64) (*dto.GetAllPrograms, error) {
 	user, err := uc.usersRepo.GetByChatID(chatID)
+	if err != nil {
+		return nil, err
+	}
+	return uc.Execute(user.ID)
+}
+
+func (uc *FindAllByUserUseCase) Execute(userID int64) (*dto.GetAllPrograms, error) {
+	user, err := uc.usersRepo.GetByID(userID)
 	if err != nil {
 		return nil, err
 	}

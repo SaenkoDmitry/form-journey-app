@@ -113,10 +113,6 @@ func initServer(container *usecase.Container, db *gorm.DB) {
 
 	s := api.New(container, db)
 
-	//r.Route("/api/telegram", func(r chi.Router) {
-	//	r.Post("/login", s.TelegramLoginHandler)
-	//})
-
 	r.Route("/api/telegram", func(r chi.Router) {
 		r.Get("/login", s.TelegramRedirectHandler) // редирект на Telegram
 		r.Post("/login", s.TelegramLoginHandler)   // принимает JSON от фронта и выдает JWT

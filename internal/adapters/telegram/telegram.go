@@ -46,6 +46,7 @@ func New(token string, useCases *usecase.Container) (*App, error) {
 		useCases.FindWorkoutsByUserUC,
 		useCases.StatsWorkoutUC,
 		useCases.GetByUserProgramUC,
+		useCases.GetUserUC,
 	)
 
 	exercisesHandler := exercises.NewHandler(
@@ -78,6 +79,7 @@ func New(token string, useCases *usecase.Container) (*App, error) {
 		useCases.ActivateProgramUC,
 		useCases.GetProgramUC,
 		useCases.FindAllProgramsByUserUC,
+		useCases.GetUserUC,
 	)
 
 	adminsHandler := admins.NewHandler(bot, useCases.FindUserUC)
@@ -94,7 +96,7 @@ func New(token string, useCases *usecase.Container) (*App, error) {
 		useCases.GetProgramUC, dayTypesHandler, useCases.CreateMeasurementUC)
 
 	measurementsHandler := measurements.NewHandler(bot, useCases.FindAllMeasurementsUC, useCases.GetMeasurementByIDUC,
-		useCases.DeleteMeasurementByIDUC)
+		useCases.DeleteMeasurementByIDUC, useCases.GetUserUC)
 
 	r := router.New(
 		bot,

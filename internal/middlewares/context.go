@@ -19,17 +19,16 @@ func FromContext(ctx context.Context) (*Claims, bool) {
 		return &Claims{}, false
 	}
 
-	chatIDFloat, ok := claims["id"].(float64)
+	userID, ok := claims["user_id"].(float64)
 	if !ok {
 		return &Claims{}, false
 	}
-	chatID := int64(chatIDFloat)
 
 	return &Claims{
-		ChatID: chatID,
+		UserID: int64(userID),
 	}, ok
 }
 
 type Claims struct {
-	ChatID int64
+	UserID int64
 }

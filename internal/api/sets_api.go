@@ -2,8 +2,9 @@ package api
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
+
+	"github.com/SaenkoDmitry/training-tg-bot/internal/api/validator"
 
 	"github.com/SaenkoDmitry/training-tg-bot/internal/api/helpers"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/application/dto"
@@ -13,7 +14,7 @@ import (
 func (s *serviceImpl) AddSet(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -28,8 +29,8 @@ func (s *serviceImpl) AddSet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.validateAccessToExercise(w, claims.ChatID, exerciseID)
-	if err != nil {
+	if err = validator.ValidateAccessToExercise(s.container, claims.UserID, exerciseID); err != nil {
+		helpers.WriteError(w, err)
 		return
 	}
 
@@ -40,7 +41,7 @@ func (s *serviceImpl) AddSet(w http.ResponseWriter, r *http.Request) {
 func (s *serviceImpl) DeleteSet(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -55,8 +56,8 @@ func (s *serviceImpl) DeleteSet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.validateAccessToExercise(w, claims.ChatID, set.ExerciseID)
-	if err != nil {
+	if err = validator.ValidateAccessToExercise(s.container, claims.UserID, set.ExerciseID); err != nil {
+		helpers.WriteError(w, err)
 		return
 	}
 
@@ -73,7 +74,7 @@ func (s *serviceImpl) DeleteSet(w http.ResponseWriter, r *http.Request) {
 func (s *serviceImpl) CompleteSet(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -88,8 +89,8 @@ func (s *serviceImpl) CompleteSet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.validateAccessToExercise(w, claims.ChatID, set.ExerciseID)
-	if err != nil {
+	if err = validator.ValidateAccessToExercise(s.container, claims.UserID, set.ExerciseID); err != nil {
+		helpers.WriteError(w, err)
 		return
 	}
 
@@ -106,7 +107,7 @@ func (s *serviceImpl) CompleteSet(w http.ResponseWriter, r *http.Request) {
 func (s *serviceImpl) ChangeSet(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -134,8 +135,8 @@ func (s *serviceImpl) ChangeSet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.validateAccessToExercise(w, claims.ChatID, set.ExerciseID)
-	if err != nil {
+	if err = validator.ValidateAccessToExercise(s.container, claims.UserID, set.ExerciseID); err != nil {
+		helpers.WriteError(w, err)
 		return
 	}
 
@@ -152,26 +153,4 @@ func (s *serviceImpl) ChangeSet(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte("{}"))
-}
-
-func (s *serviceImpl) validateAccessToExercise(w http.ResponseWriter, chatID int64, exerciseID int64) error {
-	ex, err := s.container.GetExerciseUC.Execute(exerciseID)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return err
-	}
-
-	user, err := s.container.GetUserUC.Execute(chatID)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return err
-	}
-
-	// check access
-	if ex.Exercise.WorkoutDay.UserID != user.ID {
-		http.Error(w, "access denied", http.StatusForbidden)
-		return errors.New("no access to set")
-	}
-
-	return nil
 }

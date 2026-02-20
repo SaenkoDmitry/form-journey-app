@@ -29,12 +29,19 @@ func (uc *GetUseCase) Name() string {
 	return "Редактировать программу"
 }
 
-func (uc *GetUseCase) Execute(programID, chatID int64) (*dto.ProgramDTO, error) {
+func (uc *GetUseCase) ExecuteByChatID(programID, chatID int64) (*dto.ProgramDTO, error) {
 	user, err := uc.usersRepo.GetByChatID(chatID)
 	if err != nil {
 		return nil, err
 	}
+	return uc.Execute(programID, user.ID)
+}
 
+func (uc *GetUseCase) Execute(programID, userID int64) (*dto.ProgramDTO, error) {
+	user, err := uc.usersRepo.GetByID(userID)
+	if err != nil {
+		return nil, err
+	}
 	programObj, err := uc.programsRepo.Get(programID)
 	if err != nil {
 		return nil, err

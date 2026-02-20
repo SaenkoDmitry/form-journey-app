@@ -314,7 +314,7 @@ func (h *Handler) RouteMessage(chatID int64, text string) {
 			return
 		}
 		h.userStatesMachine.Clear(chatID)
-		if res, manageErr := h.manageProgramUC.Execute(chatID); manageErr == nil {
+		if res, manageErr := h.manageProgramUC.ExecuteByChatID(chatID); manageErr == nil {
 			h.programPresenter.ShowProgramManageDialog(chatID, res)
 		}
 

@@ -2,8 +2,9 @@ package api
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
+
+	"github.com/SaenkoDmitry/training-tg-bot/internal/api/validator"
 
 	"github.com/SaenkoDmitry/training-tg-bot/internal/api/helpers"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/middlewares"
@@ -12,11 +13,11 @@ import (
 func (s *serviceImpl) GetUserPrograms(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
-	result, err := s.container.FindAllProgramsByUserUC.Execute(claims.ChatID)
+	result, err := s.container.FindAllProgramsByUserUC.Execute(claims.UserID)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -30,11 +31,11 @@ func (s *serviceImpl) GetUserPrograms(w http.ResponseWriter, r *http.Request) {
 func (s *serviceImpl) GetActiveProgramForUser(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
-	user, err := s.container.GetUserUC.Execute(claims.ChatID)
+	user, err := s.container.GetUserByIDUC.Execute(claims.UserID)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -45,7 +46,7 @@ func (s *serviceImpl) GetActiveProgramForUser(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	program, err := s.container.GetProgramUC.Execute(*user.ActiveProgramID, claims.ChatID)
+	program, err := s.container.GetProgramUC.Execute(*user.ActiveProgramID, claims.UserID)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -59,7 +60,7 @@ func (s *serviceImpl) GetActiveProgramForUser(w http.ResponseWriter, r *http.Req
 func (s *serviceImpl) CreateProgram(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -73,7 +74,7 @@ func (s *serviceImpl) CreateProgram(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := s.container.CreateProgramUC.Execute(claims.ChatID, input.Name)
+	err := s.container.CreateProgramUC.Execute(claims.UserID, input.Name)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -87,7 +88,7 @@ func (s *serviceImpl) CreateProgram(w http.ResponseWriter, r *http.Request) {
 func (s *serviceImpl) ChooseProgram(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -96,11 +97,12 @@ func (s *serviceImpl) ChooseProgram(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.validateAccessToProgram(w, claims.ChatID, programID); err != nil {
+	if err = validator.ValidateAccessToProgram(s.container, claims.UserID, programID); err != nil {
+		helpers.WriteError(w, err)
 		return
 	}
 
-	err = s.container.ActivateProgramUC.Execute(claims.ChatID, programID)
+	err = s.container.ActivateProgramUC.Execute(claims.UserID, programID)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -114,7 +116,7 @@ func (s *serviceImpl) ChooseProgram(w http.ResponseWriter, r *http.Request) {
 func (s *serviceImpl) DeleteProgram(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -123,11 +125,12 @@ func (s *serviceImpl) DeleteProgram(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.validateAccessToProgram(w, claims.ChatID, programID); err != nil {
+	if err = validator.ValidateAccessToProgram(s.container, claims.UserID, programID); err != nil {
+		helpers.WriteError(w, err)
 		return
 	}
 
-	err = s.container.DeleteProgramUC.Execute(claims.ChatID, programID)
+	err = s.container.DeleteProgramUC.Execute(claims.UserID, programID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -141,7 +144,7 @@ func (s *serviceImpl) DeleteProgram(w http.ResponseWriter, r *http.Request) {
 func (s *serviceImpl) RenameProgram(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -150,7 +153,8 @@ func (s *serviceImpl) RenameProgram(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.validateAccessToProgram(w, claims.ChatID, programID); err != nil {
+	if err = validator.ValidateAccessToProgram(s.container, claims.UserID, programID); err != nil {
+		helpers.WriteError(w, err)
 		return
 	}
 
@@ -178,7 +182,7 @@ func (s *serviceImpl) RenameProgram(w http.ResponseWriter, r *http.Request) {
 func (s *serviceImpl) GetProgram(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -187,11 +191,12 @@ func (s *serviceImpl) GetProgram(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.validateAccessToProgram(w, claims.ChatID, programID); err != nil {
+	if err = validator.ValidateAccessToProgram(s.container, claims.UserID, programID); err != nil {
+		helpers.WriteError(w, err)
 		return
 	}
 
-	program, err := s.container.GetProgramUC.Execute(programID, claims.ChatID)
+	program, err := s.container.GetProgramUC.Execute(programID, claims.UserID)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -200,26 +205,4 @@ func (s *serviceImpl) GetProgram(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(program)
-}
-
-func (s *serviceImpl) validateAccessToProgram(w http.ResponseWriter, chatID int64, programID int64) error {
-	user, err := s.container.GetUserUC.Execute(chatID)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return err
-	}
-
-	program, err := s.container.GetProgramUC.Execute(programID, chatID)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return err
-	}
-
-	// check access
-	if program.UserID != user.ID {
-		http.Error(w, "access denied", http.StatusForbidden)
-		return errors.New("no access to program")
-	}
-
-	return nil
 }

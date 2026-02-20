@@ -28,19 +28,19 @@ func (uc *CreateUseCase) Name() string {
 	return "Создание тренировки"
 }
 
-func (uc *CreateUseCase) Execute(chatID, dayTypeID int64) (*dto.CreateWorkout, error) {
-	user, err := uc.usersRepo.GetByChatID(chatID)
-	if err != nil {
-		return nil, err
-	}
-
+func (uc *CreateUseCase) Execute(userID, dayTypeID int64) (*dto.CreateWorkout, error) {
 	workout := &models.WorkoutDay{
-		UserID:           user.ID,
+		UserID:           userID,
 		WorkoutDayTypeID: dayTypeID,
 		StartedAt:        time.Now(),
 		Completed:        false,
 	}
-	if err = uc.workoutsRepo.Create(workout); err != nil {
+	if err := uc.workoutsRepo.Create(workout); err != nil {
+		return nil, err
+	}
+
+	user, err := uc.usersRepo.GetByID(userID)
+	if err != nil {
 		return nil, err
 	}
 

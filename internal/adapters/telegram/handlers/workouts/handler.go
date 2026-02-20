@@ -6,6 +6,7 @@ import (
 	exercisepresenter "github.com/SaenkoDmitry/training-tg-bot/internal/adapters/telegram/handlers/exercises/presenter"
 	programusecases "github.com/SaenkoDmitry/training-tg-bot/internal/application/usecase/programs"
 	exerciseusecases "github.com/SaenkoDmitry/training-tg-bot/internal/application/usecase/session"
+	userusecases "github.com/SaenkoDmitry/training-tg-bot/internal/application/usecase/users"
 	"strconv"
 	"strings"
 
@@ -30,6 +31,8 @@ type Handler struct {
 
 	showCurrentExerciseSessionUC *exerciseusecases.ShowCurrentExerciseSessionUseCase
 
+	getUserUC *userusecases.GetUseCase
+
 	presenter          *Presenter
 	exercisesPresenter *exercisepresenter.Presenter
 	commonPresenter    *common.Presenter
@@ -49,6 +52,7 @@ func NewHandler(
 	showByUserIDUC *workoutusecases.FindByUserIDUseCase,
 	statsUC *workoutusecases.StatsUseCase,
 	getByUserProgramUC *programusecases.GetByUserUseCase,
+	getUserUC *userusecases.GetUseCase,
 ) *Handler {
 	return &Handler{
 		deleteUC:                     deleteUC,
@@ -63,6 +67,7 @@ func NewHandler(
 		showCurrentExerciseSessionUC: ShowCurrentExerciseSessionUC,
 		getByUserProgramUC:           getByUserProgramUC,
 		statsUC:                      statsUC,
+		getUserUC:                    getUserUC,
 
 		presenter:          NewPresenter(bot),
 		commonPresenter:    common.NewPresenter(bot),
@@ -157,7 +162,14 @@ func (h *Handler) delete(chatID int64, workoutID int64) {
 }
 
 func (h *Handler) create(chatID int64, dayTypeID int64) int64 {
-	res, err := h.createUC.Execute(chatID, dayTypeID)
+	user, err := h.getUserUC.Execute(chatID)
+	if err != nil {
+		if err != nil {
+			h.commonPresenter.HandleInternalError(err, chatID, h.getUserUC.Name())
+			return 0
+		}
+	}
+	res, err := h.createUC.Execute(user.ID, dayTypeID)
 	if err != nil {
 		h.commonPresenter.HandleInternalError(err, chatID, h.createUC.Name())
 		return 0
@@ -200,7 +212,7 @@ func (h *Handler) start(chatID int64, workoutID int64) {
 const showWorkoutsLimit = 4
 
 func (h *Handler) showMy(chatID int64, offset int) {
-	res, err := h.showMyUC.Execute(chatID, offset, showWorkoutsLimit)
+	res, err := h.showMyUC.ExecuteByChatID(chatID, offset, showWorkoutsLimit)
 	if err != nil {
 		if errors.Is(err, workoutusecases.NotFoundAllErr) {
 			h.presenter.ShowNotFoundAll(chatID)

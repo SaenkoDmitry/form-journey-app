@@ -25,13 +25,8 @@ func (uc *CreateUseCase) Name() string {
 	return "Создать программу"
 }
 
-func (uc *CreateUseCase) Execute(chatID int64, name string) error {
-	user, err := uc.usersRepo.GetByChatID(chatID)
-	if err != nil {
-		return err
-	}
-
-	programObjs, err := uc.programsRepo.FindAll(user.ID)
+func (uc *CreateUseCase) Execute(userID int64, name string) error {
+	programObjs, err := uc.programsRepo.FindAll(userID)
 	if err != nil {
 		return err
 	}
@@ -40,7 +35,7 @@ func (uc *CreateUseCase) Execute(chatID int64, name string) error {
 		name = fmt.Sprintf("#%d", len(programObjs)+1)
 	}
 
-	_, err = uc.programsRepo.Create(user.ID, name)
+	_, err = uc.programsRepo.Create(userID, name)
 	if err != nil {
 		return err
 	}

@@ -3,16 +3,18 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/SaenkoDmitry/training-tg-bot/internal/api/helpers"
-	"github.com/SaenkoDmitry/training-tg-bot/internal/middlewares"
 	"net/http"
 	"strings"
+
+	"github.com/SaenkoDmitry/training-tg-bot/internal/api/helpers"
+	"github.com/SaenkoDmitry/training-tg-bot/internal/api/validator"
+	"github.com/SaenkoDmitry/training-tg-bot/internal/middlewares"
 )
 
 func (s *serviceImpl) CreateProgramDay(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -31,7 +33,8 @@ func (s *serviceImpl) CreateProgramDay(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.validateAccessToProgram(w, claims.ChatID, programID); err != nil {
+	if err = validator.ValidateAccessToProgram(s.container, claims.UserID, programID); err != nil {
+		helpers.WriteError(w, err)
 		return
 	}
 
@@ -55,7 +58,7 @@ func (s *serviceImpl) CreateProgramDay(w http.ResponseWriter, r *http.Request) {
 func (s *serviceImpl) UpdateProgramDay(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -64,7 +67,8 @@ func (s *serviceImpl) UpdateProgramDay(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.validateAccessToProgram(w, claims.ChatID, programID); err != nil {
+	if err = validator.ValidateAccessToProgram(s.container, claims.UserID, programID); err != nil {
+		helpers.WriteError(w, err)
 		return
 	}
 
@@ -120,7 +124,7 @@ func (s *serviceImpl) UpdateProgramDay(w http.ResponseWriter, r *http.Request) {
 func (s *serviceImpl) GetProgramDay(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -129,7 +133,8 @@ func (s *serviceImpl) GetProgramDay(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.validateAccessToProgram(w, claims.ChatID, programID); err != nil {
+	if err = validator.ValidateAccessToProgram(s.container, claims.UserID, programID); err != nil {
+		helpers.WriteError(w, err)
 		return
 	}
 
@@ -152,7 +157,7 @@ func (s *serviceImpl) GetProgramDay(w http.ResponseWriter, r *http.Request) {
 func (s *serviceImpl) DeleteProgramDay(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -161,7 +166,8 @@ func (s *serviceImpl) DeleteProgramDay(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.validateAccessToProgram(w, claims.ChatID, programID); err != nil {
+	if err = validator.ValidateAccessToProgram(s.container, claims.UserID, programID); err != nil {
+		helpers.WriteError(w, err)
 		return
 	}
 

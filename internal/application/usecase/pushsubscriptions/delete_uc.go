@@ -24,10 +24,6 @@ func (uc *DeleteUseCase) Name() string {
 	return "Удалить подписку"
 }
 
-func (uc *DeleteUseCase) Execute(chatID int64, endpoint string) error {
-	user, err := uc.usersRepo.GetByChatID(chatID)
-	if err != nil {
-		return err
-	}
-	return uc.pushSubscriptionsRepo.Delete(user.ID, endpoint)
+func (uc *DeleteUseCase) Execute(userID int64, endpoint string) error {
+	return uc.pushSubscriptionsRepo.Delete(userID, endpoint)
 }

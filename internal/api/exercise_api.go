@@ -2,15 +2,17 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/SaenkoDmitry/training-tg-bot/internal/api/helpers"
-	"github.com/SaenkoDmitry/training-tg-bot/internal/middlewares"
 	"net/http"
+
+	"github.com/SaenkoDmitry/training-tg-bot/internal/api/helpers"
+	"github.com/SaenkoDmitry/training-tg-bot/internal/api/validator"
+	"github.com/SaenkoDmitry/training-tg-bot/internal/middlewares"
 )
 
 func (s *serviceImpl) DeleteExercise(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -19,8 +21,8 @@ func (s *serviceImpl) DeleteExercise(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.validateAccessToExercise(w, claims.ChatID, exerciseID)
-	if err != nil {
+	if err = validator.ValidateAccessToExercise(s.container, claims.UserID, exerciseID); err != nil {
+		helpers.WriteError(w, err)
 		return
 	}
 
@@ -36,7 +38,7 @@ func (s *serviceImpl) DeleteExercise(w http.ResponseWriter, r *http.Request) {
 func (s *serviceImpl) AddExercise(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -51,13 +53,12 @@ func (s *serviceImpl) AddExercise(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := s.validateAccessToWorkout(w, claims.ChatID, input.WorkoutID)
-	if err != nil {
+	if err := validator.ValidateAccessToWorkout(s.container, claims.UserID, input.WorkoutID); err != nil {
+		helpers.WriteError(w, err)
 		return
 	}
 
-	_, err = s.container.CreateExerciseUC.Execute(input.WorkoutID, input.ExerciseTypeID)
-	if err != nil {
+	if _, err := s.container.CreateExerciseUC.Execute(input.WorkoutID, input.ExerciseTypeID); err != nil {
 		return
 	}
 

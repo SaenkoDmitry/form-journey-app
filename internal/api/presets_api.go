@@ -2,11 +2,14 @@ package api
 
 import (
 	"encoding/json"
+	"net/http"
+
+	"github.com/SaenkoDmitry/training-tg-bot/internal/api/helpers"
+	"github.com/SaenkoDmitry/training-tg-bot/internal/api/validator"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/application/dto"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/middlewares"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/models"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/utils"
-	"net/http"
 )
 
 func (s *serviceImpl) ParsePreset(w http.ResponseWriter, r *http.Request) {
@@ -69,13 +72,7 @@ func (s *serviceImpl) ParsePreset(w http.ResponseWriter, r *http.Request) {
 func (s *serviceImpl) SavePreset(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	user, err := s.container.GetUserUC.Execute(claims.ChatID)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -96,14 +93,8 @@ func (s *serviceImpl) SavePreset(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	program, err := s.container.GetProgramUC.Execute(day.WorkoutProgramID, claims.ChatID)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-
-	if program.UserID != user.ID {
-		http.Error(w, "access denied", http.StatusForbidden)
+	if err = validator.ValidateAccessToProgram(s.container, claims.UserID, day.WorkoutProgramID); err != nil {
+		helpers.WriteError(w, err)
 		return
 	}
 

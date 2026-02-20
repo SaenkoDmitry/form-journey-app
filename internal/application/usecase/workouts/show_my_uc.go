@@ -26,17 +26,21 @@ func (uc *FindMyUseCase) Name() string {
 	return "Показать мои тренировки"
 }
 
-func (uc *FindMyUseCase) Execute(chatID int64, offset, limit int) (*dto.ShowMyWorkoutsResult, error) {
+func (uc *FindMyUseCase) ExecuteByChatID(chatID int64, offset, limit int) (*dto.ShowMyWorkoutsResult, error) {
 	user, err := uc.usersRepo.GetByChatID(chatID)
 	if err != nil {
 		return nil, err
 	}
-	total, err := uc.workoutsRepo.Count(user.ID)
+	return uc.Execute(user.ID, offset, limit)
+}
+
+func (uc *FindMyUseCase) Execute(userID int64, offset, limit int) (*dto.ShowMyWorkoutsResult, error) {
+	total, err := uc.workoutsRepo.Count(userID)
 	if err != nil {
 		return nil, err
 	}
 
-	workoutObjs, err := uc.workoutsRepo.Find(user.ID, offset, limit)
+	workoutObjs, err := uc.workoutsRepo.Find(userID, offset, limit)
 	if err != nil {
 		return nil, err
 	}

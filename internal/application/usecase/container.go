@@ -101,10 +101,11 @@ type Container struct {
 	MoveSessionToExerciseUC *sessionusecases.MoveToUseCase
 
 	// users
-	CreateUserUC *userusecases.CreateUseCase
-	GetUserUC    *userusecases.GetUseCase
-	FindUserUC   *userusecases.FindUseCase
-	ChangeIconUC *userusecases.ChangeIconUseCase
+	CreateUserUC  *userusecases.CreateUseCase
+	GetUserUC     *userusecases.GetUseCase
+	GetUserByIDUC *userusecases.GetByIDUseCase
+	FindUserUC    *userusecases.FindUseCase
+	ChangeIconUC  *userusecases.ChangeIconUseCase
 
 	// measurements
 	CreateMeasurementUC     *measurementsusecases.CreateUseCase
@@ -208,10 +209,11 @@ func NewContainer(db *gorm.DB) *Container {
 		MoveSessionToExerciseUC: sessionusecases.NewMoveToExerciseUseCase(sessionsRepo, exercisesRepo),
 
 		// users
-		CreateUserUC: userusecases.NewCreateUseCase(usersRepo, programsRepo),
-		FindUserUC:   userusecases.NewFindUseCase(usersRepo, programsRepo),
-		GetUserUC:    userusecases.NewGetUseCase(usersRepo),
-		ChangeIconUC: userusecases.NewChangeIconUseCase(usersRepo),
+		CreateUserUC:  userusecases.NewCreateUseCase(usersRepo, programsRepo),
+		FindUserUC:    userusecases.NewFindUseCase(usersRepo, programsRepo),
+		GetUserUC:     userusecases.NewGetUseCase(usersRepo),
+		GetUserByIDUC: userusecases.NewGetByIDUseCase(usersRepo),
+		ChangeIconUC:  userusecases.NewChangeIconUseCase(usersRepo),
 
 		// measurements
 		CreateMeasurementUC:     measurementsusecases.NewCreateUseCase(measurementsRepo),

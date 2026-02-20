@@ -2,9 +2,10 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/golang-jwt/jwt/v4"
 	"net/http"
 	"strings"
+
+	"github.com/golang-jwt/jwt/v4"
 )
 
 func MeHandler(w http.ResponseWriter, r *http.Request) {

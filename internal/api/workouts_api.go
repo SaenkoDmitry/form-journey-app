@@ -2,24 +2,25 @@ package api
 
 import (
 	"encoding/json"
-	"errors"
-	"github.com/SaenkoDmitry/training-tg-bot/internal/api/helpers"
-	"github.com/SaenkoDmitry/training-tg-bot/internal/application/dto"
-	"github.com/SaenkoDmitry/training-tg-bot/internal/middlewares"
 	"net/http"
 	"strconv"
+
+	"github.com/SaenkoDmitry/training-tg-bot/internal/api/helpers"
+	"github.com/SaenkoDmitry/training-tg-bot/internal/api/validator"
+	"github.com/SaenkoDmitry/training-tg-bot/internal/application/dto"
+	"github.com/SaenkoDmitry/training-tg-bot/internal/middlewares"
 )
 
 func (s *serviceImpl) GetAllWorkouts(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	offset, limit := helpers.GetOffsetLimit(r, 10, 50)
 
-	res, err := s.container.FindMyWorkoutsUC.Execute(claims.ChatID, offset, limit)
+	res, err := s.container.FindMyWorkoutsUC.Execute(claims.UserID, offset, limit)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -32,7 +33,7 @@ func (s *serviceImpl) GetAllWorkouts(w http.ResponseWriter, r *http.Request) {
 func (s *serviceImpl) StartWorkout(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -52,24 +53,12 @@ func (s *serviceImpl) StartWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	program, err := s.container.GetProgramUC.Execute(day.WorkoutProgramID, claims.ChatID)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
+	if err = validator.ValidateAccessToProgram(s.container, claims.UserID, day.WorkoutProgramID); err != nil {
+		helpers.WriteError(w, err)
 		return
 	}
 
-	user, err := s.container.GetUserUC.Execute(claims.ChatID)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-
-	if program.UserID != user.ID {
-		http.Error(w, "access denied", http.StatusForbidden)
-		return
-	}
-
-	createdWorkout, err := s.container.CreateWorkoutUC.Execute(claims.ChatID, input.DayTypeID) // создаем тренировку
+	createdWorkout, err := s.container.CreateWorkoutUC.Execute(claims.UserID, input.DayTypeID) // создаем тренировку
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -92,27 +81,21 @@ type StartWorkoutDTO struct {
 func (s *serviceImpl) ReadWorkout(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	workoutIDStr := r.PathValue("workout_id")
 	workoutID, _ := strconv.ParseInt(workoutIDStr, 10, 64)
 
+	if err := validator.ValidateAccessToWorkout(s.container, claims.UserID, workoutID); err != nil {
+		helpers.WriteError(w, err)
+		return
+	}
+
 	progress, err := s.container.ShowWorkoutProgressUC.Execute(workoutID)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-
-	user, err := s.container.GetUserUC.Execute(claims.ChatID)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-
-	if progress.Workout.UserID != user.ID {
-		http.Error(w, "access denied", http.StatusForbidden)
 		return
 	}
 
@@ -134,7 +117,7 @@ type ReadWorkoutDTO struct {
 func (s *serviceImpl) DeleteWorkout(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -143,8 +126,8 @@ func (s *serviceImpl) DeleteWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.validateAccessToWorkout(w, claims.ChatID, workoutID)
-	if err != nil {
+	if err = validator.ValidateAccessToWorkout(s.container, claims.UserID, workoutID); err != nil {
+		helpers.WriteError(w, err)
 		return
 	}
 
@@ -161,7 +144,7 @@ func (s *serviceImpl) DeleteWorkout(w http.ResponseWriter, r *http.Request) {
 func (s *serviceImpl) FinishWorkout(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -170,8 +153,8 @@ func (s *serviceImpl) FinishWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.validateAccessToWorkout(w, claims.ChatID, workoutID)
-	if err != nil {
+	if err = validator.ValidateAccessToWorkout(s.container, claims.UserID, workoutID); err != nil {
+		helpers.WriteError(w, err)
 		return
 	}
 
@@ -183,26 +166,4 @@ func (s *serviceImpl) FinishWorkout(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte("{}"))
-}
-
-func (s *serviceImpl) validateAccessToWorkout(w http.ResponseWriter, chatID int64, workoutID int64) error {
-	progress, err := s.container.ShowWorkoutProgressUC.Execute(workoutID)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return err
-	}
-
-	user, err := s.container.GetUserUC.Execute(chatID)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return err
-	}
-
-	// check access
-	if progress.Workout.UserID != user.ID {
-		http.Error(w, "access denied", http.StatusForbidden)
-		return errors.New("no access to workout")
-	}
-
-	return nil
 }

@@ -31,8 +31,8 @@ var (
 	CannotDeleteAlreadyUsedProgram = errors.New("Не могу удалить программу, которая уже есть в истории тренировок")
 )
 
-func (uc *DeleteUseCase) Execute(chatID, programID int64) error {
-	user, err := uc.usersRepo.GetByChatID(chatID)
+func (uc *DeleteUseCase) Execute(userID, programID int64) error {
+	user, err := uc.usersRepo.GetByID(userID)
 	if err != nil {
 		return err
 	}

@@ -2,24 +2,26 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/SaenkoDmitry/training-tg-bot/internal/api/helpers"
-	"github.com/SaenkoDmitry/training-tg-bot/internal/middlewares"
-	"github.com/SaenkoDmitry/training-tg-bot/internal/models"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/SaenkoDmitry/training-tg-bot/internal/api/helpers"
+	"github.com/SaenkoDmitry/training-tg-bot/internal/api/validator"
+	"github.com/SaenkoDmitry/training-tg-bot/internal/middlewares"
+	"github.com/SaenkoDmitry/training-tg-bot/internal/models"
 )
 
 func (s *serviceImpl) GetMeasurements(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	offset, limit := helpers.GetOffsetLimit(r, 10, 50)
 
-	result, err := s.container.FindAllMeasurementsUC.Execute(claims.ChatID, limit, offset)
+	result, err := s.container.FindAllMeasurementsUC.Execute(claims.UserID, limit, offset)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -32,30 +34,18 @@ func (s *serviceImpl) GetMeasurements(w http.ResponseWriter, r *http.Request) {
 func (s *serviceImpl) DeleteMeasurement(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	measurementID, _ := strconv.ParseInt(r.PathValue("id"), 10, 64)
 
-	measurement, err := s.container.GetMeasurementByIDUC.Execute(measurementID)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
+	if err := validator.ValidateAccessToMeasurement(s.container, claims.UserID, measurementID); err != nil {
+		helpers.WriteError(w, err)
 		return
 	}
 
-	user, err := s.container.GetUserUC.Execute(claims.ChatID)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-
-	if measurement.UserID != user.ID {
-		http.Error(w, "access denied", http.StatusForbidden)
-		return
-	}
-
-	err = s.container.DeleteMeasurementByIDUC.Execute(measurementID)
+	err := s.container.DeleteMeasurementByIDUC.Execute(measurementID)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -68,13 +58,7 @@ func (s *serviceImpl) DeleteMeasurement(w http.ResponseWriter, r *http.Request) 
 func (s *serviceImpl) CreateMeasurement(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	user, err := s.container.GetUserUC.Execute(claims.ChatID)
-	if err != nil {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -100,7 +84,7 @@ func (s *serviceImpl) CreateMeasurement(w http.ResponseWriter, r *http.Request) 
 
 	// Создаём модель
 	m := &models.Measurement{
-		UserID:    user.ID,
+		UserID:    claims.UserID,
 		CreatedAt: time.Now(),
 		Shoulders: input.Shoulders * 10,
 		Chest:     input.Chest * 10,

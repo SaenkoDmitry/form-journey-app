@@ -3,6 +3,7 @@ package measurements
 import (
 	"github.com/SaenkoDmitry/training-tg-bot/internal/adapters/telegram/common"
 	measurementsusecases "github.com/SaenkoDmitry/training-tg-bot/internal/application/usecase/measurements"
+	userusecases "github.com/SaenkoDmitry/training-tg-bot/internal/application/usecase/users"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/messages"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strconv"
@@ -16,6 +17,7 @@ type Handler struct {
 	findAllMeasurementsUC   *measurementsusecases.FindAllByUserUseCase
 	getMeasurementByIDUC    *measurementsusecases.GetByIDUseCase
 	deleteMeasurementByIDUC *measurementsusecases.DeleteByIDUseCase
+	getUserUC               *userusecases.GetUseCase
 }
 
 func NewHandler(
@@ -23,6 +25,7 @@ func NewHandler(
 	findAllMeasurementsUC *measurementsusecases.FindAllByUserUseCase,
 	getMeasurementByIDUC *measurementsusecases.GetByIDUseCase,
 	deleteMeasurementByIDUC *measurementsusecases.DeleteByIDUseCase,
+	getUserUC *userusecases.GetUseCase,
 ) *Handler {
 	return &Handler{
 		presenter:               NewPresenter(bot),
@@ -30,6 +33,7 @@ func NewHandler(
 		findAllMeasurementsUC:   findAllMeasurementsUC,
 		getMeasurementByIDUC:    getMeasurementByIDUC,
 		deleteMeasurementByIDUC: deleteMeasurementByIDUC,
+		getUserUC:               getUserUC,
 	}
 }
 
@@ -74,7 +78,11 @@ func (h *Handler) deleteMeasurement(chatID int64, measurementID int64) {
 }
 
 func (h *Handler) showWithLimitAndOffset(chatID int64, limit, offset int) {
-	res, err := h.findAllMeasurementsUC.Execute(chatID, limit, offset)
+	user, err := h.getUserUC.Execute(chatID)
+	if err != nil {
+		return
+	}
+	res, err := h.findAllMeasurementsUC.Execute(user.ID, limit, offset)
 	if err != nil {
 		return
 	}

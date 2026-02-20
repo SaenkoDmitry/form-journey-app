@@ -1,16 +1,17 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/SaenkoDmitry/training-tg-bot/internal/application/usecase"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/service/push"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/service/timermanager"
 	"gorm.io/gorm"
-	"net/http"
 )
 
 type Service interface {
-	TelegramLoginHandler(w http.ResponseWriter, r *http.Request)
 	TelegramRedirectHandler(w http.ResponseWriter, r *http.Request)
+	TelegramLoginHandler(w http.ResponseWriter, r *http.Request)
 	GetIcon(w http.ResponseWriter, r *http.Request)
 	ChangeIcon(w http.ResponseWriter, r *http.Request)
 	GetAllWorkouts(w http.ResponseWriter, r *http.Request)
