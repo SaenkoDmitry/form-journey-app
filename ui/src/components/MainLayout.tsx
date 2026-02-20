@@ -141,7 +141,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({children}) => {
                                     background: active
                                         ? 'var(--color-primary)'
                                         : 'transparent',
-                                    color: 'var(--button-text)',
+                                    color: active ? 'var(--color-btn-text)' : 'var(--color-text)',
                                 }}
                             >
                                 <Icon size={20}/>
