@@ -159,7 +159,7 @@ const ProfilePage: React.FC = () => {
                             background: "var(--color-card)",
                             borderRadius: "var(--radius-lg)",
                             padding: "1.5rem",
-                            boxShadow: "var(--shadow-md)",
+                            boxShadow: "var(--shadow-sm)",
                             textAlign: "center",
                         }}
                     >

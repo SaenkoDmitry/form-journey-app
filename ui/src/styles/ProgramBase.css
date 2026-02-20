@@ -23,6 +23,7 @@
 
 /* универсальная карточка */
 .card {
+    border: 1px solid var(--color-border);
     background: var(--color-card);
     border-radius: var(--radius-lg);
     padding: 14px 16px;

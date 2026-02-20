@@ -14,17 +14,12 @@
 
     cursor: pointer;
     transition: 0.15s;
-    color: var(--color-text);
-}
-
-.btn:active {
-    transform: scale(0.97);
+    color: var(--color-btn-text);
 }
 
 /* primary */
 .btn-primary {
     background: var(--color-primary);
-    color: white;
 }
 
 .btn-primary:hover {
@@ -52,12 +47,12 @@
 /* ghost */
 .btn-ghost {
     background: var(--color-ghost);
-    color: black;
+    color: var(--color-text);
 }
 
 .btn-ghost:hover {
     background: var(--color-ghost-hover);
-    color: black;
+    color: var(--color-text);
 }
 
 /* danger */

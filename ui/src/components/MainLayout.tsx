@@ -52,7 +52,6 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({children}) => {
                         justifyContent: 'space-between',
                         alignItems: 'center',
                         padding: '0.6rem 1rem',
-                        borderBottom: '1px solid #eee',
                         position: 'sticky',
                         top: 0,
                         zIndex: 10,
@@ -142,7 +141,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({children}) => {
                                     background: active
                                         ? 'var(--color-primary)'
                                         : 'transparent',
-                                    color: active ? '#fff' : '#666',
+                                    color: 'var(--button-text)',
                                 }}
                             >
                                 <Icon size={20}/>

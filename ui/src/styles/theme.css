@@ -4,9 +4,8 @@
     --color-primary-hover: #084c7a;
     --color-primary-soft: #eef4fc;
 
-    --color-active: #7ccb83;
-    --color-active-hover: #53d25e;
-    --color-active-text: white;
+    --color-active: #61c76b;
+    --color-active-hover: #2ed03c;
 
     --color-attention: #fcec3f;
     --color-attention-hover: #ffd200;
@@ -23,6 +22,7 @@
 
     --color-text: #1f2937;
     --color-text-muted: #6b7280;
+    --color-btn-text: white;
 
     --color-border: #e5e7eb;
 
@@ -43,8 +43,8 @@
     --color-primary-hover: #021e65;
     --color-primary-soft: #233162;
 
-    --color-active: #4ade80;
-    --color-active-hover: #22c55e;
+    --color-active: #3cb769;
+    --color-active-hover: #03bd48;
 
     --color-attention: #facc15;
     --color-attention-hover: #eab308;
@@ -61,6 +61,7 @@
 
     --color-text: #f9fafb;     /* Основной текст */
     --color-text-muted: #9ca3af; /* Подписи / второстепенный текст */
+    --color-btn-text: white;
 
     --color-border: #374151;
 

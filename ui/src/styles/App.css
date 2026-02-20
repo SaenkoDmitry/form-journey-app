@@ -20,8 +20,9 @@ body {
   border-radius: var(--radius-lg);
   transition: 0.15s;
   position: relative;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
   background: var(--color-card);
+  border: 1px solid var(--color-border);
 }
 
 .workout-item:hover {

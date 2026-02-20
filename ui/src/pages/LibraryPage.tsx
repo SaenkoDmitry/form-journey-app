@@ -3,7 +3,7 @@ import {useAuth} from '../context/AuthContext';
 import SafeTextRenderer from "../components/SafeTextRenderer.tsx";
 import {getExerciseGroups, getExerciseTypesByGroup} from "../api/exercises.ts";
 import Button from "../components/Button.tsx";
-import {ChevronDown, Loader, Triangle} from "lucide-react";
+import {ChevronDown, Loader} from "lucide-react";
 
 const LibraryPage: React.FC = () => {
     const {user, loading: authLoading} = useAuth();
@@ -73,7 +73,7 @@ const LibraryPage: React.FC = () => {
                     <div
                         key={ex.id}
                         style={{
-                            border: '1px solid #eee',
+                            border: '1px solid var(--color-border)',
                             borderRadius: 12,
                             padding: 12,
                             transition: 'all 0.2s ease',

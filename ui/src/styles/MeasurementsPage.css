@@ -83,7 +83,7 @@
     border-radius: var(--radius-lg);
     padding: 16px; /* чуть меньше, чтобы форма не «тяжелила» экран */
     margin-top: 12px;
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-sm);
     border: 1px solid var(--color-border);
     transition: transform 0.1s;
 }
