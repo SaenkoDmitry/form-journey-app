@@ -133,6 +133,7 @@ export default function DayDetailsPage() {
                 id: ex.id,
                 name: ex.name,
                 sets: [{reps, weight, minutes, meters}],
+                units: ex.units,
             },
         ]);
     };
