@@ -73,6 +73,8 @@ jobs:
             echo "VAPID_PRIVATE_KEY=${{ secrets.VAPID_PRIVATE_KEY }}" >> .env
             echo "VAPID_PUBLIC_KEY=${{ secrets.VAPID_PUBLIC_KEY }}" >> .env
             echo "TELEGRAM_BOT_ID=${{ secrets.TELEGRAM_BOT_ID }}" >> .env
+            echo "YANDEX_CLIENT_ID=${{ secrets.YANDEX_CLIENT_ID }}" >> .env
+            echo "YANDEX_CLIENT_SECRET=${{ secrets.YANDEX_CLIENT_SECRET }}" >> .env
 
             sudo systemctl start training-tg-bot
             sudo systemctl status training-tg-bot --no-pager
