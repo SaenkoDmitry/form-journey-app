@@ -119,7 +119,11 @@ const LibraryPage: React.FC = () => {
                             </div>
 
                             {ex.url && (
-                                <VideoPlayer url={ex.url}/>
+                                <div
+                                    onClick={(e) => e.stopPropagation()} // ← остановка всплытия клика
+                                >
+                                    <VideoPlayer url={ex.url}/>
+                                </div>
                             )}
                         </div>
                     </div>
