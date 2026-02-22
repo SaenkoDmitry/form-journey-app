@@ -1,12 +1,14 @@
-import { useLocation, useNavigate } from "react-router-dom";
-import React, { useEffect, useState } from "react";
-import { api } from "../api/client.ts";
+import {useLocation, useNavigate} from "react-router-dom";
+import React, {useEffect, useState} from "react";
+import {api} from "../api/client.ts";
 import Button from "../components/Button.tsx";
-import {ArrowLeft} from "lucide-react";
+import {ArrowLeft, Loader} from "lucide-react";
+import Toast from "../components/Toast.tsx";
 
 export default function ExerciseVideoPage() {
     const location = useLocation();
     const navigate = useNavigate();
+    const [toast, setToast] = useState<string | null>(null);
 
     const originalUrl = location.state?.videoUrl;
     const [videoUrl, setVideoUrl] = useState<string | null>(null);
@@ -28,6 +30,7 @@ export default function ExerciseVideoPage() {
                 setVideoUrl(data.url);
             } catch (e: any) {
                 setError(e.message || "Ошибка загрузки видео");
+                setToast("Ошибка загрузки видео 😢");
             } finally {
                 setLoading(false);
             }
@@ -36,11 +39,11 @@ export default function ExerciseVideoPage() {
         fetchVideoLink();
     }, [originalUrl]);
 
-    if (loading) return <div>Загрузка видео...</div>;
+    if (loading) return <Loader/>;
     if (error) return <div>{error}</div>;
 
     return (
-        <div style={{ padding: 16 }}>
+        <div style={{padding: 16}}>
             <Button variant={"ghost"}
                     onClick={() => navigate(-1)}
                     style={{marginBottom: 10}}
@@ -51,9 +54,11 @@ export default function ExerciseVideoPage() {
                     src={videoUrl}
                     controls
                     playsInline
-                    style={{ width: "100%", borderRadius: 12 }}
+                    style={{width: "100%", borderRadius: 12}}
                 />
             )}
+
+            {toast && <Toast message={toast} onClose={() => setToast(null)}/>}
         </div>
     );
 }
