@@ -22,6 +22,7 @@ import AuthTelegram from "./pages/AuthTelegram.tsx";
 import {UserIconProvider} from "./context/UserIconContext.tsx";
 import {ThemeProvider} from "./context/ThemeContext.tsx";
 import AuthYandex from "./pages/AuthYandex.tsx";
+import ExerciseVideoPage from "./pages/ExerciseVideoPage.tsx";
 
 const App = () => {
     return (
@@ -65,6 +66,13 @@ const App = () => {
                                         <MainLayout><StatsPage/></MainLayout>
                                     </RequireAuth>
                                 }
+                            />
+                            <Route path="/exercise-video"
+                                   element={
+                                       <RequireAuth>
+                                           <MainLayout><ExerciseVideoPage/></MainLayout>
+                                       </RequireAuth>
+                                   }
                             />
                             <Route
                                 path="/programs"

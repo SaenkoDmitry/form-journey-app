@@ -135,6 +135,13 @@ func initServer(container *usecase.Container, db *gorm.DB) {
 		r.Get("/", s.MeHandler)
 	})
 
+	// video
+	r.Route("/api/video", func(r chi.Router) {
+		r.Use(middlewares.Auth)
+		r.Get("/link", s.LinkVideo)
+	})
+	r.Get("/api/video/stream", s.StreamVideo)
+
 	r.Route("/api/users", func(r chi.Router) {
 		r.Use(middlewares.Auth)
 

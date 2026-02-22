@@ -92,6 +92,11 @@ type Service interface {
 
 	StartTimer(w http.ResponseWriter, r *http.Request)
 	CancelTimer(w http.ResponseWriter, r *http.Request)
+
+	// ----- video -----
+
+	StreamVideo(w http.ResponseWriter, r *http.Request)
+	LinkVideo(w http.ResponseWriter, r *http.Request)
 }
 
 type serviceImpl struct {

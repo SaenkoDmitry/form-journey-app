@@ -7,6 +7,7 @@ import Toast from "./Toast.tsx";
 import "../styles/workout.css";
 import {deleteExercise} from "../api/exercises.ts";
 import {Plus, Trash2} from "lucide-react";
+import {Link} from "react-router-dom";
 
 export default function ExerciseView({session, onAllSetsCompleted, onReload}) {
     const [sets, setSets] = useState(session.exercise.sets);
@@ -160,9 +161,13 @@ export default function ExerciseView({session, onAllSetsCompleted, onReload}) {
                 </Button>
 
                 {ex.url && (
-                    <a className="exercise-card-view-link" href={ex.url}>
-                        Техника упражнения ↗
-                    </a>
+                    <Link
+                        className="exercise-card-view-link"
+                        to="/exercise-video"
+                        state={{videoUrl: ex.url}}
+                    >
+                        Техника упражнения
+                    </Link>
                 )}
             </div>
 

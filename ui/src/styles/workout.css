@@ -28,12 +28,6 @@
     word-break: break-word;
 }
 
-.exercise-card-view-link {
-    font-size: 13px;
-    text-decoration: underline;
-    padding: 16px 0 16px 0;
-}
-
 /* ============ CONTROLS ============ */
 
 .controls {
@@ -63,4 +57,17 @@
 
     font-weight: 600;
     font-size: 14px;
+}
+
+.exercise-card-view-link {
+    padding: 16px 0 16px 0;
+    display: inline-block;
+    margin-top: 8px;
+    color: #4da6ff;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.exercise-card-view-link:active {
+    opacity: 0.6;
 }
