@@ -6,8 +6,9 @@ import Button from "./Button.tsx";
 import Toast from "./Toast.tsx";
 import "../styles/workout.css";
 import {deleteExercise} from "../api/exercises.ts";
-import {Plus, Trash2} from "lucide-react";
+import {ArrowDown, ArrowUp, Loader, Plus, Trash2} from "lucide-react";
 import {Link} from "react-router-dom";
+import {api} from "../api/client.ts";
 
 export default function ExerciseView({session, onAllSetsCompleted, onReload}) {
     const [sets, setSets] = useState(session.exercise.sets);
@@ -15,11 +16,48 @@ export default function ExerciseView({session, onAllSetsCompleted, onReload}) {
 
     const [restTrigger, setRestTrigger] = useState(0);
 
+    // --- inline видео ---
+    const [videoUrl, setVideoUrl] = useState<string | null>(null);
+    const [videoLoading, setVideoLoading] = useState(false);
+    const [videoError, setVideoError] = useState<string | null>(null);
+    const [videoOpen, setVideoOpen] = useState(false);
+
+    const showError = () => setToast("Ошибка сервера 😢");
+
+    const fetchVideoUrl = async (originalUrl: string) => {
+        const CACHE_KEY = `video-${originalUrl}`;
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+            const { url, expires } = JSON.parse(cached);
+            if (Date.now() < expires) {
+                setVideoUrl(url);
+                return;
+            }
+        }
+
+        try {
+            setVideoLoading(true);
+            const data = await api<{ url: string }>(
+                `/api/video/link?url=${encodeURIComponent(originalUrl)}`
+            );
+            setVideoUrl(data.url);
+
+            localStorage.setItem(CACHE_KEY, JSON.stringify({
+                url: data.url,
+                expires: Date.now() + 4 * 60 * 1000 // кэш 4 минуты
+            }));
+        } catch (e: any) {
+            setVideoError(e.message || "Ошибка загрузки видео");
+            setToast("Ошибка загрузки видео 😢");
+        } finally {
+            setVideoLoading(false);
+        }
+    };
+
+    // --- useEffect на первоначальные подходы ---
     useEffect(() => {
         setSets(session.exercise.sets);
     }, [session.exercise.sets]);
-
-    const showError = () => setToast("Ошибка сервера 😢");
 
     // ---------- ADD ----------
     const handleAdd = async (exerciseID: number, lastSet: FormattedSet | null) => {
@@ -161,16 +199,33 @@ export default function ExerciseView({session, onAllSetsCompleted, onReload}) {
                 </Button>
 
                 {ex.url && (
-                    <Link
-                        className="exercise-card-view-link"
-                        to="/exercise-video"
-                        state={{videoUrl: ex.url}}
+                    <Button
+                        variant="ghost"
+                        style={{ marginTop: 8 }}
+                        onClick={() => {
+                            setVideoOpen(!videoOpen);
+                            if (!videoUrl) fetchVideoUrl(ex.url);
+                        }}
                     >
-                        Техника упражнения
-                    </Link>
+                        {videoOpen ? <ArrowUp /> : <ArrowDown />} Техника упражнения
+                    </Button>
                 )}
             </div>
 
+            {videoOpen && (
+                <div style={{ marginTop: 8, padding: 8, borderRadius: 8, border: "1px solid #eee" }}>
+                    {videoLoading && <Loader />}
+                    {videoError && <div>{videoError}</div>}
+                    {videoUrl && !videoLoading && (
+                        <video
+                            src={videoUrl}
+                            controls
+                            playsInline
+                            style={{ width: "100%", borderRadius: 12 }}
+                        />
+                    )}
+                </div>
+            )}
 
             <div className="sets">
                 {sets.map((s, i) => (
