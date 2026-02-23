@@ -119,6 +119,7 @@ func (s *serviceImpl) isAllowedOrigin(origin string) bool {
 	allowed := []string{
 		"http://localhost:3000",
 		"https://form-journey.ru",
+		"https://96737811-dd90-496f-ac88-15158530e662-e1.tunnel4.com",
 	}
 
 	for _, o := range allowed {

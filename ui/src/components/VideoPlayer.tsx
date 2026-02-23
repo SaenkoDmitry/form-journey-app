@@ -15,7 +15,7 @@ export default function VideoPlayer({url}: VideoPlayerProps) {
     }, []);
 
     return (
-        <div style={{marginTop: 8, padding: 8, borderRadius: 8, border: "1px solid #eee"}}>
+        <div style={{marginTop: 8, borderRadius: 8}}>
             {loading && <Loader/>}
             {error && <div>{error}</div>}
             {videoUrl && !loading && (
