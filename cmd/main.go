@@ -164,6 +164,7 @@ func initServer(container *usecase.Container, db *gorm.DB) {
 
 		r.Get("/{workout_id}", s.ShowCurrentExerciseSession)
 		r.Post("/{workout_id}", s.MoveToExerciseSession)
+		r.Post("/{workout_id}/set-index/{index}", s.MoveToCertainExerciseSession)
 	})
 
 	r.Route("/api/measurements", func(r chi.Router) {

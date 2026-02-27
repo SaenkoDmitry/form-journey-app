@@ -12,3 +12,8 @@ export const moveToExerciseSession = (workoutID: number, next: boolean) =>
             next: next,
         }),
     });
+
+export const moveToCertainExerciseSession = (workoutID: number, index: number) =>
+    api<{}>(`/api/sessions/${workoutID}/set-index/${index}`, {
+        method: "POST",
+    });

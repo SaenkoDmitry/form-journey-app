@@ -4,6 +4,7 @@ import SafeTextRenderer from "../components/SafeTextRenderer.tsx";
 import {Loader, Play, Plus} from "lucide-react";
 import Button from "../components/Button.tsx";
 import {getWorkout} from "../api/workouts.ts";
+import {moveToCertainExerciseSession} from "../api/sessions.ts";
 
 const WorkoutPage = () => {
     const {id} = useParams<{ id: number }>();
@@ -75,6 +76,15 @@ const WorkoutPage = () => {
                          borderRadius: "8px",
                          padding: "1rem",
                          marginBottom: "0.5rem",
+                     }}
+                     onClick={(e) => {
+                         if (workout.completed) {
+                             e.stopPropagation();
+                             return;
+                         }
+                         moveToCertainExerciseSession(workout.id, ex.index).then(() => {
+                             navigate(`/sessions/${data?.progress.workout.id}`);
+                         });
                      }}
                 >
                     <div className={"card-header"}>{ex.name}</div>

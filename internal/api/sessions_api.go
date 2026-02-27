@@ -75,3 +75,35 @@ func (s *serviceImpl) MoveToExerciseSession(w http.ResponseWriter, r *http.Reque
 	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte("{}"))
 }
+
+func (s *serviceImpl) MoveToCertainExerciseSession(w http.ResponseWriter, r *http.Request) {
+	claims, ok := middlewares.FromContext(r.Context())
+	if !ok {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	workoutID, err := helpers.ParseInt64Param("workout_id", w, r)
+	if err != nil {
+		return
+	}
+
+	index, err := helpers.ParseInt64Param("index", w, r)
+	if err != nil {
+		return
+	}
+
+	if err = validator.ValidateAccessToWorkout(s.container, claims.UserID, workoutID); err != nil {
+		helpers.WriteError(w, err)
+		return
+	}
+
+	err = s.container.MoveToCertainUC.Execute(workoutID, int(index))
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte("{}"))
+}

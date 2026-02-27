@@ -70,6 +70,7 @@ type Service interface {
 
 	ShowCurrentExerciseSession(w http.ResponseWriter, r *http.Request)
 	MoveToExerciseSession(w http.ResponseWriter, r *http.Request)
+	MoveToCertainExerciseSession(w http.ResponseWriter, r *http.Request)
 
 	// ----- sets -----
 

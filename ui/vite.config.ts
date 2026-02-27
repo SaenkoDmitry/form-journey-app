@@ -54,7 +54,7 @@ export default defineConfig({
         allowedHosts: [
             'localhost',
             '127.0.0.1',
-            '03fe9dd31d0fe0.lhr.life',
+            '9fea49d497091b.lhr.life',
             // 'https://20ef4d5c-6c81-4acf-9691-86961b36788f-e1.tunnel4.com',
         ],
         proxy: {

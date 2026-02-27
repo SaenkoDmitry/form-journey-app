@@ -99,6 +99,7 @@ type Container struct {
 
 	// sessions
 	MoveSessionToExerciseUC *sessionusecases.MoveToUseCase
+	MoveToCertainUC         *sessionusecases.MoveToCertainUseCase
 
 	// users
 	CreateUserUC  *userusecases.CreateUseCase
@@ -211,6 +212,7 @@ func NewContainer(db *gorm.DB) *Container {
 		ShowCurrentExerciseSessionUC: sessionusecases.NewShowCurrentExerciseUseCase(
 			workoutsRepo, sessionsRepo, exerciseTypesRepo, dayTypesRepo, exerciseGroupTypesRepo),
 		MoveSessionToExerciseUC: sessionusecases.NewMoveToExerciseUseCase(sessionsRepo, exercisesRepo),
+		MoveToCertainUC:         sessionusecases.NewMoveToCertainUseCase(sessionsRepo, exercisesRepo),
 
 		// users
 		CreateUserUC:  userusecases.NewCreateUseCase(usersRepo, programsRepo),
