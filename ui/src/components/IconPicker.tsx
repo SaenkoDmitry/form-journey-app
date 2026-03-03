@@ -23,7 +23,12 @@ import {
     Squirrel,
     Star,
     Sun,
-    UserRound
+    UserRound,
+    Rocket,
+    Fish,
+    TreePine,
+    HeartPulse,
+    Magnet,
 } from "lucide-react";
 
 export const ICONS = {
@@ -51,6 +56,11 @@ export const ICONS = {
     ChessKing,
     ChessQueen,
     Bus,
+    Rocket,
+    Fish,
+    TreePine,
+    HeartPulse,
+    Magnet,
 };
 
 export type IconName = keyof typeof ICONS;
