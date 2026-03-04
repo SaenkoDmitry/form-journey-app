@@ -239,19 +239,6 @@ const ProfilePage: React.FC = () => {
                         )}
                     </div>
 
-                    <Button
-                        variant="danger"
-                        onClick={logout}
-                        style={{
-                            width: "100%",
-                            height: 48,
-                            fontSize: 16,
-                            borderRadius: 14,
-                        }}
-                    >
-                        <LogOut/> Выйти из аккаунта
-                    </Button>
-
                     {!checking && (
                         <Button
                             variant={notificationsEnabled ? "ghost" : "active"}
@@ -285,6 +272,19 @@ const ProfilePage: React.FC = () => {
                             <Download size={16}/> Статистика тренировок (Excel)
                         </Button>
                     )}
+
+                    <Button
+                        variant="danger"
+                        onClick={logout}
+                        style={{
+                            width: "100%",
+                            height: 48,
+                            fontSize: 16,
+                            borderRadius: 14,
+                        }}
+                    >
+                        <LogOut/> Выйти из аккаунта
+                    </Button>
 
                     {toast && <Toast message={toast} onClose={() => setToast(null)}/>}
 
