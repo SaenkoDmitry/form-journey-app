@@ -154,7 +154,7 @@ func NewContainer(db *gorm.DB) *Container {
 		ConfirmFinishWorkoutUC: workoutusecases.NewConfirmFinishUseCase(workoutsRepo, dayTypesRepo),
 		FinishWorkoutUC:        workoutusecases.NewFinishUseCase(workoutsRepo, sessionsRepo),
 		FindWorkoutsByUserUC:   workoutusecases.NewFindByUserUseCase(workoutsRepo, usersRepo),
-		StatsWorkoutUC:         workoutusecases.NewStatsUseCase(workoutsRepo, dayTypesRepo, exerciseTypesRepo),
+		StatsWorkoutUC:         workoutusecases.NewStatsUseCase(workoutsRepo, dayTypesRepo, exerciseTypesRepo, exerciseGroupTypesRepo),
 
 		// exercises
 		ExerciseTypeListUC:      exerciseusecases.NewExerciseTypeListUseCase(exerciseTypesRepo),

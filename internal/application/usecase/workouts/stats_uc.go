@@ -2,23 +2,30 @@ package workouts
 
 import (
 	"github.com/SaenkoDmitry/training-tg-bot/internal/application/dto"
-	"github.com/SaenkoDmitry/training-tg-bot/internal/models"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/daytypes"
+	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/exercisegrouptypes"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/exercisetypes"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/repository/workouts"
 )
 
 type StatsUseCase struct {
-	workoutsRepo      workouts.Repo
-	dayTypesRepo      daytypes.Repo
-	exerciseTypesRepo exercisetypes.Repo
+	workoutsRepo           workouts.Repo
+	dayTypesRepo           daytypes.Repo
+	exerciseTypesRepo      exercisetypes.Repo
+	exerciseGroupTypesRepo exercisegrouptypes.Repo
 }
 
-func NewStatsUseCase(workoutsRepo workouts.Repo, dayTypesRepo daytypes.Repo, exerciseTypesRepo exercisetypes.Repo) *StatsUseCase {
+func NewStatsUseCase(
+	workoutsRepo workouts.Repo,
+	dayTypesRepo daytypes.Repo,
+	exerciseTypesRepo exercisetypes.Repo,
+	exerciseGroupTypesRepo exercisegrouptypes.Repo,
+) *StatsUseCase {
 	return &StatsUseCase{
-		workoutsRepo:      workoutsRepo,
-		dayTypesRepo:      dayTypesRepo,
-		exerciseTypesRepo: exerciseTypesRepo,
+		workoutsRepo:           workoutsRepo,
+		dayTypesRepo:           dayTypesRepo,
+		exerciseTypesRepo:      exerciseTypesRepo,
+		exerciseGroupTypesRepo: exerciseGroupTypesRepo,
 	}
 }
 
@@ -41,16 +48,22 @@ func (uc *StatsUseCase) Execute(workoutID int64) (*dto.WorkoutStatistic, error) 
 	completedExercises := 0
 	cardioTime := 0
 
-	exerciseTypesMap := make(map[int64]models.ExerciseType)
+	exercisesMap := make(map[int64]*dto.FormattedExercise)
 	exerciseWeightMap := make(map[int64]float64)
 	exerciseTimeMap := make(map[int64]int)
 
+	groups, err := uc.exerciseGroupTypesRepo.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	groupsMap := make(map[string]string)
+	for _, v := range groups {
+		groupsMap[v.Code] = v.Name
+	}
+
 	for _, exercise := range workoutDay.Exercises {
-		exerciseObj, getErr := uc.exerciseTypesRepo.Get(exercise.ExerciseTypeID)
-		if getErr != nil {
-			continue
-		}
-		exerciseTypesMap[exercise.ExerciseTypeID] = exerciseObj
+		exercisesMap[exercise.ID] = dto.MapToFormattedExercise(exercise, groupsMap)
 
 		completedExercises++
 		exerciseTime := 0
@@ -74,7 +87,7 @@ func (uc *StatsUseCase) Execute(workoutID int64) (*dto.WorkoutStatistic, error) 
 	return &dto.WorkoutStatistic{
 		WorkoutDay:         workoutDay,
 		DayType:            dayType,
-		ExerciseTypesMap:   exerciseTypesMap,
+		ExerciseMap:        exercisesMap,
 		ExerciseWeightMap:  exerciseWeightMap,
 		ExerciseTimeMap:    exerciseTimeMap,
 		TotalWeight:        totalWeight,

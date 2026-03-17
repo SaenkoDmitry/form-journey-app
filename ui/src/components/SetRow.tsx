@@ -18,6 +18,7 @@ export default function SetRow({ set, index, onDelete, onComplete, onChange }: P
     return (
         <div className={`set-row ${set.completed ? "done" : ""}`}>
             <div className="set-index">{index + 1}</div>
+            <Button variant={"active"} onClick={onComplete}><Check size={10}/></Button>
 
             {set.reps > 0 && (
                 <EditableValue
@@ -68,7 +69,6 @@ export default function SetRow({ set, index, onDelete, onComplete, onChange }: P
             )}
 
             <div className="set-actions">
-                <Button variant={"active"} onClick={onComplete}><Check size={10}/></Button>
                 <Button variant={"danger"} onClick={onDelete}><X size={10}/></Button>
             </div>
         </div>

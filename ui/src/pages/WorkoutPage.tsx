@@ -79,10 +79,46 @@ const WorkoutPage = () => {
             <div>
                 {stats.cardio_time > 0 && <p><strong>🫀 Время кардио:</strong> {stats.cardio_time} мин</p>}
                 {stats.total_weight > 0 && <p><strong>🏋 Общий вес:</strong> {stats.total_weight} кг</p>}
-                {stats.exercise_types_map && <strong>Группы мышц:</strong>}
-                {stats.exercise_types_map && [...new Set(
-                    Object.values(stats.exercise_types_map).map(ex => ex.exercise_group_type_code)
-                )].map(code => <p key={code}> • {groupsMap[code]?.name}</p>)}
+                {stats.exercise_map && <strong>Группы мышц:</strong>}
+                {stats.exercise_map && [...new Set(
+                    Object.values(stats.exercise_map).map(ex => ex.group_name)
+                )].map(groupName => {
+                    // Фильтруем упражнения этой группы
+                    const exercisesInGroup = Object.values(stats.exercise_map).filter(
+                        ex => ex.group_name === groupName
+                    );
+
+                    console.log('exercisesInGroup', exercisesInGroup)
+                    console.log('stats.exercise_weight_map', stats.exercise_weight_map)
+                    console.log('stats.exercise_time_map', stats.exercise_time_map)
+
+                    // Кол-во упражнений
+                    const exerciseCount = exercisesInGroup.length;
+
+                    // Общий вес или время
+                    let totalWeight = 0;
+                    let totalTime = 0;
+
+                    exercisesInGroup.forEach(ex => {
+                        const exId = ex.id;
+                        if (stats.exercise_weight_map[exId]) {
+                            totalWeight += stats.exercise_weight_map[exId];
+                        }
+                        if (stats.exercise_time_map[exId]) {
+                            totalTime += stats.exercise_time_map[exId];
+                        }
+                    });
+
+                    console.log('totalWeight', totalWeight, 'totalTime', totalTime)
+
+                    return (
+                        <p key={groupName}>
+                            • {groupName} — {exerciseCount} упражн{exerciseCount > 1 ? 'ений' : 'ение'},
+                            {totalWeight > 0 ? ` общий вес: ${totalWeight} кг` : ''}
+                            {totalTime > 0 ? ` общее время: ${totalTime} мин` : ''}
+                        </p>
+                    );
+                })}
             </div>
         </div>}
 

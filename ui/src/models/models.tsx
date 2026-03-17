@@ -80,7 +80,7 @@ interface WorkoutStatistic {
     total_weight: number;
     completed_exercises: number;
     cardio_time: number; // в минутах
-    exercise_types_map: Record<number, ExerciseType>;
+    exercise_map: Record<number, FormattedExercise>;
     exercise_weight_map: Record<number, number>;
     exercise_time_map: Record<number, number>;
 }

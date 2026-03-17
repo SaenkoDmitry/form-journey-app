@@ -167,14 +167,14 @@ type WorkoutProgress struct {
 }
 
 type WorkoutStatistic struct {
-	DayType            models.WorkoutDayType         `json:"day_type"`
-	WorkoutDay         models.WorkoutDay             `json:"workout_day"`
-	TotalWeight        float64                       `json:"total_weight"`
-	CompletedExercises int                           `json:"completed_exercises"`
-	CardioTime         int                           `json:"cardio_time"`
-	ExerciseTypesMap   map[int64]models.ExerciseType `json:"exercise_types_map"`
-	ExerciseWeightMap  map[int64]float64             `json:"exercise_weight_map"`
-	ExerciseTimeMap    map[int64]int                 `json:"exercise_time_map"`
+	DayType            models.WorkoutDayType        `json:"day_type"`
+	WorkoutDay         models.WorkoutDay            `json:"workout_day"`
+	TotalWeight        float64                      `json:"total_weight"`
+	CompletedExercises int                          `json:"completed_exercises"`
+	CardioTime         int                          `json:"cardio_time"`
+	ExerciseMap        map[int64]*FormattedExercise `json:"exercise_map"`
+	ExerciseWeightMap  map[int64]float64            `json:"exercise_weight_map"`
+	ExerciseTimeMap    map[int64]int                `json:"exercise_time_map"`
 }
 
 type ShowWorkoutByUserID struct {

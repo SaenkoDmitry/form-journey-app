@@ -253,7 +253,7 @@ func (p *Presenter) ShowStats(chatID int64, res *dto.WorkoutStatistic) {
 	totalWeight := res.TotalWeight
 	totalTime := res.CardioTime
 
-	exerciseTypesMap := res.ExerciseTypesMap
+	exerciseTypesMap := res.ExerciseMap
 	exerciseWeightMap := res.ExerciseWeightMap
 	exerciseTimeMap := res.ExerciseTimeMap
 
