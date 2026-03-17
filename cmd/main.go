@@ -45,12 +45,22 @@ func main() {
 		return
 	}
 
+	go func() {
+		for {
+			if err := app.Run(); err != nil {
+				log.Printf("Telegram bot crashed: %v, reconnecting in 10s...", err)
+				time.Sleep(10 * time.Second)
+			} else {
+				log.Println("Telegram bot stopped gracefully, reconnecting in 10s...")
+				time.Sleep(10 * time.Second)
+			}
+		}
+	}()
+
 	go initServer(container, db)
 
-	// run telegram app
-	if err = app.Run(); err != nil {
-		log.Panic(err)
-	}
+	// главная горутина блокируется навсегда
+	select {}
 }
 
 func initDB(dsn string) *gorm.DB {
