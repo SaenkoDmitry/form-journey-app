@@ -40,19 +40,24 @@ func main() {
 	container := usecase.NewContainer(db)
 
 	// init telegram app
-	app, err := telegram.New(token, container)
-	if err != nil {
-		return
-	}
-
+	var app *telegram.App
 	go func() {
 		for {
-			if err := app.Run(); err != nil {
-				log.Printf("Telegram bot crashed: %v, reconnecting in 10s...", err)
+			var err error
+			app, err = telegram.New(token, container)
+			if err != nil {
+				log.Printf("Telegram bot init failed: %v. Reconnecting in 10s...", err)
 				time.Sleep(10 * time.Second)
-			} else {
-				log.Println("Telegram bot stopped gracefully, reconnecting in 10s...")
-				time.Sleep(10 * time.Second)
+				continue
+			}
+			log.Println("Telegram bot initialized successfully")
+
+			// Запуск обработки обновлений Telegram
+			for {
+				if err := app.Run(); err != nil {
+					log.Printf("Telegram bot crashed: %v. Reconnecting in 10s...", err)
+					time.Sleep(10 * time.Second)
+				}
 			}
 		}
 	}()
