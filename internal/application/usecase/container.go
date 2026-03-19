@@ -64,7 +64,8 @@ type Container struct {
 	ExportMeasurementsToExcelUC *exportusecases.ExportMeasurementsToExcelUseCase
 
 	// stats
-	PeriodStatsUC *statsusecases.GetPeriodStatsUseCase
+	PeriodStatsUC   *statsusecases.GetPeriodStatsUseCase
+	ExerciseStatsUC *statsusecases.GetExercisesStatsUseCase
 
 	// sets
 	CompleteLastSetUC *setusecases.CompleteLastUseCase
@@ -175,7 +176,8 @@ func NewContainer(db *gorm.DB) *Container {
 		ExportMeasurementsToExcelUC: exportusecases.NewExportMeasurementsToExcelUseCase(usersRepo, measurementsRepo, docGeneratorService),
 
 		// stats
-		PeriodStatsUC: statsusecases.NewGetPeriodStatsUseCase(usersRepo, workoutsRepo),
+		PeriodStatsUC:   statsusecases.NewGetPeriodStatsUseCase(usersRepo, workoutsRepo),
+		ExerciseStatsUC: statsusecases.NewGetExercisesStatsUseCase(usersRepo, exercisesRepo),
 
 		// sets
 		CompleteLastSetUC: setusecases.NewCompleteLastUseCase(setsRepo, exercisesRepo, exerciseTypesRepo),

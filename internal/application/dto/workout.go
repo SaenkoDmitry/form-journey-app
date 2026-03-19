@@ -1,9 +1,10 @@
 package dto
 
 import (
+	"time"
+
 	"github.com/SaenkoDmitry/training-tg-bot/internal/models"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/utils"
-	"time"
 )
 
 type WorkoutItem struct {
@@ -87,24 +88,7 @@ func MapToFormattedExercise(ex models.Exercise, groupsMap map[string]string) *Fo
 		if s.Completed {
 			sumWeight += s.GetRealWeight() * float32(s.GetRealReps())
 		}
-		newSet := &FormattedSet{
-			ID:              s.ID,
-			Reps:            s.Reps,
-			FactReps:        s.FactReps,
-			Weight:          s.Weight,
-			FactWeight:      s.FactWeight,
-			Minutes:         s.Minutes,
-			FactMinutes:     s.FactMinutes,
-			Meters:          s.Meters,
-			FactMeters:      s.FactMeters,
-			FormattedString: s.String(ex.WorkoutDay.Completed),
-			Completed:       s.Completed,
-			Index:           s.Index,
-		}
-		if s.CompletedAt != nil {
-			newSet.CompletedAt = s.CompletedAt.Add(3 * time.Hour).Format("15:04:05")
-		}
-		sets = append(sets, newSet)
+		sets = append(sets, MapToFormattedSet(s, ex))
 	}
 	return &FormattedExercise{
 		ID:            ex.ID,
@@ -119,6 +103,27 @@ func MapToFormattedExercise(ex models.Exercise, groupsMap map[string]string) *Fo
 		Index:         ex.Index,
 		Sets:          sets,
 	}
+}
+
+func MapToFormattedSet(s models.Set, ex models.Exercise) *FormattedSet {
+	newSet := &FormattedSet{
+		ID:              s.ID,
+		Reps:            s.Reps,
+		FactReps:        s.FactReps,
+		Weight:          s.Weight,
+		FactWeight:      s.FactWeight,
+		Minutes:         s.Minutes,
+		FactMinutes:     s.FactMinutes,
+		Meters:          s.Meters,
+		FactMeters:      s.FactMeters,
+		FormattedString: s.String(ex.WorkoutDay.Completed),
+		Completed:       s.Completed,
+		Index:           s.Index,
+	}
+	if s.CompletedAt != nil {
+		newSet.CompletedAt = s.CompletedAt.Add(3 * time.Hour).Format("15:04:05")
+	}
+	return newSet
 }
 
 type FormattedExercise struct {

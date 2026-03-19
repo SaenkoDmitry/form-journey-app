@@ -10,7 +10,8 @@ import (
 type Repo interface {
 	Get(exerciseID int64) (models.Exercise, error)
 	FindAllByWorkoutID(workoutDayID int64) ([]models.Exercise, error)
-	FindAllByUserID(userID int64) ([]models.Exercise, error)
+	FindAllByUserIDAndExTypeID(userID int64, exerciseTypeID int64, offset, limit int) ([]models.Exercise, error)
+	CountByUserIDAndExTypeID(userID int64, exerciseTypeID int64) (int64, error)
 	DeleteByWorkout(workoutID int64) error
 	Delete(exerciseID int64) error
 	CreateBatch(exercises []models.Exercise) error
@@ -76,19 +77,36 @@ func (u *repoImpl) FindAllByWorkoutID(workoutDayID int64) ([]models.Exercise, er
 	return exercises, nil
 }
 
-func (u *repoImpl) FindAllByUserID(userID int64) ([]models.Exercise, error) {
+func (u *repoImpl) FindAllByUserIDAndExTypeID(userID int64, exerciseTypeID int64, offset, limit int) ([]models.Exercise, error) {
 	var exercises []models.Exercise
 
 	err := u.db.
 		Joins("JOIN workout_days ON workout_days.id = exercises.workout_day_id").
-		Where("workout_days.user_id = ?", userID).
+		Where("workout_days.user_id = ? AND exercise_type_id = ?", userID, exerciseTypeID).
 		Preload("ExerciseType").
+		Preload("WorkoutDay").
+		Preload("Sets.Exercise.ExerciseType").
 		Preload("Sets", func(db *gorm.DB) *gorm.DB {
 			return db.Order("sets.index ASC")
 		}).
+		Order("workout_days.started_at DESC").
+		Offset(offset).
+		Limit(limit).
 		Find(&exercises).Error
 
 	return exercises, err
+}
+
+func (u *repoImpl) CountByUserIDAndExTypeID(userID int64, exerciseTypeID int64) (int64, error) {
+	var count int64
+
+	err := u.db.
+		Joins("JOIN workout_days ON workout_days.id = exercises.workout_day_id").
+		Where("workout_days.user_id = ? AND exercise_type_id = ?", userID, exerciseTypeID).
+		Table("exercises").
+		Count(&count).Error
+
+	return count, err
 }
 
 func (u *repoImpl) FindPreviousByType(exerciseTypeID, activeProgramID int64) (models.Exercise, error) {

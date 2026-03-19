@@ -36,6 +36,18 @@ interface ExerciseType {
     description: string;
 }
 
+interface ExerciseStat {
+    id: number;
+    date: string;
+    sets?: FormattedSet[];
+}
+
+interface ExerciseStatsResponse {
+    items: ExerciseStat[];
+    // если у тебя есть total / has_more — добавь сюда
+    total?: number;
+}
+
 interface Set {
     ID: number;
     Reps: number;

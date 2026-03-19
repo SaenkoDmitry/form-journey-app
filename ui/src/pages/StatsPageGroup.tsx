@@ -12,7 +12,7 @@ const StatsPageGroup: React.FC = () => {
     const navigate = useNavigate();
     const [groupsMap, setGroupsMap] = useState<Record<string, Group>>({});
     const {groupCode} = useParams();
-    const [exercises, setExercises] = useState<ExerciseType[]>([]);
+    const [exerciseTypes, setExerciseTypes] = useState<ExerciseType[]>([]);
 
     useEffect(() => {
         if (!groupCode) return;
@@ -31,7 +31,7 @@ const StatsPageGroup: React.FC = () => {
                     return acc;
                 }, {});
 
-                setExercises(exerciseTypes);
+                setExerciseTypes(exerciseTypes);
                 setGroupsMap(groupsMap);
 
             } catch (err: any) {
@@ -54,7 +54,7 @@ const StatsPageGroup: React.FC = () => {
 
                 {groupCode && <h1>Динамика: {groupsMap[groupCode].name}</h1>}
 
-                {exercises.map(ex => <Button
+                {exerciseTypes.map(ex => <Button
                         variant="ghost"
                         onClick={() => navigate(`/statistics/${groupCode}/exercise/${ex.id}`)}>
                         {ex.name}

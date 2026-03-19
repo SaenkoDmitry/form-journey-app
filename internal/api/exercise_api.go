@@ -73,18 +73,19 @@ func (s *serviceImpl) GetExerciseStatsByUser(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	exerciseID, err := helpers.ParseInt64Param("exercise_id", w, r)
+	exerciseTypeID, err := helpers.ParseInt64Param("exercise_type_id", w, r)
 	if err != nil {
 		return
 	}
 
-	_ = exerciseID
-	_ = claims
+	offset, limit := helpers.GetOffsetLimit(r, 10, 50)
 
-	//if _, err := s.container.GetExerciseUC.Execute(input.WorkoutID, input.ExerciseTypeID); err != nil {
-	//	return
-	//}
+	result, err := s.container.ExerciseStatsUC.Execute(claims.UserID, exerciseTypeID, offset, limit)
+	if err != nil {
+		return
+	}
 
+	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
-	w.Write([]byte("{}"))
+	json.NewEncoder(w).Encode(result)
 }

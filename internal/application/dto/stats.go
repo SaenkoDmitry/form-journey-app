@@ -10,3 +10,14 @@ type PeriodStats struct {
 	IsWeek            bool
 	IsMonth           bool
 }
+
+type ExercisesStats struct {
+	Items []*ExerciseStat `json:"items"`
+	Total int64           `json:"total"`
+}
+
+type ExerciseStat struct {
+	ID   int64           `json:"id"`
+	Date string          `json:"date"`
+	Sets []*FormattedSet `json:"sets"`
+}

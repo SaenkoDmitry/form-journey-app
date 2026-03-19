@@ -45,15 +45,15 @@ func (s *Set) String(done bool) string {
 			text.WriteString("🚀 ")
 		}
 	}
-	if s.Exercise.ExerciseType.ContainsMeters() {
+	if s.Exercise != nil && s.Exercise.ExerciseType != nil && s.Exercise.ExerciseType.ContainsMeters() {
 		text.WriteString(fmt.Sprintf("%s метров", s.FormatMeters()))
 	}
-	if s.Exercise.ExerciseType.ContainsMinutes() {
+	if s.Exercise != nil && s.Exercise.ExerciseType != nil && s.Exercise.ExerciseType.ContainsMinutes() {
 		text.WriteString(fmt.Sprintf("%s минут", s.FormatMinutes()))
 	}
-	if s.Exercise.ExerciseType.ContainsReps() && s.Exercise.ExerciseType.ContainsWeight() {
+	if s.Exercise != nil && s.Exercise.ExerciseType != nil && s.Exercise.ExerciseType.ContainsReps() && s.Exercise.ExerciseType.ContainsWeight() {
 		text.WriteString(fmt.Sprintf("%s повт. * %s кг", s.FormatReps(), s.FormatWeight()))
-	} else if s.Exercise.ExerciseType.ContainsReps() {
+	} else if s.Exercise != nil && s.Exercise.ExerciseType != nil && s.Exercise.ExerciseType.ContainsReps() {
 		text.WriteString(fmt.Sprintf("%s повт.", s.FormatReps()))
 	}
 	if s.Completed {

@@ -18,7 +18,7 @@ const StatsPage: React.FC = () => {
                 const data = await getExerciseGroups();
                 setGroups(data);
             } catch (e) {
-                alert("Ошибка загрузки групп");
+                setToast("Ошибка загрузки групп ❌");
             } finally {
                 setLoading(false);
             }
