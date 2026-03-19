@@ -207,9 +207,9 @@ const StatsPageGroupExercise: React.FC = () => {
                 )}
 
                 <div style={{display: "flex", gap: 4}}>
-                    <Button variant="ghost" onClick={() => setMetric("max")}>Макс</Button>
-                    <Button variant="ghost" onClick={() => setMetric("avg")}>Средний</Button>
-                    <Button variant="ghost" onClick={() => setMetric("volume")}>Объём</Button>
+                    <Button variant="primary" onClick={() => setMetric("max")}>Макс</Button>
+                    <Button variant="primary" onClick={() => setMetric("avg")}>Средний</Button>
+                    <Button variant="primary" onClick={() => setMetric("volume")}>Объём</Button>
                 </div>
 
                 {chartData.length > 0 && (
