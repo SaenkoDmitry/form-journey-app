@@ -1,22 +1,10 @@
-import { CalendarRange, Loader } from "lucide-react";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import {CalendarRange, Loader} from "lucide-react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import Toast from "../components/Toast.tsx";
-import {
-    getExerciseGroups,
-    getExerciseStats,
-    getExerciseTypesByGroup,
-} from "../api/exercises.ts";
-import { useParams } from "react-router-dom";
+import {getExerciseGroups, getExerciseStats, getExerciseTypesByGroup,} from "../api/exercises.ts";
+import {useParams} from "react-router-dom";
 
-import {
-    CartesianGrid,
-    Line,
-    LineChart,
-    ResponsiveContainer,
-    Tooltip,
-    XAxis,
-    YAxis
-} from "recharts";
+import {CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts";
 
 import SafeTextRenderer from "../components/SafeTextRenderer.tsx";
 import Button from "../components/Button.tsx";
@@ -26,7 +14,7 @@ const LIMIT = 10;
 type MetricType = "max" | "avg" | "volume";
 
 const StatsPageGroupExercise: React.FC = () => {
-    const { groupCode, exerciseID } = useParams();
+    const {groupCode, exerciseID} = useParams();
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -175,34 +163,40 @@ const StatsPageGroupExercise: React.FC = () => {
             });
         };
 
-        window.addEventListener("scroll", handleScroll, { passive: true });
+        window.addEventListener("scroll", handleScroll, {passive: true});
 
         return () => {
             window.removeEventListener("scroll", handleScroll);
         };
     }, [loadStats]);
 
+    function calcMaxWeight(sets: FormattedSet[]): number {
+        const weights = sets.map(s => s.fact_weight || s.weight || 0).filter(Boolean);
+        return weights.length ? Math.max(...weights) : 0;
+    }
+
+    function calcAvgWeight(sets: FormattedSet[]): number {
+        const weights = sets.map(s => s.fact_weight || s.weight || 0).filter(Boolean);
+        return weights.length ? weights.reduce((a, b) => a + b, 0) / weights.length : 0;
+    }
+
+    function calcVolume(sets: FormattedSet[]): number {
+        return sets.reduce((sum, s) => {
+            const w = s.fact_weight || s.weight || 0;
+            const r = s.fact_reps || s.reps || 0;
+            return sum + w * r;
+        }, 0)
+    }
+
     // =========================
     // 📈 chart data
     // =========================
     const chartData = stats.map(stat => {
-        const sets = stat.sets || [];
+        const sets: FormattedSet[] = stat.sets || [];
 
-        const weights = sets
-            .map(s => s.fact_weight || s.weight || 0)
-            .filter(Boolean);
-
-        const maxWeight = weights.length ? Math.max(...weights) : 0;
-
-        const avgWeight = weights.length
-            ? weights.reduce((a, b) => a + b, 0) / weights.length
-            : 0;
-
-        const volume = sets.reduce((sum, s) => {
-            const w = s.fact_weight || s.weight || 0;
-            const r = s.fact_reps || s.reps || 0;
-            return sum + w * r;
-        }, 0);
+        const maxWeight = calcMaxWeight(sets);
+        const avgWeight = calcAvgWeight(sets);
+        const volume = calcVolume(sets);
 
         return {
             date: stat.date,
@@ -213,15 +207,15 @@ const StatsPageGroupExercise: React.FC = () => {
     }).reverse();
 
     const metricMap = {
-        max: { key: "maxWeight", label: "Макс вес" },
-        avg: { key: "avgWeight", label: "Средний вес" },
-        volume: { key: "volume", label: "Объём" }
+        max: {key: "maxWeight", label: "Макс вес"},
+        avg: {key: "avgWeight", label: "Средний вес"},
+        volume: {key: "volume", label: "Объём"}
     };
 
     const currentMetric = metricMap[metric];
 
-    if (loading) return <Loader />;
-    if (error) return <p style={{ color: "red" }}>{error}</p>;
+    if (loading) return <Loader/>;
+    if (error) return <p style={{color: "red"}}>{error}</p>;
 
     const exerciseName = exercisesMap[Number(exerciseID)]?.name;
 
@@ -231,12 +225,12 @@ const StatsPageGroupExercise: React.FC = () => {
             <h1>Динамика: {groupsMap[groupCode!]?.name}</h1>
 
             {exerciseName && (
-                <div style={{ color: "var(--color-text-muted)" }}>
+                <div style={{color: "var(--color-text-muted)"}}>
                     <b>{exerciseName}</b>
                 </div>
             )}
 
-            <div style={{ display: "flex", gap: 6 }}>
+            <div style={{display: "flex", gap: 6}}>
                 {(["max", "avg", "volume"] as MetricType[]).map(m => (
                     <Button key={m} variant={"primary"} onClick={() => setMetric(m)}>
                         {metricMap[m].label}
@@ -245,75 +239,82 @@ const StatsPageGroupExercise: React.FC = () => {
             </div>
 
             {chartData.length > 0 && (
-                <div style={{ width: "100%", height: 300 }}>
+                <div style={{width: "100%", height: 300}}>
                     <ResponsiveContainer>
                         <LineChart data={chartData}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="date" />
-                            <YAxis />
-                            <Tooltip />
-                            <Line dataKey={currentMetric.key} />
+                            <CartesianGrid strokeDasharray="3 3"/>
+                            <XAxis dataKey="date"/>
+                            <YAxis/>
+                            <Tooltip/>
+                            <Line dataKey={currentMetric.key}/>
                         </LineChart>
                     </ResponsiveContainer>
                 </div>
             )}
 
-                <div className="stack">
-                    {stats.map(stat => (
+            <div className="stack">
+                {stats.map(stat => (
+                    <div
+                        key={stat.id}
+                        className="card"
+                        style={{
+                            borderRadius: 12,
+                            overflow: "hidden",
+                            boxShadow: "0 2px 8px rgba(0,0,0,0.05)"
+                        }}
+                    >
                         <div
-                            key={stat.id}
-                            className="card"
                             style={{
-                                borderRadius: 12,
-                                overflow: "hidden",
-                                boxShadow: "0 2px 8px rgba(0,0,0,0.05)"
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 8,
+                                padding: "8px 12px",
+                                background: "var(--color-primary-soft)",
+                                borderRadius: 12
                             }}
                         >
-                            <div
-                                style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 8,
-                                    padding: "8px 12px",
-                                    background: "var(--color-primary-soft)",
-                                    borderBottom: "1px solid rgba(0,0,0,0.05)"
-                                }}
-                            >
-                                <CalendarRange size={18}/>
-                                <b style={{fontSize: 14}}>
-                                    {stat.date}
-                                </b>
-                            </div>
+                            <CalendarRange size={18}/>
+                            <b style={{fontSize: 14}}>
+                                {stat.date}
+                            </b>
+                        </div>
 
-                            <div style={{padding: 10}}>
-                                {stat.sets?.map((s, index) => (
-                                    <div
-                                        key={s.id}
-                                        style={{
-                                            padding: "6px 0",
-                                            borderBottom: index !== stat.sets.length - 1
-                                                ? "1px dashed rgba(0,0,0,0.06)"
-                                                : "none"
-                                        }}
-                                    >
-                                        <SafeTextRenderer html={s.formatted_string}/>
-                                    </div>
-                                ))}
+                        <div style={{padding: 10}}>
+                            {stat.sets?.map((s, index) => (
+                                <div
+                                    key={s.id}
+                                    style={{
+                                        padding: "6px 0",
+                                        borderBottom: index !== stat.sets.length - 1
+                                            ? "1px dashed rgba(0,0,0,0.06)"
+                                            : "none"
+                                    }}
+                                >
+                                    <SafeTextRenderer html={s.formatted_string}/>
+                                </div>
+                            ))}
+
+                            <hr/>
+                            <div style={{paddingTop: 8}}>
+                                Макс: {calcMaxWeight(stat.sets || [])} |
+                                Средний: {calcAvgWeight(stat.sets || [])} |
+                                Объем: {calcVolume(stat.sets || [])}
                             </div>
                         </div>
-                    ))}
-                </div>
+                    </div>
+                ))}
+            </div>
 
-            {statsLoading && <Loader />}
+            {statsLoading && <Loader/>}
 
             {!hasMore && (
-                <div style={{ textAlign: "center" }}>
-                    Всего: {total}
+                <div style={{textAlign: "center"}}>
+                    <b>Всего: {total}</b>
                 </div>
             )}
 
             {toast && (
-                <Toast message={toast} onClose={() => setToast(null)} />
+                <Toast message={toast} onClose={() => setToast(null)}/>
             )}
         </div>
     );

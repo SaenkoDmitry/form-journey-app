@@ -174,7 +174,7 @@ const Home: React.FC = () => {
 
             {pagination && pagination.total > 0 && (
                 <p>
-                    {Math.min(offsetRef.current, pagination.total)} из {pagination.total}
+                    <b>{Math.min(offsetRef.current, pagination.total)} из {pagination.total}</b>
                 </p>
             )}
         </div>
