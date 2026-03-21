@@ -56,7 +56,7 @@ const StatsPageGroup: React.FC = () => {
 
                 {exerciseTypes.map(ex => <Button
                         variant="ghost"
-                        onClick={() => navigate(`/statistics/${groupCode}/exercise/${ex.id}`)}>
+                        onClick={() => navigate(`/statistics/exercise-types/${groupCode}/exercise/${ex.id}`)}>
                         {ex.name}
                     </Button>
                 )}

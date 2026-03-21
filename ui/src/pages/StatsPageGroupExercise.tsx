@@ -232,7 +232,7 @@ const StatsPageGroupExercise: React.FC = () => {
 
             <div style={{display: "flex", gap: 6}}>
                 {(["max", "avg", "volume"] as MetricType[]).map(m => (
-                    <Button key={m} variant={"primary"} onClick={() => setMetric(m)}>
+                    <Button key={m} variant={metric === m ? "active" : "ghost"} onClick={() => setMetric(m)}>
                         {metricMap[m].label}
                     </Button>
                 ))}

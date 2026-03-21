@@ -191,6 +191,7 @@ func initServer(container *usecase.Container, db *gorm.DB) {
 		r.Use(middlewares.Auth)
 
 		r.Get("/", s.GetMeasurements)
+		r.Get("/types", s.GetMeasurementTypes)
 		r.Post("/", s.CreateMeasurement)
 		r.Delete("/{id}", s.DeleteMeasurement)
 	})

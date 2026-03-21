@@ -11,3 +11,6 @@ export const deleteMeasurement = (id: number) =>
 
 export const getMeasurements = (offset, limit: number) =>
     api<FindWithOffsetLimitMeasurement>(`/api/measurements?offset=${offset}&limit=${limit}`);
+
+export const getMeasurementTypes = () =>
+    api<MeasurementTypeDTO[]>(`/api/measurements/types`);

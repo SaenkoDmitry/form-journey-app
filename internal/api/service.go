@@ -39,6 +39,7 @@ type Service interface {
 	// ----- measurements -----
 
 	GetMeasurements(w http.ResponseWriter, r *http.Request)
+	GetMeasurementTypes(w http.ResponseWriter, r *http.Request)
 	CreateMeasurement(w http.ResponseWriter, r *http.Request)
 	DeleteMeasurement(w http.ResponseWriter, r *http.Request)
 

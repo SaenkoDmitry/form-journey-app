@@ -24,6 +24,8 @@ import {ThemeProvider} from "./context/ThemeContext.tsx";
 import AuthYandex from "./pages/AuthYandex.tsx";
 import StatsPageGroup from "./pages/StatsPageGroup.tsx";
 import StatsPageGroupExercise from "./pages/StatsPageGroupExercise.tsx";
+import StatsPageSelectGroup from "./pages/StatsPageSelectGroup.tsx";
+import StatsPageMeasurement from "./pages/StatsPageMeasurement.tsx";
 
 const App = () => {
     return (
@@ -61,7 +63,15 @@ const App = () => {
                                 </RequireAuth>
                             }/>
                             <Route
-                                path="/statistics/:groupCode/exercise/:exerciseID"
+                                path="/statistics/exercise-groups"
+                                element={
+                                    <RequireAuth>
+                                        <MainLayout><StatsPageSelectGroup/></MainLayout>
+                                    </RequireAuth>
+                                }
+                            />
+                            <Route
+                                path="/statistics/exercise-types/:groupCode/exercise/:exerciseID"
                                 element={
                                     <RequireAuth>
                                         <MainLayout><StatsPageGroupExercise/></MainLayout>
@@ -69,10 +79,18 @@ const App = () => {
                                 }
                             />
                             <Route
-                                path="/statistics/:groupCode"
+                                path="/statistics/exercise-types/:groupCode"
                                 element={
                                     <RequireAuth>
                                         <MainLayout><StatsPageGroup/></MainLayout>
+                                    </RequireAuth>
+                                }
+                            />
+                            <Route
+                                path="/statistics/measurements"
+                                element={
+                                    <RequireAuth>
+                                        <MainLayout><StatsPageMeasurement/></MainLayout>
                                     </RequireAuth>
                                 }
                             />

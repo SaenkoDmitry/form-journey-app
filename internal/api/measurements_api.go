@@ -108,3 +108,47 @@ func (s *serviceImpl) CreateMeasurement(w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(result)
 }
+
+func (s *serviceImpl) GetMeasurementTypes(w http.ResponseWriter, r *http.Request) {
+	_, ok := middlewares.FromContext(r.Context())
+	if !ok {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	result := []*MeasurementTypeDTO{
+		{Code: ShouldersCode, Name: "Плечи"},
+		{Code: ChestCode, Name: "Грудь"},
+		{Code: LeftHandCode, Name: "Левая рука"},
+		{Code: RightHandCode, Name: "Правая рука"},
+		{Code: WaistCode, Name: "Талия"},
+		{Code: ButtocksCode, Name: "Ягодицы"},
+		{Code: LeftHipCode, Name: "Левое бедро"},
+		{Code: RightHipCode, Name: "Правое бедро"},
+		{Code: LeftCalfCode, Name: "Левая икра"},
+		{Code: RightCalfCode, Name: "Правая икра"},
+		{Code: WeightCode, Name: "Вес"},
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(result)
+}
+
+type MeasurementTypeDTO struct {
+	Code string `json:"code"`
+	Name string `json:"name"`
+}
+
+const (
+	ShouldersCode = "shoulders"
+	ChestCode     = "chest"
+	LeftHandCode  = "hand_left"
+	RightHandCode = "hand_right"
+	WaistCode     = "waist"
+	ButtocksCode  = "buttocks"
+	LeftHipCode   = "hip_left"
+	RightHipCode  = "hip_right"
+	LeftCalfCode  = "calf_left"
+	RightCalfCode = "calf_right"
+	WeightCode    = "weight"
+)

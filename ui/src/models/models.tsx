@@ -156,6 +156,11 @@ interface Measurement {
     weight: number;
 }
 
+interface MeasurementTypeDTO {
+    code: string;
+    name: string;
+}
+
 interface FindWithOffsetLimitMeasurement {
     items: Measurement[];
     count: number;
