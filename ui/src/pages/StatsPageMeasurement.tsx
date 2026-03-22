@@ -30,7 +30,6 @@ const StatsPageMeasurement: React.FC = () => {
     const [total, setTotal] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const [dataLoading, setDataLoading] = useState(false);
-    const [selectedCode, setSelectedCode] = useState<string | "all">("all");
 
     const offsetRef = useRef(0);
     const isFetchingRef = useRef(false);
@@ -153,7 +152,7 @@ const StatsPageMeasurement: React.FC = () => {
         hasMoreRef.current = true;
 
         loadData();
-    }, [loadData, selectedCode]);
+    }, [loadData]);
 
     // =========================
     // 📜 infinite scroll
@@ -190,22 +189,14 @@ const StatsPageMeasurement: React.FC = () => {
         .map(item => {
             const entry: any = {date: item.created_at || "—"};
 
-            if (selectedCode === "all") {
-                measurementTypes.forEach(m => {
-                    entry[m.code] = getValue(item, m.code);
-                });
-            } else {
-                entry[selectedCode] = getValue(item, selectedCode);
-            }
+            measurementTypes.forEach(m => {
+                entry[m.code] = getValue(item, m.code);
+            });
 
             return entry;
         })
         .filter(item => {
-            if (selectedCode === "all") {
-                return measurementTypes.some(m => item[m.code] != null);
-            } else {
-                return item[selectedCode] != null;
-            }
+            return measurementTypes.some(m => item[m.code] != null);
         })
         .reverse();
 
@@ -226,17 +217,15 @@ const StatsPageMeasurement: React.FC = () => {
                             <XAxis dataKey="date"/>
                             <YAxis/>
                             <Tooltip/>
-                            {selectedCode === "all"
-                                ? measurementTypes.map((m, idx) => visibleLines[m.code] && (
-                                    <Line
-                                        key={m.code}
-                                        type="monotone"
-                                        dataKey={m.code}
-                                        stroke={LINE_COLORS[idx % LINE_COLORS.length]}
-                                        strokeWidth={2}
-                                    />
-                                ))
-                                : <Line type="monotone" dataKey={selectedCode} stroke={LINE_COLORS[0]} strokeWidth={2} />}
+                            {measurementTypes.map((m, idx) => visibleLines[m.code] && (
+                                <Line
+                                    key={m.code}
+                                    type="monotone"
+                                    dataKey={m.code}
+                                    stroke={LINE_COLORS[idx % LINE_COLORS.length]}
+                                    strokeWidth={2}
+                                />
+                            ))}
                         </LineChart>
                     </ResponsiveContainer>
                 </div>
@@ -252,37 +241,22 @@ const StatsPageMeasurement: React.FC = () => {
                 marginTop: 8,
                 justifyContent: "flex-start"
             }}>
-                {selectedCode === "all"
-                    ? measurementTypes.map((m, idx) => (
-                        <Button
-                            key={m.code}
-                            variant={visibleLines[m.code] ? "ghost" : "ghost"}
-                            style={{ display: "flex", alignItems: "center", gap: 4, minWidth: 60 }}
-                            onClick={() => toggleLine(m.code)}
-                        >
-                            <div style={{
-                                width: 12,
-                                height: 12,
-                                backgroundColor: LINE_COLORS[idx % LINE_COLORS.length],
-                                borderRadius: 3
-                            }} />
-                            <span style={{ fontSize: 12 }}>{m.name}</span>
-                        </Button>
-                    ))
-                    : (
-                        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                            <div
-                                style={{
-                                    width: 16,
-                                    height: 16,
-                                    backgroundColor: LINE_COLORS[0],
-                                    borderRadius: 4
-                                }}
-                            />
-                            <span>{measurementsMap[selectedCode]?.name || selectedCode}</span>
-                        </div>
-                    )
-                }
+                {measurementTypes.map((m, idx) => (
+                    <Button
+                        key={m.code}
+                        variant={visibleLines[m.code] ? "primary" : "ghost"}
+                        style={{ display: "flex", alignItems: "center", gap: 4, minWidth: 60 }}
+                        onClick={() => toggleLine(m.code)}
+                    >
+                        <div style={{
+                            width: 12,
+                            height: 12,
+                            backgroundColor: LINE_COLORS[idx % LINE_COLORS.length],
+                            borderRadius: 3
+                        }} />
+                        <span style={{ fontSize: 12 }}>{m.name}</span>
+                    </Button>
+                ))}
             </div>
 
             {/* ========================= */}
@@ -290,9 +264,7 @@ const StatsPageMeasurement: React.FC = () => {
             {/* ========================= */}
             <div className="stack" style={{marginTop: 16}}>
                 {data.map(item => {
-                    const codesToShow = selectedCode === "all"
-                        ? measurementTypes.map(m => m.code)
-                        : [selectedCode];
+                    const codesToShow = measurementTypes.map(m => m.code);
 
                     return (
                         <div key={item.id} className="card" style={{
@@ -324,7 +296,7 @@ const StatsPageMeasurement: React.FC = () => {
 
                             {/* значения замеров */}
                             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                                {codesToShow.map(code => {
+                                {codesToShow.filter(x => visibleLines[x]).map(code => {
                                     const value = getValue(item, code);
                                     if (value == null) return null;
 

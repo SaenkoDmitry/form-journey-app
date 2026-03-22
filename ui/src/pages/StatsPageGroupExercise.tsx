@@ -257,14 +257,14 @@ const StatsPageGroupExercise: React.FC = () => {
 
             {isWeight && <div style={{display: "flex", gap: 6}}>
                 {(["max", "avg", "volume"] as MetricType[]).map(m => (
-                    <Button key={m} variant={metric === m ? "active" : "ghost"} onClick={() => setMetric(m)}>
+                    <Button key={m} variant={metric === m ? "primary" : "ghost"} onClick={() => setMetric(m)}>
                         {metricMap[m].label}
                     </Button>
                 ))}
             </div>}
             {isMinutes && <div style={{display: "flex", gap: 6}}>
                 {(["minutes"] as MetricType[]).map(m => (
-                    <Button key={m} variant={metric === m ? "active" : "ghost"} onClick={() => setMetric(m)}>
+                    <Button key={m} variant={metric === m ? "primary" : "ghost"} onClick={() => setMetric(m)}>
                         {metricMap[m].label}
                     </Button>
                 ))}
