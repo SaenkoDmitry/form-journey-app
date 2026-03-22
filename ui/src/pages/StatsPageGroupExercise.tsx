@@ -8,6 +8,8 @@ import {CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAx
 
 import SafeTextRenderer from "../components/SafeTextRenderer.tsx";
 import Button from "../components/Button.tsx";
+import {Simulate} from "react-dom/test-utils";
+import load = Simulate.load;
 
 const LIMIT = 10;
 
@@ -209,9 +211,7 @@ const StatsPageGroupExercise: React.FC = () => {
         const volume = calcVolume(sets);
         const minutes = calcMinutes(sets);
 
-        const units = exercisesMap[Number(exerciseID)].units;
-
-        if (units.includes('reps')) {
+        if (exercisesMap[Number(exerciseID)]?.units?.includes('reps')) {
             return {
                 date: stat.date,
                 maxWeight,
