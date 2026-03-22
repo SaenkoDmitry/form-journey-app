@@ -326,7 +326,7 @@ const StatsPageGroupExercise: React.FC = () => {
                                 </div>
                             ))}
 
-                            <hr/>
+                            {isWeight && <hr/>}
                             {isWeight && <div style={{paddingTop: 8}}>
                                 Макс: {calcMaxWeight(stat.sets || [])} |
                                 Средний: {calcAvgWeight(stat.sets || [])} |
