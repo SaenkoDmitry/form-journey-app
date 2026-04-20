@@ -2,9 +2,10 @@ package models
 
 import (
 	"fmt"
-	"github.com/SaenkoDmitry/training-tg-bot/internal/utils"
 	"strings"
 	"time"
+
+	"github.com/SaenkoDmitry/training-tg-bot/internal/utils"
 )
 
 type WorkoutDay struct {
@@ -18,6 +19,13 @@ type WorkoutDay struct {
 
 	User           *User           `gorm:"foreignKey:UserID;references:ID"`
 	WorkoutDayType *WorkoutDayType `gorm:"foreignKey:WorkoutDayTypeID;references:ID"`
+}
+
+func (w *WorkoutDay) GetUser() *User {
+	if w == nil {
+		return nil
+	}
+	return w.User
 }
 
 func (*WorkoutDay) TableName() string {

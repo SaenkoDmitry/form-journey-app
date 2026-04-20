@@ -25,6 +25,13 @@ type User struct {
 	YandexLogin string // yandex
 }
 
+func (u *User) GetFirstName() string {
+	if u == nil {
+		return ""
+	}
+	return u.FirstName
+}
+
 func (u *User) TableName() string {
 	return "users"
 }

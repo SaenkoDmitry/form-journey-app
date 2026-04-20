@@ -73,6 +73,7 @@ interface Exercise {
 interface ReadWorkoutDTO {
     progress: WorkoutProgress;
     stats: WorkoutStatistic;
+    user_first_name?: string;
 }
 
 interface ShareDTO {

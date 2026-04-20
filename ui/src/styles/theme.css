@@ -18,10 +18,10 @@
 
     --color-bg: #f6f8fa;
     --color-card: #ffffff;
-    --color-card-alt: #e1e4ec;
+    --color-card-alt: #e3f1fb;
 
     --color-text: #1f2937;
-    --color-text-muted: #6b7280;
+    --color-text-muted: #51658f;
     --color-btn-text: white;
 
     --color-border: #e5e7eb;
@@ -60,7 +60,7 @@
     --color-card-alt: #213142;
 
     --color-text: #f9fafb;     /* Основной текст */
-    --color-text-muted: #9ca3af; /* Подписи / второстепенный текст */
+    --color-text-muted: #b2cbf6; /* Подписи / второстепенный текст */
     --color-btn-text: white;
 
     --color-border: #374151;

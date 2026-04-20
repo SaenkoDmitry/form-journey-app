@@ -84,15 +84,14 @@ const WorkoutPage = () => {
     return <div className={"page stack"}>
         {isPublicMode && (
             <div style={{
-                background: '#e3f2fd',
-                color: '#1976d2',
+                background: 'var(--color-card-alt)',
+                color: 'var(--color-text-muted)',
+                fontWeight: 'bold',
                 padding: '8px 16px',
-                borderRadius: '8px',
+                borderRadius: '16px',
                 textAlign: 'center',
-                fontSize: '0.875rem',
-                marginBottom: '1rem'
             }}>
-                🔗 Публичная ссылка
+                🔗 Тренировка пользователя '{data?.user_first_name || ''}'
             </div>
         )}
 

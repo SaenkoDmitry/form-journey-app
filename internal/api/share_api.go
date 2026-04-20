@@ -86,5 +86,9 @@ func (s *serviceImpl) GetPublicWorkout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(&ReadWorkoutDTO{Progress: progress, Stats: stats})
+	json.NewEncoder(w).Encode(&ReadWorkoutDTO{
+		Progress:      progress,
+		Stats:         stats,
+		UserFirstName: stats.WorkoutDay.GetUser().GetFirstName(),
+	})
 }
