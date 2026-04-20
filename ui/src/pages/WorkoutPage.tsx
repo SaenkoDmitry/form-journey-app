@@ -6,6 +6,8 @@ import Button from "../components/Button.tsx";
 import {createShare, getPublicWorkout, getWorkout} from "../api/workouts.ts";
 import {moveToCertainExerciseSession} from "../api/sessions.ts";
 import {getExerciseGroups} from "../api/exercises.ts";
+import ShareSheet from "../components/ShareSheet.tsx";
+import {useShare} from "../hooks/useShare.ts";
 
 const WorkoutPage = () => {
 
@@ -20,16 +22,15 @@ const WorkoutPage = () => {
     const [shareUrl, setShareUrl] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
 
+    const {openShare, isOpen, url, close} = useShare();
+
     const handleShare = async () => {
         if (!data?.progress?.workout?.id) return;
 
         try {
             const result = await createShare(data.progress.workout.id);
-            setShareUrl(result.share_url);
-            await navigator.clipboard.writeText(result.share_url);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        } catch (err) {
+            await openShare(result.share_url);
+        } catch {
             setError('Не удалось создать ссылку');
         }
     };
@@ -243,6 +244,8 @@ const WorkoutPage = () => {
                 </Button>
             </div>
         )}
+
+        <ShareSheet isOpen={isOpen} url={url} onClose={close} />
     </div>;
 };
 
