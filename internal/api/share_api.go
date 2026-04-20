@@ -71,6 +71,20 @@ func (s *serviceImpl) GetPublicWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	workoutID := shareDTO.WorkoutDayID
+
+	progress, err := s.container.ShowWorkoutProgressUC.Execute(workoutID)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	stats, err := s.container.StatsWorkoutUC.Execute(workoutID)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(shareDTO)
+	json.NewEncoder(w).Encode(&ReadWorkoutDTO{Progress: progress, Stats: stats})
 }
