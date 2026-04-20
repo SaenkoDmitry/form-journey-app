@@ -90,7 +90,9 @@ const ProfilePage: React.FC = () => {
 
         const permission = await Notification.requestPermission();
         if (permission === "granted") {
-            await subscribePush(await getVapidKey());
+            const vapidPublicKey = await getVapidKey();
+            console.log('vapidPublicKey', vapidPublicKey);
+            await subscribePush(vapidPublicKey);
             setNotificationsEnabled(true);
             setToast("Уведомления включены ✅");
         } else {
