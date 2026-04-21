@@ -40,8 +40,8 @@
 .dark-theme {
     /* ========= COLORS ========= */
     --color-primary: #195e97;
-    --color-primary-hover: #021e65;
-    --color-primary-soft: #213f71;
+    --color-primary-hover: #1e326a;
+    --color-primary-soft: #31528a;
 
     --color-active: #3cb769;
     --color-active-hover: #03bd48;
