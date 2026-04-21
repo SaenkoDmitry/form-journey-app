@@ -128,6 +128,7 @@ type Container struct {
 	DeletePushSubscriptionUC   *pushsubscriptionsusecases.DeleteUseCase
 	CreateShareUC              *shareusecases.CreateShareUC
 	GetShareUC                 *shareusecases.GetShareUC
+	GetShareByWorkoutUC        *shareusecases.GetShareByWorkoutUC
 }
 
 func NewContainer(db *gorm.DB) *Container {
@@ -244,7 +245,8 @@ func NewContainer(db *gorm.DB) *Container {
 		FindAllPushSubscriptionsUC: pushsubscriptionsusecases.NewFindAllUseCase(pushSubscriptionsRepo, usersRepo),
 
 		// share
-		CreateShareUC: shareusecases.NewCreateShareUC(shareRepo),
-		GetShareUC:    shareusecases.NewGetShareUC(shareRepo),
+		CreateShareUC:       shareusecases.NewCreateShareUC(shareRepo),
+		GetShareUC:          shareusecases.NewGetShareUC(shareRepo),
+		GetShareByWorkoutUC: shareusecases.NewGetShareByWorkoutUC(shareRepo),
 	}
 }

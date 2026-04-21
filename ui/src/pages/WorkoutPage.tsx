@@ -8,6 +8,7 @@ import {moveToCertainExerciseSession} from "../api/sessions.ts";
 import {getExerciseGroups} from "../api/exercises.ts";
 import ShareSheet from "../components/ShareSheet.tsx";
 import {useShare} from "../hooks/useShare.ts";
+import Toast from "../components/Toast.tsx";
 
 const WorkoutPage = () => {
 
@@ -21,6 +22,7 @@ const WorkoutPage = () => {
     const [groupsMap, setGroupsMap] = useState<Record<string, Group>>({});
     const [shareUrl, setShareUrl] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
+    const [toast, setToast] = useState<string | null>(null);
 
     const {openShare, isOpen, url, close} = useShare();
 
@@ -30,8 +32,14 @@ const WorkoutPage = () => {
         try {
             const result = await createShare(data.progress.workout.id);
             await openShare(result.share_url);
-        } catch {
-            setError('Не удалось создать ссылку');
+        } catch (e: any) {
+            console.log('e.status:', e.status);
+            console.log(e.message, e.message == "rate limit exceeded")
+            if (e.message?.trim() === 'rate limit exceeded') {
+                setToast('Слишком много запросов');
+            } else {
+                setToast('Не удалось создать ссылку');
+            }
         }
     };
 
@@ -246,6 +254,10 @@ const WorkoutPage = () => {
         )}
 
         <ShareSheet isOpen={isOpen} url={url} onClose={close} />
+
+        {toast && (
+            <Toast message={toast} onClose={() => setToast(null)}/>
+        )}
     </div>;
 };
 

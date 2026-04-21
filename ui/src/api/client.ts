@@ -11,7 +11,9 @@ export async function api<T>(
 
     const res = await fetch(url, {...options, headers});
     if (!res.ok) {
-        throw new Error(await res.text());
+        const err = new Error(await res.text());
+        (err as any).status = res.status;
+        throw err;
     }
 
     return res.json().catch(() => ({} as T));

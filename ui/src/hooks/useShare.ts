@@ -15,7 +15,6 @@ export const useShare = () => {
                 });
                 return;
             } catch (e) {
-                // пользователь мог отменить — не считаем ошибкой
                 return;
             }
         }

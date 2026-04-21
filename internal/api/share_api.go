@@ -11,12 +11,19 @@ import (
 	"github.com/SaenkoDmitry/training-tg-bot/internal/application/dto"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/constants"
 	"github.com/SaenkoDmitry/training-tg-bot/internal/middlewares"
+	"github.com/SaenkoDmitry/training-tg-bot/internal/models"
 )
 
 func (s *serviceImpl) CreateShareWorkout(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.FromContext(r.Context())
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	rl, ok := middlewares.ShareLimiterFromContext(r.Context())
+	if !ok {
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -42,20 +49,35 @@ func (s *serviceImpl) CreateShareWorkout(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	share, err := s.container.CreateShareUC.Execute(workoutID)
+	w.Header().Set("Content-Type", "application/json")
+	if shareModel, findShareErr := s.container.GetShareByWorkoutUC.Execute(workoutID); findShareErr == nil {
+		json.NewEncoder(w).Encode(buildShareDTO(shareModel))
+		return
+	}
+
+	if !rl.Allow(claims.UserID) {
+		http.Error(w, "rate limit exceeded", http.StatusTooManyRequests)
+		return
+	}
+
+	shareModel, err := s.container.CreateShareUC.Execute(workoutID)
 	if err != nil {
 		http.Error(w, "failed to create share", http.StatusInternalServerError)
 		return
 	}
+	json.NewEncoder(w).Encode(buildShareDTO(shareModel))
+}
 
-	shareURL := fmt.Sprintf("%s/public/workouts/%s", constants.Domain, share.Token)
+func buildShareDTO(shareModel *models.WorkoutShare) dto.ShareResponse {
+	return dto.ShareResponse{
+		Token:     shareModel.Token,
+		ShareURL:  getShareURL(constants.Domain, shareModel.Token),
+		CreatedAt: shareModel.CreatedAt.Add(3 * time.Hour).Format("02.01.2006 15:04"),
+	}
+}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(dto.ShareResponse{
-		Token:     share.Token,
-		ShareURL:  shareURL,
-		CreatedAt: share.CreatedAt.Add(3 * time.Hour).Format("02.01.2006 15:04"),
-	})
+func getShareURL(domain, token string) string {
+	return fmt.Sprintf("%s/public/workouts/%s", domain, token)
 }
 
 func (s *serviceImpl) GetPublicWorkout(w http.ResponseWriter, r *http.Request) {

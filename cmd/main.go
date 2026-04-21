@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/SaenkoDmitry/training-tg-bot/internal/service/limiter"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	_ "github.com/lib/pq"
@@ -121,10 +122,15 @@ func migrate(dsn string) {
 func initServer(container *usecase.Container, db *gorm.DB) {
 	r := chi.NewRouter()
 
+	shareLimiter := limiter.NewRateLimiter(10, time.Minute)
+
 	// Средства middleware chi
 	r.Use(middleware.Logger)    // лог запросов
 	r.Use(middleware.Recoverer) // recovery от паник
 	r.Use(middleware.RequestID) // уникальный ID запроса
+
+	// custom
+	r.Use(middlewares.ShareLimiterMiddleware(shareLimiter))
 
 	s := api.New(container, db)
 
