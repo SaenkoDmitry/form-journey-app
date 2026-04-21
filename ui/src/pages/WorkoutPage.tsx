@@ -128,30 +128,37 @@ const WorkoutPage = () => {
                     onClick={handleShare}
                     disabled={copied}
                 >
-                    {copied ? <Check size={14} /> : <Share2 size={14} />}
+                    {copied ? <Check size={14}/> : <Share2 size={14}/>}
                 </Button>
             )}
         </h2>
 
-        <span>
-            Статус: {workout.status} {progress?.workout?.duration &&
-            <span><span>~ </span>{progress.workout.duration}</span>}
-        </span>
-        <span>{workout.started_at}</span>
-        {RemainingMin !== undefined && RemainingMin > 0 && <span>Оставшееся время: {RemainingMin} мин</span>}
-
-        {/* Прогресс тренировки */}
-        <div>
-            <div style={{background: '#eee', borderRadius: '8px', overflow: 'hidden', height: '20px'}}>
-                <div
-                    style={{
-                        width: `${ProgressPercent}%`,
-                        background: ProgressPercent >= 85 ? 'var(--color-active)' : 50 < ProgressPercent && ProgressPercent < 85 ? 'var(--color-attention)' : 'var(--color-danger)',
-                        height: '100%',
-                    }}
-                />
+        <div className={"card"}>
+            <div style={{padding: 4}}>
+                Статус: {workout.status}
             </div>
-            <div style={{marginTop: 10}}>{ProgressPercent}% выполнено</div>
+            {progress?.workout?.duration && <div style={{padding: 4}}>
+                <div>Длительность: ~ {progress.workout.duration}</div>
+            </div>}
+            {/* Время начала*/}
+            <div style={{padding: 4}}>{workout.started_at}</div>
+            <div style={{padding: 4}}>
+                {RemainingMin !== undefined && RemainingMin > 0 && <span>Оставшееся время: {RemainingMin} мин</span>}
+            </div>
+
+            {/* Прогресс тренировки */}
+            <div>
+                <div style={{background: '#eee', borderRadius: '8px', overflow: 'hidden', height: '20px'}}>
+                    <div
+                        style={{
+                            width: `${ProgressPercent}%`,
+                            background: ProgressPercent >= 85 ? 'var(--color-active)' : 50 < ProgressPercent && ProgressPercent < 85 ? 'var(--color-attention)' : 'var(--color-danger)',
+                            height: '100%',
+                        }}
+                    />
+                </div>
+                <div style={{marginTop: 10}}>{ProgressPercent}% выполнено</div>
+            </div>
         </div>
 
         {!data.progress.SessionStarted && <div>
@@ -184,8 +191,8 @@ const WorkoutPage = () => {
                     return (
                         <p key={groupName}>
                             • {groupName} — {exerciseCount} упражн.,
-                            {totalWeight > 0 ? ` общий вес: ${totalWeight} кг` : ''}
-                            {totalTime > 0 ? ` общее время: ${totalTime} мин` : ''}
+                            {totalWeight > 0 ? ` вес: ${totalWeight} кг` : ''}
+                            {totalTime > 0 ? ` время: ${totalTime} мин` : ''}
                         </p>
                     );
                 })}
@@ -257,13 +264,12 @@ const WorkoutPage = () => {
         </div>
 
         {isPublicMode && (
-            <div style={{ textAlign: 'center', marginTop: '2rem', padding: '1.5rem', borderTop: '1px solid #eee' }}>
+            <div className="stack"
+                 style={{textAlign: 'center', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #eee'}}>
                 {!isStandalone ? (
-                    <>
-                        <Button variant="primary" onClick={handleOpenApp}>
-                            Открыть в приложении Form Journey
-                        </Button>
-                    </>
+                    <Button variant="primary" onClick={handleOpenApp}>
+                        Открыть в приложении
+                    </Button>
                 ) : (
                     <Button variant="primary" onClick={() => navigate('/')}>
                         На главную
@@ -272,7 +278,7 @@ const WorkoutPage = () => {
             </div>
         )}
 
-        <ShareSheet isOpen={isOpen} url={url} onClose={close} />
+        <ShareSheet isOpen={isOpen} url={url} onClose={close}/>
 
         {toast && (
             <Toast message={toast} onClose={() => setToast(null)}/>
