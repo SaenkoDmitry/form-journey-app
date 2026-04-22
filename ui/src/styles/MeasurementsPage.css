@@ -1,9 +1,4 @@
 /* ================= PAGE WRAPPER ================= */
-.measurements-page {
-    padding: 10px 16px;
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-}
 
 /* ===== TABLE (DESKTOP) ===== */
 .table-wrapper {
@@ -74,8 +69,6 @@
 .cards-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 16px;  /* расстояние между карточками */
-    padding: 16px 0; /* небольшой отступ сверху и снизу */
 }
 
 .measurement-card {

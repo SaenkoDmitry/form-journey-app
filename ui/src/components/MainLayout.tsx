@@ -126,7 +126,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({children}) => {
             {/* ---------------- CONTENT ---------------- */}
             <div
                 style={{
-                    padding: '1rem',
+                    padding: '0.5rem',
                     paddingBottom: isMobile ? 110 : 16,
                 }}
             >

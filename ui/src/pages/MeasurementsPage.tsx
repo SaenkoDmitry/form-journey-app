@@ -137,17 +137,18 @@ const MeasurementsPage: React.FC = () => {
 
     const isEmpty = measurements.length === 0;
 
-    return <div className="measurements-page">
+    return <div className="page page-wide stack">
+
+        <h1>Замеры</h1>
+
+        {!adding && (
+            <Button variant="active" onClick={() => setAdding(true)}>
+                <Plus size={14}/>Новое измерение
+            </Button>
+        )}
 
         {/* ===== HEADER (одинаковый с Home/Programs) ===== */}
         <div className="desktop-only" style={{marginBottom: 12}}>
-            <h1>Замеры</h1>
-
-            {!adding && (
-                <Button variant="active" onClick={() => setAdding(true)}>
-                    <Plus size={14}/>Новое измерение
-                </Button>
-            )}
         </div>
 
         {/* ======== TABLE (DESKTOP) ======== */}
@@ -238,16 +239,6 @@ const MeasurementsPage: React.FC = () => {
 
         {/* ======== CARDS (MOBILE) ======== */}
         <div className="mobile-only cards-wrapper">
-
-            <div className="page-header stack">
-                <h1>Замеры</h1>
-
-                {!adding && (
-                    <Button variant="active" onClick={() => setAdding(true)}>
-                        <Plus size={14}/>Новое измерение
-                    </Button>
-                )}
-            </div>
 
             {isEmpty && !adding && !loading && (
                 <div>

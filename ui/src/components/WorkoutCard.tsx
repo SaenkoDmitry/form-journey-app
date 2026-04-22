@@ -16,13 +16,13 @@ export default function WorkoutCard({ w, idx }: WorkoutCardProps) {
 
             <h2 style={{ margin: 0 }}>{idx}.{w.name}</h2>
 
-            <p style={{ margin: '6px 0', opacity: 0.7 }}>
+            <div style={{ padding: '4px 0', opacity: 0.6 }}>
                 {w.started_at}
-            </p>
+            </div>
 
-            <p
+            <div
                 style={{
-                    margin: 0,
+                    margin: 4,
                     fontWeight: 600,
                     color:
                         w.status === 'finished'
@@ -33,7 +33,7 @@ export default function WorkoutCard({ w, idx }: WorkoutCardProps) {
                 }}
             >
                 {w.status}
-            </p>
+            </div>
         </div>
     );
 }

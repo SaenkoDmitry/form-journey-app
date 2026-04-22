@@ -2,14 +2,11 @@
     position: sticky;
     bottom: 0;
 
-    margin-top: 20px;
-    padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+    margin-top: 10px;
+    padding: 8px;
 
     background: var(--color-card);
-    border-top: 1px solid rgba(255,255,255,0.06);
-
-    transition: all 0.3s ease;
-    z-index: 5;
+    border-top: 1px solid rgba(97, 114, 158, 0.5);
 }
 
 .timer-inner {
@@ -18,7 +15,6 @@
     align-items: center;
     max-width: 600px;
     margin: 0 auto;
-    gap: 8px;
 }
 
 .circle {
