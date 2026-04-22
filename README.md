@@ -16,14 +16,17 @@ A Telegram bot for tracking workout training sessions.
     <img width="200" height="450" src="/screenshots/workouts.png">
 </p>
 
-### Workout session page
+### Workout session pages
 <p align="center">
-    <img width="200" height="450" src="/screenshots/active_workout.png">
+    <img width="200" height="450" src="/screenshots/workout_session.png">
+    <img width="200" height="450" src="/screenshots/workout_session_full_view.png">
 </p>
 
-### Library of exercises page
+### Programs / edit program pages
 <p align="center">
-    <img width="200" height="450" src="/screenshots/library_of_exercises.png">
+    <img width="200" height="450" src="/screenshots/programs.png">
+    <img width="200" height="450" src="/screenshots/program_edit.png">
+    <img width="200" height="450" src="/screenshots/program_day_edit.png">
 </p>
 
 ### Progress exercise / measurements page
@@ -32,8 +35,13 @@ A Telegram bot for tracking workout training sessions.
     <img width="200" height="450" src="/screenshots/progress_of_measurements.png">
 </p>
 
+### Library of exercises page
+<p align="center">
+    <img width="200" height="450" src="/screenshots/library_of_exercises.png">
+</p>
+
 ### Export to Excel
-<p align="left">
+<p align="center">
   <img width="300" height="150" src="/screenshots/excel_0.png">
   <img width="300" height="150" src="/screenshots/excel_1.png">
 </p>
