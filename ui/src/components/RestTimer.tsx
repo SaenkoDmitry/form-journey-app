@@ -34,15 +34,36 @@ export default function RestTimer({ seconds, autoStartTrigger, workoutID }: Prop
         setCustomSeconds(seconds);
     }, [seconds]);
 
+    // 🔥 Закрытие по клику вне sheet + блокировка click-through
     useEffect(() => {
         if (!showEditor) return;
-        const handleTouch = (e: TouchEvent) => {
+
+        const handlePointerDown = (e: PointerEvent) => {
+            // Если клик вне sheet — закрываем и блокируем дальнейшую обработку
             if (sheetRef.current && !sheetRef.current.contains(e.target as Node)) {
+                e.preventDefault();
+                e.stopPropagation();
                 setShowEditor(false);
             }
         };
-        document.addEventListener("touchstart", handleTouch);
-        return () => document.removeEventListener("touchstart", handleTouch);
+
+        // 🔥 capture: true — ловим ДО того, как событие дойдёт до кнопок под overlay
+        document.addEventListener("pointerdown", handlePointerDown, true);
+
+        return () => {
+            document.removeEventListener("pointerdown", handlePointerDown, true);
+        };
+    }, [showEditor]);
+
+    // Закрытие по Escape
+    useEffect(() => {
+        if (!showEditor) return;
+
+        const handleKey = (e: KeyboardEvent) => {
+            if (e.key === "Escape") setShowEditor(false);
+        };
+        document.addEventListener("keydown", handleKey);
+        return () => document.removeEventListener("keydown", handleKey);
     }, [showEditor]);
 
     const start = async (secs: number) => {
@@ -82,7 +103,7 @@ export default function RestTimer({ seconds, autoStartTrigger, workoutID }: Prop
     };
 
     const progress = totalSeconds > 0 ? 1 - remaining / totalSeconds : 0;
-    const radius = 26;
+    const radius = 28;
     const circumference = 2 * Math.PI * radius;
 
     const applyPreset = (s: number) => {
@@ -96,8 +117,8 @@ export default function RestTimer({ seconds, autoStartTrigger, workoutID }: Prop
     };
 
     const sheetContent = showEditor && (
-        <div className="rest-sheet-overlay" onClick={() => setShowEditor(false)}>
-            <div className="rest-sheet" ref={sheetRef} onClick={e => e.stopPropagation()}>
+        <div className="rest-sheet-overlay">
+            <div className="rest-sheet" ref={sheetRef}>
                 <div className="sheet-handle" />
 
                 <div className="sheet-header">
@@ -214,7 +235,6 @@ export default function RestTimer({ seconds, autoStartTrigger, workoutID }: Prop
                 </button>
             </div>
 
-            {/* 🔥 Portal в body — вне stacking context MainLayout */}
             {sheetContent && createPortal(sheetContent, document.body)}
         </div>
     );
