@@ -131,6 +131,17 @@
     display: flex;
     align-items: flex-end;
     animation: fadeIn 0.2s ease;
+
+    /* 🔥 Блокируем все взаимодействия с элементами под overlay */
+    pointer-events: auto;
+}
+
+/* 🔥 Область вне sheet — ловит клики, но ничего не делает */
+.rest-sheet-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: auto;
 }
 
 @keyframes fadeIn {
@@ -138,16 +149,19 @@
     to { opacity: 1; }
 }
 
+/* 🔥 Sheet сам принимает pointer-events */
 .rest-sheet {
+    position: relative;
     width: 100%;
     background: var(--color-card);
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     padding: 12px 16px 32px;
-    padding-bottom: max(32px, env(safe-area-inset-bottom));
     animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     max-height: 70vh;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    pointer-events: auto; /* sheet интерактивен */
+    z-index: 1; /* выше ::before */
 }
 
 @keyframes slideUp {
